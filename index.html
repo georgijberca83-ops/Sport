@@ -134,8 +134,16 @@
       padding: 14px;
       margin-bottom: 12px;
     }
-    .form-group { margin-bottom: 10px; }
-    input[type="text"], input[type="password"], textarea, select {
+    .form-group { 
+      margin-bottom: 12px; 
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      color: #a1a1aa;
+      margin-bottom: 6px;
+    }
+    input[type="text"], input[type="password"], input[type="date"], textarea, select {
       width: 100%;
       padding: 10px;
       background: #121212;
@@ -146,7 +154,7 @@
     }
     textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 80px;
       line-height: 1.4;
     }
     .btn-main {
@@ -165,6 +173,18 @@
       background: #27272a;
       color: white;
       border: 1px solid #3f3f46;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+    }
+    .btn-ai {
+      width: 100%;
+      padding: 10px;
+      background: #1e3a8a;
+      color: #eff6ff;
+      border: 1px solid #3b82f6;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
@@ -360,7 +380,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.2.9</span>
+    <span class="version-badge">v1.3.1</span>
   </div>
 
   <div class="stats-card">
@@ -382,14 +402,17 @@
   </button>
   <div id="settingsAccordion" class="accordion-content">
     <div class="form-group">
-      <label style="font-size: 0.75rem; color: #a1a1aa;">Дата начала программы:</label>
-      <input type="date" id="startDateInput" onchange="updateStartDate()" style="margin-top:4px;">
+      <label>Дата начала программы:</label>
+      <input type="date" id="startDateInput" onchange="updateStartDate()">
     </div>
-    <div class="form-group" style="margin-top: 10px;">
-      <label style="font-size: 0.75rem; color: #a1a1aa;">План тренировок и заметки от ИИ:</label>
-      <textarea id="aiPlanInput" placeholder="Вставьте сюда ваш план, рекомендации или текст от ИИ..." oninput="updateAiPlan()" style="margin-top:4px;"></textarea>
+    
+    <div class="form-group">
+      <label>Запрос / План от ИИ:</label>
+      <button class="btn-ai" onclick="copyAiPrompt()">🤖 Скопировать запрос для ИИ</button>
+      <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ или план от ИИ..." oninput="updateAiPlan()"></textarea>
     </div>
-    <button class="btn-sync" onclick="exportData()" style="margin-top:8px;">💾 Экспорт данных (Бэкап)</button>
+
+    <button class="btn-sync" onclick="exportData()" style="margin-top:4px;">💾 Экспорт данных (Бэкап)</button>
     <button class="btn-sync" onclick="triggerImport()">📂 Импорт данных</button>
     <input type="file" id="importFile" style="display:none" onchange="importData(event)">
   </div>
@@ -434,8 +457,8 @@
           exercises: [
             { id: 101, name: "Разминка", target: "Суставная разминка + вис на турнике 2 подхода по 30 секунд [ТАЙМЕР]", sets: 3, type: "timer" },
             { id: 102, name: "Подтягивания (прямой хват)", target: "3 подхода (цель держать стабильно 6, 6, 4 повторений) (Цель ширина спины).", sets: 3, type: "reps" },
-            { id: 103, name: "Подъем согнутых/прямых ног к груди в висе на турнике", target: "3 подхода по 8 12 повторений (Цель низ живота).", sets: 3, type: "reps" },
-            { id: 104, name: "Скручивания на полу", target: "3 подхода до легкого жжения (по 15 20 повторений) (Цель прорисовка верхнего пресса).", sets: 3, type: "reps" }
+            { id: 103, name: "Подъем согнутых/прямых ног к груди в висе на турнике", target: "3 подхода по 8-12 повторений (Цель низ живота).", sets: 3, type: "reps" },
+            { id: 104, name: "Скручивания на полу", target: "3 подхода до легкого жжения (по 15-20 повторений) (Цель прорисовка верхнего пресса).", sets: 3, type: "reps" }
           ]
         },
         {
@@ -444,7 +467,7 @@
           weekday: 3,
           exercises: [
             { id: 201, name: "Разминка", target: "Суставная разминка 2 подхода по 30 секунд [ТАЙМЕР]", sets: 2, type: "timer" },
-            { id: 202, name: "Отжимания от пола", target: "3 подхода по 12 15 повторений", sets: 3, type: "reps" }
+            { id: 202, name: "Отжимания от пола", target: "3 подхода по 12-15 повторений", sets: 3, type: "reps" }
           ]
         },
         {
@@ -452,7 +475,7 @@
           name: "День 3: Ноги, Кор и Жиросжигающая Лестница",
           weekday: 5,
           exercises: [
-            { id: 301, name: "Приседания без веса", target: "3 подхода по 15 20 повторений", sets: 3, type: "reps" }
+            { id: 301, name: "Приседания без веса", target: "3 подхода по 15-20 повторений", sets: 3, type: "reps" }
           ]
         }
       ],
@@ -744,6 +767,20 @@
     function updateAiPlan() {
       appData.aiPlan = document.getElementById('aiPlanInput').value;
       saveData();
+    }
+
+    function copyAiPrompt() {
+      let historyText = "";
+      if (appData.history && appData.history.length > 0) {
+        historyText = "\n\nПоследние отчеты тренировок:\n" + appData.history.slice(0, 3).map(h => h.content).join("\n---\n");
+      }
+      const promptText = `Привет! Я занимаюсь по программе рекомпозиции тела (старт: ${appData.startDate}). Вот мои последние данные и история тренировок:${historyText}\n\nПроанализируй мой прогресс и подскажи, какие корректировки в план тренировок или питания стоит внести для лучшего сжигания жира и набора мышц.`;
+      
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert("Запрос для ИИ скопирован в буфер обмена!");
+      }).catch(err => {
+        alert("Не удалось скопировать текст.");
+      });
     }
 
     function openAddDayModal() {
