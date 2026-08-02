@@ -1,140 +1,314 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дневник тренировок</title>
-    
-    <!-- Подключение PWA и метатегов -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#121212">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2543/2543320.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Трекер Тренировок</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#121212">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-    <style>
-        body { font-family: -apple-system, Roboto, sans-serif; background: #121212; color: #fff; padding: 12px; margin: 0; }
-        h1 { font-size: 1.1rem; text-align: center; color: #4da6ff; margin: 10px 0; }
-        .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
-        .tab { flex: 1; padding: 10px 4px; background: #222; border: 1px solid #333; color: #aaa; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
-        .tab.active { background: #007bff; color: #fff; border-color: #007bff; }
-        .day-content { display: none; }
-        .day-content.active { display: block; }
-        .exercise-card { background: #1e1e1e; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #2a2a2a; }
-        .exercise-title { font-weight: bold; color: #fff; font-size: 0.9rem; margin-bottom: 2px; }
-        .target { font-size: 0.75rem; color: #4da6ff; margin-bottom: 8px; }
-        .set-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; font-size: 0.8rem; background: #262626; padding: 4px 8px; border-radius: 6px; }
-        input[type="number"] { width: 45px; padding: 4px; border: 1px solid #444; background: #121212; color: #fff; border-radius: 4px; text-align: center; font-size: 0.85rem; }
-        input[type="checkbox"] { width: 18px; height: 18px; accent-color: #007bff; margin-left: auto; }
-        
-        /* Стиль для кнопки установки */
-        #pwaInstallBtn { display: none; width: 100%; padding: 12px; background: #28a745; color: #fff; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 12px; font-size: 0.9rem; cursor: pointer; }
-    </style>
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 16px;
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    /* Кнопка установки PWA */
+    #pwaInstallBtn {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 20px auto;
+      padding: 12px 20px;
+      background-color: #2ea44f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Форма добавления */
+    .add-card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      border: 1px solid #333;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 12px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* Карточки упражнений */
+    .exercise-card {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #333;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .ex-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .ex-target {
+      color: #60a5fa;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    /* Таблица сетов */
+    .sets-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .set-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .set-label {
+      width: 50px;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .set-input {
+      width: 60px;
+      padding: 6px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: white;
+      text-align: center;
+    }
+
+    .checkbox-custom {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      accent-color: #3b82f6;
+    }
+
+    /* Кнопки управления */
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-edit { background: #4b5563; color: white; }
+    .btn-delete { background: #ef4444; color: white; }
+  </style>
 </head>
 <body>
-    <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
 
-    <!-- Кнопка установки прямо на странице -->
-    <button id="pwaInstallBtn">📲 Установить приложение на телефон</button>
+  <h1>Трекер Тренировок</h1>
 
-    <div class="tabs">
-        <button class="tab active" onclick="switchDay(1, event)">День 1</button>
-        <button class="tab" onclick="switchDay(2, event)">День 2</button>
-        <button class="tab" onclick="switchDay(3, event)">День 3</button>
+  <!-- Принудительная кнопка установки PWA -->
+  <button id="pwaInstallBtn">📥 Установить приложение</button>
+
+  <!-- Форма добавления нового упражнения -->
+  <div class="add-card">
+    <h3 id="form-title">+ Добавить упражнение</h3>
+    <input type="hidden" id="editIndex" value="-1">
+    <div class="form-group">
+      <input type="text" id="exName" placeholder="Название (например: Жим гантелей)">
     </div>
+    <div class="form-group">
+      <input type="text" id="exTarget" placeholder="Цель (например: 8-10 кг × 10-12)">
+    </div>
+    <button class="btn-main" onclick="saveExercise()">Сохранить</button>
+  </div>
 
-    <div id="day1" class="day-content active"><div id="ex-list-1"></div></div>
-    <div id="day2" class="day-content"><div id="ex-list-2"></div></div>
-    <div id="day3" class="day-content"><div id="ex-list-3"></div></div>
+  <!-- Список упражнений -->
+  <div id="exercisesContainer"></div>
 
-    <script>
-        const data = {
-            1: [
-                { name: "Жим гантелей лежа", target: "Цель: 14-16 кг × 10-12", sets: 4 },
-                { name: "Брусья (негативы)", target: "Цель: Свой вес × 6-8", sets: 4 },
-                { name: "Жим гантелей сидя", target: "Цель: 8-10 кг × 10-12", sets: 3 },
-                { name: "Махи в стороны", target: "Цель: 4-6 кг × 12-15", sets: 3 },
-                { name: "Отжимания от скамьи", target: "Цель: Свой вес × 10-12", sets: 3 }
-            ],
-            2: [
-                { name: "Подтягивания", target: "Цель: Свой вес × MAX", sets: 3 },
-                { name: "Тяга гантели к поясу", target: "Цель: 16-18 кг × 10-12", sets: 4 },
-                { name: "Махи в наклоне", target: "Цель: 4-6 кг × 12-15", sets: 3 },
-                { name: "Сгибания 'Молот'", target: "Цель: 8-10 кг × 10-12", sets: 4 },
-                { name: "Подъем ног в висе", target: "Цель: Свой вес × 8-12", sets: 3 }
-            ],
-            3: [
-                { name: "Скакалка", target: "Цель: 3 раунда × 2 мин", sets: 3 },
-                { name: "Зашагивания на скамью", target: "Цель: 8-10 кг × 10-12", sets: 4 },
-                { name: "Румынская тяга", target: "Цель: 12-15 кг × 12", sets: 4 },
-                { name: "Забеги по лестнице", target: "Цель: 5 подъемов", sets: 5 },
-                { name: "Подъемы на носки", target: "Цель: Свой вес × 15-20", sets: 4 }
-            ]
-        };
+  <script>
+    // Инициализация дефолтных данных, если память пуста
+    const defaultData = [
+      { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8' },
+      { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12' }
+    ];
 
-        function render() {
-            for (let day in data) {
-                const container = document.getElementById(`ex-list-${day}`);
-                container.innerHTML = '';
-                data[day].forEach((ex, exIdx) => {
-                    let html = `<div class="exercise-card">
-                        <div class="exercise-title">${ex.name}</div>
-                        <div class="target">${ex.target}</div>`;
-                    for (let s = 1; s <= ex.sets; s++) {
-                        const key = `d${day}_e${exIdx}_s${s}`;
-                        const savedW = localStorage.getItem(key + '_w') || '';
-                        const savedR = localStorage.getItem(key + '_r') || '';
-                        const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
-                        html += `<div class="set-row">
-                            <span>Сет ${s}:</span>
-                            <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
-                            <span>кг ×</span>
-                            <input type="number" placeholder="повтор" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
-                            <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
-                        </div>`;
-                    }
-                    html += `</div>`;
-                    container.innerHTML += html;
-                });
-            }
+    let exercises = JSON.parse(localStorage.getItem('workout_program')) || defaultData;
+
+    // Отрисовка списка
+    function render() {
+      const container = document.getElementById('exercisesContainer');
+      container.innerHTML = '';
+
+      exercises.forEach((ex, index) => {
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.innerHTML = `
+          <div class="card-header">
+            <div>
+              <div class="ex-title">${ex.name}</div>
+              <div class="ex-target">${ex.target}</div>
+            </div>
+          </div>
+          
+          <div class="sets-grid">
+            ${[1, 2, 3, 4].map(setNum => `
+              <div class="set-row">
+                <span class="set-label">Сет ${setNum}:</span>
+                <input type="text" class="set-input" placeholder="кг">
+                <span>кг ×</span>
+                <input type="text" class="set-input" placeholder="повтор">
+                <input type="checkbox" class="checkbox-custom">
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="actions">
+            <button class="btn-small btn-edit" onclick="editExercise(${index})">✏️ Редактировать</button>
+            <button class="btn-small btn-delete" onclick="deleteExercise(${index})">🗑 Удалить</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Сохранение нового или отредактированного упражнения
+    function saveExercise() {
+      const nameInput = document.getElementById('exName');
+      const targetInput = document.getElementById('exTarget');
+      const editIndex = parseInt(document.getElementById('editIndex').value);
+
+      if (!nameInput.value.trim()) {
+        alert('Введите название упражнения!');
+        return;
+      }
+
+      const item = {
+        name: nameInput.value.trim(),
+        target: targetInput.value.trim() ? targetInput.value.trim() : 'Цель не указана'
+      };
+
+      if (editIndex === -1) {
+        exercises.push(item);
+      } else {
+        exercises[editIndex] = item;
+        document.getElementById('editIndex').value = "-1";
+        document.getElementById('form-title').innerText = "+ Добавить упражнение";
+      }
+
+      nameInput.value = '';
+      targetInput.value = '';
+      
+      persistAndRender();
+    }
+
+    // Редактирование
+    function editExercise(index) {
+      document.getElementById('exName').value = exercises[index].name;
+      document.getElementById('exTarget').value = exercises[index].target;
+      document.getElementById('editIndex').value = index;
+      document.getElementById('form-title').innerText = "✏️ Изменить упражнение";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Удаление
+    function deleteExercise(index) {
+      if (confirm('Удалить это упражнение?')) {
+        exercises.splice(index, 1);
+        persistAndRender();
+      }
+    }
+
+    function persistAndRender() {
+      localStorage.setItem('workout_program', JSON.stringify(exercises));
+      render();
+    }
+
+    // PWA Установка
+    let deferredPrompt;
+    const installBtn = document.getElementById('pwaInstallBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installBtn.style.display = 'none';
         }
+        deferredPrompt = null;
+      } else {
+        alert('Нажмите 3 точки в углу браузера (⋮) и выберите "Добавить на главный экран" или "Установить приложение"');
+      }
+    });
 
-        function saveVal(key, val) { localStorage.setItem(key, val); }
-        function switchDay(dayNum, event) {
-            document.querySelectorAll('.day-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(`day${dayNum}`).classList.add('active');
-            event.target.classList.add('active');
-        }
-        render();
+    // Регистрация Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
 
-        // Регистрация Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW загружен:', reg))
-                    .catch(err => console.error('Ошибка SW:', err));
-            });
-        }
-
-        // Логика работы кнопки установки PWA
-        let deferredPrompt;
-        const installBtn = document.getElementById('pwaInstallBtn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block';
-
-            installBtn.addEventListener('click', () => {
-                installBtn.style.display = 'none';
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Пользователь установил приложение');
-                    }
-                    deferredPrompt = null;
-                });
-            });
-        });
-    </script>
+    // Первая отрисовка
+    render();
+  </script>
 </body>
 </html>
