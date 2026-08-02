@@ -355,7 +355,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.2.6</span>
+    <span class="version-badge">v1.2.7</span>
   </div>
 
   <div class="stats-card">
@@ -368,13 +368,10 @@
     <div id="motivationText" style="font-size: 0.85rem; font-weight: 500; color: #f4f4f5;">«Ты никогда не пожалеешь о проведенной тренировке. Зато часто жалеешь о пропущенной.»</div>
   </div>
 
-  <div class="days-vertical-list" id="daysListContainer">
-    <!-- Сюда динамически рендерятся дни недели -->
-  </div>
+  <div class="days-vertical-list" id="daysListContainer"></div>
 
   <button class="day-tab-add" onclick="openAddDayModal()">+ Добавить день тренировок</button>
 
-  <!-- Аккордеоны: Напоминания и Отчеты -->
   <button class="accordion-btn" onclick="toggleAccordion('settingsAccordion')">
     <span>🔔 Напоминания, План и Запрос у ИИ</span> <span>▼</span>
   </button>
@@ -416,18 +413,14 @@
     <button class="btn-main" onclick="finishWorkout()" style="background: #166534; margin-top: 15px; font-size: 0.9rem;">🏁 Тренировка окончена</button>
   </div>
 
-  <!-- Общие модальные окна (Управление днем, упражнением и т.д.) будут обрабатываться динамически через JS промпты/диалоги для простоты -->
-
   <script>
-    // Фиксированный календарный маппинг дней недели (Пн, Ср, Пт или произвольно)
-    // По умолчанию: День 1 -> Понедельник (1), День 2 -> Среда (3), День 3 -> Пятница (5)
     let appData = {
       startDate: "2026-07-20",
       days: [
         {
           id: 1,
           name: "День 1: Спина, Бицепс + Фокус на Кор",
-          weekday: 1, // Понедельник
+          weekday: 1,
           exercises: [
             { id: 101, name: "Разминка", target: "Суставная разминка + вис на турнике 2 подхода по 30 секунд [ТАЙМЕР]", sets: 3, type: "timer" },
             { id: 102, name: "Подтягивания (прямой хват)", target: "3 подхода (цель держать стабильно 6, 6, 4 повторений) (Цель ширина спины).", sets: 3, type: "reps" },
@@ -438,7 +431,7 @@
         {
           id: 2,
           name: "День 2: Грудь, Плечи, Трицепс + Кардио-финал",
-          weekday: 3, // Среда
+          weekday: 3,
           exercises: [
             { id: 201, name: "Разминка", target: "Суставная разминка 2 подхода по 30 секунд [ТАЙМЕР]", sets: 2, type: "timer" },
             { id: 202, name: "Отжимания от пола", target: "3 подхода по 12 15 повторений", sets: 3, type: "reps" }
@@ -447,7 +440,7 @@
         {
           id: 3,
           name: "День 3: Ноги, Кор и Жиросжигающая Лестница",
-          weekday: 5, // Пятница
+          weekday: 5,
           exercises: [
             { id: 301, name: "Приседания без веса", target: "3 подхода по 15 20 повторений", sets: 3, type: "reps" }
           ]
@@ -472,7 +465,7 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem('recompo_tracker_data_v126');
+      const saved = localStorage.getItem('recompo_tracker_data_v127');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
@@ -483,46 +476,38 @@
     }
 
     function saveData() {
-      localStorage.setItem('recompo_tracker_data_v126', JSON.stringify(appData));
+      localStorage.setItem('recompo_tracker_data_v127', JSON.stringify(appData));
       updateStats();
     }
 
-    // Гибкий парсер цифр из текста целей для автозаполнения
+    // Исправленный парсер: корректно пропускает число подходов и ищет повторения/секунды
     function parseTargetValues(targetStr, type) {
       if (!targetStr) return type === 'timer' ? 30 : 10;
-      // Ищем все числа в строке
-      const matches = targetStr.match(/\d+/g);
+      
+      // Убираем из текста конструкции вроде "3 подхода", чтобы они не сбивали поиск
+      let cleanStr = targetStr.replace(/\d+\s*(подход[а-я]*)/gi, '');
+      
+      const matches = cleanStr.match(/\d+/g);
       if (!matches || matches.length === 0) {
         return type === 'timer' ? 30 : 10;
       }
-      // Если это таймер и есть секунды/минуты
-      if (type === 'timer') {
-        // Ищем число рядом со словом сек или берем первое попавшееся
-        return parseInt(matches[0], 10);
-      }
-      // Для повторений: если есть диапазон вроде "8 12" или "15 20", берем первое число нижней границы
+
       return parseInt(matches[0], 10);
     }
 
-    // Расчет даты для конкретного дня недели (ближайшая или сегодняшняя)
     function getDateForWeekday(targetWeekday) {
       const now = new Date();
-      const currentDay = now.getDay(); // 0 - ВС, 1 - Пн ... 6 - Сб
-      // Переводим стандартный JS воскресенье (0) в 7 для удобства сравнения
+      const currentDay = now.getDay();
       let target = targetWeekday === 0 ? 7 : targetWeekday;
       let curr = currentDay === 0 ? 7 : currentDay;
       
       let diff = target - curr;
-      if (diff < 0) {
-        // Если день на этой неделе уже прошел, показываем дату на следующей неделе или ближайший прошедший
-        // Для расписания удобнее показывать ближайшую предстоящую или сегодняшнюю дату
-        diff += 7;
-      }
+      if (diff < 0) diff += 7;
+      
       let targetDate = new Date(now);
       targetDate.setDate(now.getDate() + diff);
       
-      const options = { weekday: 'short', day: 'numeric', month: 'short' };
-      return targetDate.toLocaleDateString('ru-RU', options);
+      return targetDate.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
     function updateStats() {
@@ -541,15 +526,12 @@
       container.innerHTML = '';
 
       appData.days.forEach(day => {
-        // Определяем день недели (если не задан, по умолчанию Пн=1)
         if (day.weekday === undefined) day.weekday = 1;
         const dateStr = getDateForWeekday(day.weekday);
-
         const btn = document.createElement('button');
         btn.className = 'day-main-btn';
         btn.onclick = () => openWorkoutModal(day.id);
         
-        // Названия дней недели для отображения
         const weekdayNames = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
         const wName = weekdayNames[day.weekday];
 
@@ -696,7 +678,7 @@
         for (let i = 1; i <= ex.sets; i++) {
           const val = document.getElementById(`val_${ex.id}_${i}`)?.value || 0;
           const checked = document.getElementById(`check_${ex.id}_${i}`)?.checked ? '✅' : '⚪';
-          report + `   Сет ${i}: ${val} ${ex.type === 'timer' ? 'сек' : 'повт'} ${checked}\n`;
+          report += `   Сет ${i}: ${val} ${ex.type === 'timer' ? 'сек' : 'повт'} ${checked}\n`;
           hasData = true;
         }
       });
