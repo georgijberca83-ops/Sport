@@ -154,7 +154,7 @@
     }
     textarea {
       resize: vertical;
-      min-height: 80px;
+      min-height: 90px;
       line-height: 1.4;
     }
     .btn-main {
@@ -380,7 +380,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.3.1</span>
+    <span class="version-badge">v1.3.2</span>
   </div>
 
   <div class="stats-card">
@@ -407,9 +407,9 @@
     </div>
     
     <div class="form-group">
-      <label>Запрос / План от ИИ:</label>
+      <label>Ответ / План от ИИ (с автопарсером тренировок):</label>
       <button class="btn-ai" onclick="copyAiPrompt()">🤖 Скопировать запрос для ИИ</button>
-      <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ или план от ИИ..." oninput="updateAiPlan()"></textarea>
+      <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ от ИИ, и дни обновятся автоматически..." oninput="parseAndApplyAiPlan()"></textarea>
     </div>
 
     <button class="btn-sync" onclick="exportData()" style="margin-top:4px;">💾 Экспорт данных (Бэкап)</button>
@@ -764,9 +764,64 @@
       saveData();
     }
 
-    function updateAiPlan() {
-      appData.aiPlan = document.getElementById('aiPlanInput').value;
+    // Автопарсинг текста ответа ИИ в структуру тренировок
+    function parseAndApplyAiPlan() {
+      const text = document.getElementById('aiPlanInput').value;
+      appData.aiPlan = text;
       saveData();
+
+      if (!text || text.trim().length < 10) return;
+
+      const lines = text.split('\n');
+      let newDays = [];
+      let currentDay = null;
+      let dayCounter = 1;
+
+      lines.forEach(line => {
+        let trimmed = line.trim();
+        if (!trimmed) return;
+
+        // Ищем строки, похожие на заголовки дней (например: "День 1:", "Тренировка А", "Сплит 1")
+        if (/^(день|тренировка|сплит|\#+)\s*\d+/i.test(trimmed) || /^(день|тренировка):/i.test(trimmed)) {
+          if (currentDay && currentDay.exercises.length > 0) {
+            newDays.push(currentDay);
+          }
+          currentDay = {
+            id: Date.now() + Math.random(),
+            name: trimmed.replace(/^[#\*\-]+/, '').trim(),
+            weekday: (dayCounter % 7) || 1,
+            exercises: []
+          };
+          dayCounter++;
+        } else if (currentDay) {
+          // Ищем упражнения (строки с дефисом, цифрами или списками)
+          let cleanExName = trimmed.replace(/^[\d\.\-\*\)]+\s*/, '');
+          if (cleanExName.length > 2) {
+            let isTimer = /таймер|сек|секунд/i.test(trimmed);
+            let setsMatch = trimmed.match(/(\d+)\s*подход/i);
+            let setsCount = setsMatch ? parseInt(setsMatch[1], 10) : 3;
+
+            currentDay.exercises.push({
+              id: Date.now() + Math.random(),
+              name: cleanExName.split('–')[0].split('-')[0].trim(),
+              target: trimmed,
+              sets: setsCount > 0 ? setsCount : 3,
+              type: isTimer ? 'timer' : 'reps'
+            });
+          }
+        }
+      });
+
+      if (currentDay && currentDay.exercises.length > 0) {
+        newDays.push(currentDay);
+      }
+
+      // Если парсер смог что-то распознать, обновляем дни в приложении
+      if (newDays.length > 0) {
+        appData.days = newDays;
+        saveData();
+        renderDaysList();
+      }
     }
 
     function copyAiPrompt() {
@@ -774,7 +829,7 @@
       if (appData.history && appData.history.length > 0) {
         historyText = "\n\nПоследние отчеты тренировок:\n" + appData.history.slice(0, 3).map(h => h.content).join("\n---\n");
       }
-      const promptText = `Привет! Я занимаюсь по программе рекомпозиции тела (старт: ${appData.startDate}). Вот мои последние данные и история тренировок:${historyText}\n\nПроанализируй мой прогресс и подскажи, какие корректировки в план тренировок или питания стоит внести для лучшего сжигания жира и набора мышц.`;
+      const promptText = `Привет! Я занимаюсь по программе рекомпозиции тела (старт: ${appData.startDate}). Вот мои последние данные и история тренировок:${historyText}\n\nПроанализируй мой прогресс и выдай обновленный план тренировок, четко разделив по дням (День 1, День 2 и т.д.) и указав упражнения с количеством подходов.`;
       
       navigator.clipboard.writeText(promptText).then(() => {
         alert("Запрос для ИИ скопирован в буфер обмена!");
