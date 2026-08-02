@@ -200,6 +200,28 @@
       margin-bottom: 8px;
       font-size: 0.8rem;
     }
+    .ai-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .btn-danger-soft {
+      padding: 10px 14px;
+      background: #7f1d1d;
+      color: #fecaca;
+      border: 1px solid #991b1b;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .ai-status-msg {
+      font-size: 0.75rem;
+      color: #34d399;
+      margin-top: 4px;
+      font-weight: bold;
+      display: none;
+    }
     /* Модальное окно тренировки */
     #workoutModal {
       display: none;
@@ -262,12 +284,35 @@
       color: var(--text-main);
       font-size: 0.9rem;
       margin-bottom: 2px;
-      padding-right: 20px;
+      padding-right: 25px;
     }
-    .ex-target {
+    .ex-desc-toggle {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 0.75rem;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      text-align: left;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ex-desc-toggle:hover {
+      color: var(--text-main);
+    }
+    .ex-description-box {
+      display: none;
       font-size: 0.75rem;
       color: var(--text-sub);
+      background: var(--bg-color);
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
       margin-bottom: 10px;
+      line-height: 1.4;
     }
     .set-row {
       display: flex;
@@ -389,7 +434,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.4.2</span>
+    <span class="version-badge">v1.4.3</span>
   </div>
 
   <div class="stats-card">
@@ -448,7 +493,11 @@
     <div class="form-group">
       <label>Ответ / План от ИИ (с умным автопарсером):</label>
       <button class="btn-ai" onclick="copyAiPrompt()">🤖 Скопировать запрос для ИИ</button>
-      <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ от ИИ..." oninput="parseAndApplyAiPlan()"></textarea>
+      <div class="ai-actions-row">
+        <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ от ИИ..." oninput="parseAndApplyAiPlan()"></textarea>
+        <button class="btn-danger-soft" onclick="clearAiPlan()" title="Очистить поле плана">🗑️ Очистить план</button>
+      </div>
+      <div id="aiStatusMsg" class="ai-status-msg">✓ План успешно применен! Дней добавлено: <span id="aiAddedDaysCount">0</span></div>
     </div>
 
     <button class="btn-sync" onclick="exportData()" style="margin-top:4px;">💾 Экспорт данных (Бэкап)</button>
@@ -586,7 +635,7 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem('recompo_tracker_data_v141');
+      const saved = localStorage.getItem('recompo_tracker_data_v143');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
@@ -599,12 +648,24 @@
     }
 
     function saveData() {
-      localStorage.setItem('recompo_tracker_data_v141', JSON.stringify(appData));
+      localStorage.setItem('recompo_tracker_data_v143', JSON.stringify(appData));
       updateStats();
     }
 
     function parseTargetValues(targetStr, type) {
       if (!targetStr) return type === 'timer' ? 30 : 10;
+      
+      if (type === 'timer') {
+        const minMatch = targetStr.match(/(\d+)\s*(мин|минут)/i);
+        if (minMatch) {
+          return parseInt(minMatch[1], 10) * 60;
+        }
+        const secMatch = targetStr.match(/(\d+)\s*(сек|секунд)/i);
+        if (secMatch) {
+          return parseInt(secMatch[1], 10);
+        }
+      }
+
       let cleanStr = targetStr.replace(/\d+\s*(подход[а-я]*)/gi, '');
       const matches = cleanStr.match(/\d+/g);
       if (!matches || matches.length === 0) {
@@ -715,11 +776,20 @@
           }
         }
 
+        const hasLongDesc = ex.target && ex.target.length > 25;
+        const descId = `ex_desc_${ex.id}`;
+        const toggleBtnId = `ex_toggle_${ex.id}`;
+
         card.innerHTML = `
           <div class="ex-header" style="position:relative;">
             <div>
               <div class="ex-title">${exIndex + 1}. ${ex.name}</div>
-              <div class="ex-target">${ex.target || ''}</div>
+              ${hasLongDesc ? `
+                <button class="ex-desc-toggle" id="${toggleBtnId}" onclick="toggleExerciseDesc('${descId}', '${toggleBtnId}')">
+                  <span>ℹ️ Показать описание / цель</span>
+                </button>
+                <div class="ex-description-box" id="${descId}">${ex.target}</div>
+              ` : `<div style="font-size: 0.75rem; color: var(--text-sub); margin-bottom: 8px;">${ex.target || ''}</div>`}
             </div>
             <button class="btn-gear" onclick="toggleExActions(${ex.id})">⚙️</button>
           </div>
@@ -740,6 +810,18 @@
         `;
         container.appendChild(card);
       });
+    }
+
+    function toggleExerciseDesc(descId, toggleBtnId) {
+      const box = document.getElementById(descId);
+      const btn = document.getElementById(toggleBtnId);
+      if (box.style.display === 'block') {
+        box.style.display = 'none';
+        btn.innerHTML = '<span>ℹ️ Показать описание / цель</span>';
+      } else {
+        box.style.display = 'block';
+        btn.innerHTML = '<span>ℹ️ Скрыть описание / цель</span>';
+      }
     }
 
     function toggleExActions(exId) {
@@ -862,7 +944,13 @@
       appData.aiPlan = text;
       saveData();
 
-      if (!text || text.trim().length < 10) return;
+      const statusMsg = document.getElementById('aiStatusMsg');
+      const addedCountSpan = document.getElementById('aiAddedDaysCount');
+
+      if (!text || text.trim().length < 10) {
+        statusMsg.style.display = 'none';
+        return;
+      }
 
       const lines = text.split('\n');
       let newDays = [];
@@ -891,7 +979,7 @@
           if (!isServiceLine) {
             let cleanExName = trimmed.replace(/^[\d\.\-\*\)]+\s*/, '');
             if (cleanExName.length > 2) {
-              let isTimer = /таймер|сек|секунд/i.test(trimmed);
+              let isTimer = /таймер|сек|секунд|мин/i.test(trimmed);
               let setsMatch = trimmed.match(/(\d+)\s*подход/i);
               let setsCount = setsMatch ? parseInt(setsMatch[1], 10) : 3;
 
@@ -915,7 +1003,21 @@
         appData.days = newDays;
         saveData();
         renderDaysList();
+        
+        addedCountSpan.innerText = newDays.length;
+        statusMsg.style.display = 'block';
+        playBeep(784, 150);
+      } else {
+        statusMsg.style.display = 'none';
       }
+    }
+
+    function clearAiPlan() {
+      document.getElementById('aiPlanInput').value = "";
+      document.getElementById('aiStatusMsg').style.display = 'none';
+      appData.aiPlan = "";
+      saveData();
+      playBeep(300, 100);
     }
 
     function copyAiPrompt() {
