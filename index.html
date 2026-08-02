@@ -44,7 +44,6 @@
       font-weight: bold;
     }
 
-    /* Статистика и авто-счетчик стажа */
     .stats-card {
       background: linear-gradient(135deg, #1e293b, #0f172a);
       border: 1px solid #334155;
@@ -66,7 +65,6 @@
       margin-top: 4px;
     }
 
-    /* Интерактивный блок мотивации на главном экране */
     .motivation-box {
       background: linear-gradient(135deg, #1e293b, #0f172a);
       border: 1px solid #334155;
@@ -91,7 +89,6 @@
       cursor: pointer;
     }
 
-    /* Навигация по дням */
     .days-nav {
       display: flex;
       gap: 6px;
@@ -217,7 +214,6 @@
       cursor: pointer;
     }
 
-    /* Карточки упражнений */
     .exercise-card {
       background: #1e1e1e;
       padding: 10px;
@@ -300,7 +296,6 @@
     .btn-timer.running { background: #d97706; }
     .btn-timer.finished { background: #16a34a; }
 
-    /* Управление подходами */
     .sets-control {
       display: flex;
       justify-content: space-between;
@@ -384,13 +379,36 @@
       border-top: 1px solid #3f3f46;
       padding-top: 8px;
     }
+
+    /* Модальное окно генератора ИИ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+
+    .modal-content {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 450px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 16px;
+    }
   </style>
 </head>
 <body>
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.1.1</span>
+    <span class="version-badge" id="appVersionBadge">v1.1.3</span>
   </div>
 
   <div class="stats-card">
@@ -402,7 +420,6 @@
     </div>
   </div>
 
-  <!-- Мотивационный блок -->
   <div class="motivation-box" onclick="getNewMotivation()" title="Нажми для новой мотивации">
     <div style="font-size: 0.7rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">⚡ Мотивация на сегодня (нажми)</div>
     <div id="motivationText" style="font-size: 0.85rem; color: #e2e8f0; font-weight: 500; line-height: 1.4;">Загрузка...</div>
@@ -466,17 +483,19 @@
         <option value="home">Домашняя зарядка (Без инвентаря)</option>
       </select>
     </div>
-    <button class="btn-sync" style="background:#059669; margin:0; margin-bottom:12px;" onclick="applyPresetPlan()">🚀 Загрузить выбранный план</button>
+    <button class="btn-sync" style="background:#059669; margin:0; margin-bottom:6px;" onclick="applyPresetPlan()">🚀 Загрузить выбранный план</button>
+    
+    <!-- КНОПКА ОТКРЫТИЯ МОДАЛКИ ДЛЯ ЛЮБОГО ПОЛЬЗОВАТЕЛЯ -->
+    <button class="btn-sync" style="background:#7c3aed; margin:0; margin-bottom:12px;" onclick="openAiGeneratorModal()">🤖 Запросить новую программу у ИИ</button>
 
     <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
 
-    <!-- ЗАПРОС У ИИ (ГРАФА НА СОЗДАНИЕ/ОБНОВЛЕНИЕ ПЛАНА) -->
-    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🤖 Запрос плана у ИИ (скопируйте в чат):</div>
-    <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:6px;">Нажмите кнопку, чтобы скопировать запрос вашим текущим параметрам для ИИ:</div>
-    <button class="btn-sync" style="background:#7c3aed; margin:0;" onclick="copyAiPrompt()">📋 Скопировать запрос для ИИ</button>
+    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🤖 Отчет по текущему дню для ИИ:</div>
+    <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:6px;">Нажмите кнопку, чтобы скопировать результаты за сегодня в чат:</div>
+    <button class="btn-sync" style="background:#4f46e5; margin:0;" onclick="copyAiPrompt()">📋 Скопировать отчет за сегодня</button>
   </div>
 
-  <!-- Блок бэкапов и истории изменений (Версий) -->
+  <!-- Блок бэкапов и истории изменений -->
   <button class="accordion-btn" style="border-color: #3b3b58; color: #a5b4fc;" onclick="toggleAccordion('backupSection')">
     <span>💾 Отчеты, Версии и Бэкап</span>
     <span id="icon_backupSection">▼</span>
@@ -488,9 +507,9 @@
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
     <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #333; margin-bottom:10px; line-height:1.4; color:#94a3b8;">
-      <b>v1.1.1</b> — Возвращен блок генерации и запроса плана у ИИ.<br>
-      <b>v1.1.0</b> — Обновлен план тренировок под актуальные веса.<br>
-      <b>v1.0.0</b> — Добавлены уведомления и банк программ.
+      <b>v1.1.3</b> — Возвращено универсальное окно запроса программы у ИИ.<br>
+      <b>v1.1.2</b> — Динамический ИИ-запрос с реальными весами за день.<br>
+      <b>v1.1.1</b> — Возвращен блок генерации и запроса плана у ИИ.
     </div>
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
@@ -506,14 +525,43 @@
     <div id="historyContainer"></div>
   </div>
 
+  <!-- МОДАЛЬНОЕ ОКНО ГЕНЕРАТОРА ПРОГРАММЫ У ИИ -->
+  <div class="modal-overlay" id="aiGeneratorModal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h3 style="margin:0; font-size:1rem; color:#38bdf8;">🤖 Генератор программы от ИИ</h3>
+        <button class="btn-small btn-delete" onclick="closeAiGeneratorModal()" style="padding:4px 8px;">✕</button>
+      </div>
+      <div style="font-size:0.75rem; color:#94a3b8; margin-bottom:10px;">Заполните параметры, чтобы составить готовый запрос для чата с ИИ:</div>
+      
+      <div class="form-group">
+        <label style="font-size:0.75rem; color:#cbd5e1;">Возраст, рост, вес:</label>
+        <input type="text" id="aiModalUserParams" value="31 год, рост 180 см, вес 79 кг">
+      </div>
+      <div class="form-group">
+        <label style="font-size:0.75rem; color:#cbd5e1;">Доступный инвентарь:</label>
+        <input type="text" id="aiModalEquipment" value="Гантели, скамейка, турник, брусья, скакалка, фитнес-резинка">
+      </div>
+      <div class="form-group">
+        <label style="font-size:0.75rem; color:#cbd5e1;">Цель тренировок:</label>
+        <input type="text" id="aiModalGoal" value="Рекомпозиция (набор мышц и сжигание жира)">
+      </div>
+      <div class="form-group">
+        <label style="font-size:0.75rem; color:#cbd5e1;">Частота (дней в неделю):</label>
+        <input type="text" id="aiModalFrequency" value="3 раза в неделю (Пн / Ср / Пт)">
+      </div>
+
+      <button class="btn-sync" style="background:#7c3aed; margin-top:6px;" onclick="copyCustomAiGeneratorPrompt()">📋 Скопировать готовый запрос для ИИ</button>
+    </div>
+  </div>
+
   <script>
-    // ⚙️ ВЕРСИЯ ПРИЛОЖЕНИЯ
-    const APP_VERSION = "v1.1.1";
+    const APP_VERSION = "v1.1.3";
     
     const changelogHistory = [
-      { ver: "v1.1.1", text: "Возвращена графа запроса плана у ИИ." },
-      { ver: "v1.1.0", text: "Обновлен план тренировок под текущие веса (Пн/Ср/Пт)." },
-      { ver: "v1.0.0", text: "Добавлены уведомления, банк программ и бейдж версий." }
+      { ver: "v1.1.3", text: "Добавлено модальное окно для удобного запроса новой программы у ИИ." },
+      { ver: "v1.1.2", text: "Динамический ИИ-запрос с реальными весами и результатами за день." },
+      { ver: "v1.1.1", text: "Возвращена графа запроса плана у ИИ." }
     ];
 
     function renderChangelog() {
@@ -605,10 +653,34 @@
       textEl.innerText = `«${motivationQuotes[randomIndex]}»`;
     }
 
-    function copyAiPrompt() {
-      const promptText = "Привет! Мне 31 год, рост 180 см, вес 79 кг. Из инвентаря: гантели, скамейка, турник, брусья, скакалка, резинка, лестница. Цель: рекомпозиция, набор мышц и сжигание жира. Тренируюсь 3 раза в неделю. Составь или скорректируй мне программу тренировок.";
+    function openAiGeneratorModal() {
+      document.getElementById('aiGeneratorModal').style.display = 'flex';
+    }
+
+    function closeAiGeneratorModal() {
+      document.getElementById('aiGeneratorModal').style.display = 'none';
+    }
+
+    function copyCustomAiGeneratorPrompt() {
+      const params = document.getElementById('aiModalUserParams').value;
+      const equip = document.getElementById('aiModalEquipment').value;
+      const goal = document.getElementById('aiModalGoal').value;
+      const freq = document.getElementById('aiModalFrequency').value;
+
+      const promptText = `Привет! Составь для меня детальную программу тренировок.\n\nМои параметры: ${params}.\nДоступный инвентарь: ${equip}.\nГлавная цель: ${goal}.\nПредпочитаемая частота: ${freq}.\n\nПожалуйста, распиши тренировочные дни по упражнениям, указав целевое количество подходов и повторений (или времени для статических/кардио упражнений).`;
+
       navigator.clipboard.writeText(promptText).then(() => {
-        alert("✅ Запрос для ИИ скопирован в буфер обмена! Вставьте его в чат со мной.");
+        alert("✅ Запрос для создания новой программы скопирован в буфер обмена!");
+        closeAiGeneratorModal();
+      });
+    }
+
+    function copyAiPrompt() {
+      const dayReport = generateDayReportText(activeDayIndex);
+      const promptText = `Привет! Мне 31 год, рост 180 см, вес 79 кг. Из инвентаря: гантели, скамейка, турник, брусья, скакалка, резинка, лестница. Цель: рекомпозиция, набор мышц и сжигание жира. Тренируюсь 3 раза в неделю.\n\nВот мои актуальные результаты и веса за сегодняшний день:\n${dayReport}\nПроанализируй прогресс и подскажи, стоит ли скорректировать рабочие веса или количество повторений/подходов.`;
+
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert("✅ Запрос и текущие результаты скопированы в буфер обмена! Вставьте в чат.");
       });
     }
 
