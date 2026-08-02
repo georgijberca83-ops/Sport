@@ -222,6 +222,19 @@
       font-weight: bold;
       display: none;
     }
+    /* Плашка глобального таймера отдыха */
+    #restTimerBar {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; width: 100%;
+      background: #1e293b;
+      border-top: 2px solid #3b82f6;
+      padding: 10px 16px;
+      z-index: 2000;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+    }
     /* Модальное окно тренировки */
     #workoutModal {
       display: none;
@@ -231,7 +244,7 @@
       z-index: 1000;
       overflow-y: auto;
       padding: 12px;
-      padding-bottom: 60px;
+      padding-bottom: 70px;
     }
     .modal-nav-header {
       display: flex;
@@ -434,7 +447,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.4.3</span>
+    <span class="version-badge">v1.4.5</span>
   </div>
 
   <div class="stats-card">
@@ -447,12 +460,34 @@
     <div id="motivationText" style="font-size: 0.85rem; font-weight: 500; color: var(--text-main);">«Ты никогда не пожалеешь о проведенной тренировке. Зато часто жалеешь о пропущенной.»</div>
   </div>
 
+  <!-- Аккордеон: План ИИ и Таймер отдыха -->
+  <button class="accordion-btn" onclick="toggleAccordion('aiPlanAccordion')">
+    <span>🤖 План тренировок и Таймер отдыха (ИИ)</span> <span>▼</span>
+  </button>
+  <div id="aiPlanAccordion" class="accordion-content">
+    <div class="form-group">
+      <label>⏱️ Время отдыха между подходами (сек):</label>
+      <input type="number" id="restTimeInput" value="60" onchange="updateRestTime()" style="width:100%;">
+    </div>
+
+    <div class="form-group">
+      <label>Ответ / План от ИИ (с умным автопарсером):</label>
+      <button class="btn-ai" onclick="copyAiPrompt()">🤖 Скопировать запрос для ИИ</button>
+      <div class="ai-actions-row">
+        <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ от ИИ..." oninput="parseAndApplyAiPlan()"></textarea>
+        <button class="btn-danger-soft" onclick="clearAiPlans()" title="Очистить все тренировочные планы">🗑️ Очистить план</button>
+      </div>
+      <div id="aiStatusMsg" class="ai-status-msg">✓ План успешно применен! Дней добавлено: <span id="aiAddedDaysCount">0</span></div>
+    </div>
+  </div>
+
   <div class="days-vertical-list" id="daysListContainer"></div>
 
   <button class="day-tab-add" onclick="openAddDayModal()">+ Добавить день тренировок</button>
 
+  <!-- Аккордеон: Настройки визуала, звука и бэкапа -->
   <button class="accordion-btn" onclick="toggleAccordion('settingsAccordion')">
-    <span>⚙️ Настройки, План ИИ и Оформление</span> <span>▼</span>
+    <span>⚙️ Настройки (Визуал, Звук, Бэкап)</span> <span>▼</span>
   </button>
   <div id="settingsAccordion" class="accordion-content">
     <div class="form-group">
@@ -489,16 +524,6 @@
         🔊 Включить звуковое сопровождение (таймер и сигналы)
       </label>
     </div>
-    
-    <div class="form-group">
-      <label>Ответ / План от ИИ (с умным автопарсером):</label>
-      <button class="btn-ai" onclick="copyAiPrompt()">🤖 Скопировать запрос для ИИ</button>
-      <div class="ai-actions-row">
-        <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ от ИИ..." oninput="parseAndApplyAiPlan()"></textarea>
-        <button class="btn-danger-soft" onclick="clearAiPlan()" title="Очистить поле плана">🗑️ Очистить план</button>
-      </div>
-      <div id="aiStatusMsg" class="ai-status-msg">✓ План успешно применен! Дней добавлено: <span id="aiAddedDaysCount">0</span></div>
-    </div>
 
     <button class="btn-sync" onclick="exportData()" style="margin-top:4px;">💾 Экспорт данных (Бэкап)</button>
     <button class="btn-sync" onclick="triggerImport()">📂 Импорт данных</button>
@@ -513,6 +538,15 @@
     <div id="historyContainer">
       <div style="font-size: 0.75rem; color: var(--text-sub);">История пока пуста. Завершите тренировку, чтобы она появилась здесь.</div>
     </div>
+  </div>
+
+  <!-- Плашка глобального таймера отдыха -->
+  <div id="restTimerBar">
+    <div>
+      <div style="font-size:0.7rem; color:#93c5fd; font-weight:bold;">💤 ОТДЫХ МЕЖДУ ПОДХОДАМИ</div>
+      <div id="restTimerText" style="font-size:1.1rem; font-weight:bold; color:white;">00:60</div>
+    </div>
+    <button class="btn-small btn-delete" onclick="stopRestTimer()" style="background:#ef4444; padding:8px 14px;">Пропустить</button>
   </div>
 
   <!-- Модальное окно тренировки -->
@@ -536,6 +570,7 @@
   <script>
     let appData = {
       startDate: "2026-07-20",
+      restTime: 60,
       aiPlan: "",
       theme: "dark",
       font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
@@ -556,6 +591,7 @@
 
     let currentDayId = null;
     let activeTimers = {};
+    let globalRestInterval = null;
 
     function playBeep(frequency = 587.33, duration = 150, type = 'sine') {
       if (!appData.soundEnabled) return;
@@ -601,6 +637,7 @@
       document.getElementById('themeSelect').value = appData.theme || 'dark';
       document.getElementById('fontSelect').value = appData.font;
       document.getElementById('soundToggle').checked = appData.soundEnabled !== false;
+      document.getElementById('restTimeInput').value = appData.restTime || 60;
     }
 
     function changeTheme() {
@@ -622,6 +659,11 @@
       if (appData.soundEnabled) playBeep(880, 150);
     }
 
+    function updateRestTime() {
+      appData.restTime = parseInt(document.getElementById('restTimeInput').value, 10) || 60;
+      saveData();
+    }
+
     const motivationQuotes = [
       "«Ты никогда не пожалеешь о проведенной тренировке. Зато часто жалеешь о пропущенной.»",
       "«Дисциплина — это выбор между тем, чего ты хочешь сейчас, и тем, чего ты хочешь больше всего.»",
@@ -635,12 +677,13 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem('recompo_tracker_data_v143');
+      const saved = localStorage.getItem('recompo_tracker_data_v145');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
       document.getElementById('startDateInput').value = appData.startDate || "2026-07-20";
       document.getElementById('aiPlanInput').value = appData.aiPlan || "";
+      if (!appData.restTime) appData.restTime = 60;
       applyThemeAndFont();
       updateStats();
       renderDaysList();
@@ -648,7 +691,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('recompo_tracker_data_v143', JSON.stringify(appData));
+      localStorage.setItem('recompo_tracker_data_v145', JSON.stringify(appData));
       updateStats();
     }
 
@@ -739,6 +782,7 @@
     function closeWorkoutModal() {
       document.getElementById('workoutModal').style.display = 'none';
       currentDayId = null;
+      stopRestTimer();
       renderDaysList();
     }
 
@@ -758,10 +802,10 @@
             setsHtml += `
               <div class="set-row">
                 <span style="width:45px; color:var(--text-sub);">Сет ${i}:</span>
-                <button class="btn-timer" id="timer_btn_${ex.id}_${i}" onclick="startTimer(${ex.id}, ${i}, ${defaultVal})">▶ Старт (${defaultVal}с)</button>
+                <button class="btn-timer" id="timer_btn_${ex.id}_${i}" onclick="toggleTimer(${ex.id}, ${i}, ${defaultVal})">▶ Старт (${defaultVal}с)</button>
                 <input type="number" id="val_${ex.id}_${i}" value="${defaultVal}">
                 <span style="font-size:0.75rem; color:var(--text-sub);">сек</span>
-                <input type="checkbox" id="check_${ex.id}_${i}" onchange="playBeep(700, 80)">
+                <input type="checkbox" id="check_${ex.id}_${i}" onchange="handleSetCheck(this)">
               </div>
             `;
           } else {
@@ -770,7 +814,7 @@
                 <span style="width:45px; color:var(--text-sub);">Сет ${i}:</span>
                 <input type="number" id="val_${ex.id}_${i}" value="${defaultVal}" style="flex:1;">
                 <span style="font-size:0.75rem; color:var(--text-sub);">повт</span>
-                <input type="checkbox" id="check_${ex.id}_${i}" onchange="playBeep(700, 80)">
+                <input type="checkbox" id="check_${ex.id}_${i}" onchange="handleSetCheck(this)">
               </div>
             `;
           }
@@ -812,6 +856,44 @@
       });
     }
 
+    function handleSetCheck(checkbox) {
+      if (checkbox.checked) {
+        playBeep(700, 80);
+        startRestTimer();
+      }
+    }
+
+    function startRestTimer() {
+      if (globalRestInterval) clearInterval(globalRestInterval);
+      
+      const bar = document.getElementById('restTimerBar');
+      const text = document.getElementById('restTimerText');
+      bar.style.display = 'flex';
+
+      let timeLeft = appData.restTime || 60;
+      text.innerText = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+
+      globalRestInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft >= 0) {
+          text.innerText = `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`;
+        } else {
+          clearInterval(globalRestInterval);
+          globalRestInterval = null;
+          bar.style.display = 'none';
+          playBeep(1046.50, 400, 'triangle');
+        }
+      }, 1000);
+    }
+
+    function stopRestTimer() {
+      if (globalRestInterval) {
+        clearInterval(globalRestInterval);
+        globalRestInterval = null;
+      }
+      document.getElementById('restTimerBar').style.display = 'none';
+    }
+
     function toggleExerciseDesc(descId, toggleBtnId) {
       const box = document.getElementById(descId);
       const btn = document.getElementById(toggleBtnId);
@@ -839,16 +921,22 @@
       playBeep(500, 50);
     }
 
-    function startTimer(exId, setId, seconds) {
+    function toggleTimer(exId, setId, defaultSeconds) {
       const btn = document.getElementById(`timer_btn_${exId}_${setId}`);
       const input = document.getElementById(`val_${exId}_${setId}`);
-      let timeLeft = parseInt(input.value) || seconds;
 
+      // Если таймер уже запущен — останавливаем/сбрасываем
       if (activeTimers[`${exId}_${setId}`]) {
         clearInterval(activeTimers[`${exId}_${setId}`]);
         delete activeTimers[`${exId}_${setId}`];
+        input.value = defaultSeconds;
+        btn.className = "btn-timer";
+        btn.innerText = `▶ Старт (${defaultSeconds}с)`;
+        playBeep(350, 80);
+        return;
       }
 
+      let timeLeft = parseInt(input.value) || defaultSeconds;
       btn.className = "btn-timer running";
       btn.innerText = `${timeLeft}с`;
       playBeep(600, 100);
@@ -865,12 +953,13 @@
           btn.innerText = "✓ Готово";
           input.value = 0;
           document.getElementById(`check_${exId}_${setId}`).checked = true;
-          playBeep(1046.50, 300, 'triangle');
+          handleSetCheck(document.getElementById(`check_${exId}_${setId}`));
         }
       }, 1000);
     }
 
     function finishWorkout() {
+      stopRestTimer();
       const day = appData.days.find(d => d.id === currentDayId);
       if (!day) return;
 
@@ -1007,16 +1096,24 @@
         addedCountSpan.innerText = newDays.length;
         statusMsg.style.display = 'block';
         playBeep(784, 150);
+
+        // Автоматически скрываем блок плана ИИ после успешного применения
+        setTimeout(() => {
+          document.getElementById('aiPlanAccordion').style.display = 'none';
+        }, 800);
       } else {
         statusMsg.style.display = 'none';
       }
     }
 
-    function clearAiPlan() {
+    function clearAiPlans() {
+      if (!confirm("Очистить все тренировочные дни (планы)?")) return;
+      appData.days = [];
+      appData.aiPlan = "";
       document.getElementById('aiPlanInput').value = "";
       document.getElementById('aiStatusMsg').style.display = 'none';
-      appData.aiPlan = "";
       saveData();
+      renderDaysList();
       playBeep(300, 100);
     }
 
