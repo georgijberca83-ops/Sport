@@ -134,15 +134,20 @@
       padding: 14px;
       margin-bottom: 12px;
     }
-    .form-group { margin-bottom: 8px; }
+    .form-group { margin-bottom: 10px; }
     input[type="text"], input[type="password"], textarea, select {
       width: 100%;
       padding: 10px;
-      background: #18181b;
+      background: #121212;
       border: 1px solid #3f3f46;
       border-radius: 8px;
       color: #fff;
       font-size: 0.85rem;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.4;
     }
     .btn-main {
       width: 100%;
@@ -355,7 +360,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.2.7</span>
+    <span class="version-badge">v1.2.9</span>
   </div>
 
   <div class="stats-card">
@@ -379,6 +384,10 @@
     <div class="form-group">
       <label style="font-size: 0.75rem; color: #a1a1aa;">Дата начала программы:</label>
       <input type="date" id="startDateInput" onchange="updateStartDate()" style="margin-top:4px;">
+    </div>
+    <div class="form-group" style="margin-top: 10px;">
+      <label style="font-size: 0.75rem; color: #a1a1aa;">План тренировок и заметки от ИИ:</label>
+      <textarea id="aiPlanInput" placeholder="Вставьте сюда ваш план, рекомендации или текст от ИИ..." oninput="updateAiPlan()" style="margin-top:4px;"></textarea>
     </div>
     <button class="btn-sync" onclick="exportData()" style="margin-top:8px;">💾 Экспорт данных (Бэкап)</button>
     <button class="btn-sync" onclick="triggerImport()">📂 Импорт данных</button>
@@ -416,6 +425,7 @@
   <script>
     let appData = {
       startDate: "2026-07-20",
+      aiPlan: "",
       days: [
         {
           id: 1,
@@ -465,33 +475,29 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem('recompo_tracker_data_v127');
+      const saved = localStorage.getItem('recompo_tracker_data_v129');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
-      document.getElementById('startDateInput').value = appData.startDate;
+      document.getElementById('startDateInput').value = appData.startDate || "2026-07-20";
+      document.getElementById('aiPlanInput').value = appData.aiPlan || "";
       updateStats();
       renderDaysList();
       renderHistory();
     }
 
     function saveData() {
-      localStorage.setItem('recompo_tracker_data_v127', JSON.stringify(appData));
+      localStorage.setItem('recompo_tracker_data_v129', JSON.stringify(appData));
       updateStats();
     }
 
-    // Исправленный парсер: корректно пропускает число подходов и ищет повторения/секунды
     function parseTargetValues(targetStr, type) {
       if (!targetStr) return type === 'timer' ? 30 : 10;
-      
-      // Убираем из текста конструкции вроде "3 подхода", чтобы они не сбивали поиск
       let cleanStr = targetStr.replace(/\d+\s*(подход[а-я]*)/gi, '');
-      
       const matches = cleanStr.match(/\d+/g);
       if (!matches || matches.length === 0) {
         return type === 'timer' ? 30 : 10;
       }
-
       return parseInt(matches[0], 10);
     }
 
@@ -507,7 +513,11 @@
       let targetDate = new Date(now);
       targetDate.setDate(now.getDate() + diff);
       
-      return targetDate.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
+      const dayName = targetDate.toLocaleDateString('ru-RU', { weekday: 'short' });
+      const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+      const dateNumAndMonth = targetDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+      
+      return `${capitalizedDay}, ${dateNumAndMonth}`;
     }
 
     function updateStats() {
@@ -531,14 +541,11 @@
         const btn = document.createElement('button');
         btn.className = 'day-main-btn';
         btn.onclick = () => openWorkoutModal(day.id);
-        
-        const weekdayNames = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
-        const wName = weekdayNames[day.weekday];
 
         btn.innerHTML = `
           <div>
             <div>${day.name}</div>
-            <div class="day-date-sub">(${wName}, ${dateStr})</div>
+            <div class="day-date-sub">${dateStr}</div>
           </div>
           <span style="color:#71717a;">→</span>
         `;
@@ -597,7 +604,7 @@
         }
 
         card.innerHTML = `
-          <div class="ex-header">
+          <div class="ex-header" style="position:relative;">
             <div>
               <div class="ex-title">${exIndex + 1}. ${ex.name}</div>
               <div class="ex-target">${ex.target || ''}</div>
@@ -734,6 +741,11 @@
       saveData();
     }
 
+    function updateAiPlan() {
+      appData.aiPlan = document.getElementById('aiPlanInput').value;
+      saveData();
+    }
+
     function openAddDayModal() {
       const name = prompt("Введите название нового дня тренировки:");
       if (!name) return;
@@ -829,6 +841,8 @@
         try {
           appData = JSON.parse(e.target.result);
           saveData();
+          document.getElementById('startDateInput').value = appData.startDate || "2026-07-20";
+          document.getElementById('aiPlanInput').value = appData.aiPlan || "";
           renderDaysList();
           renderHistory();
           alert("Данные успешно импортированы!");
