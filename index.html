@@ -89,72 +89,77 @@
       cursor: pointer;
     }
 
-    .days-nav {
+    /* Вертикальный список дней */
+    .days-vertical-list {
       display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
-      overflow-x: auto;
-      align-items: center;
-      padding-bottom: 4px;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 15px;
     }
 
-    .day-tab {
-      flex: 0 0 auto;
-      min-width: 110px;
-      padding: 8px 10px;
+    .day-accordion-item {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .day-accordion-header {
+      width: 100%;
+      padding: 12px 14px;
       background: #222;
-      border: 1px solid #333;
-      color: #aaa;
-      border-radius: 8px;
-      cursor: pointer;
+      border: none;
+      color: #e0e0e0;
       font-weight: bold;
-      font-size: 0.75rem;
-      text-align: center;
+      font-size: 0.85rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .day-tab.active {
+    .day-accordion-header.active {
       background: #007bff;
       color: #fff;
-      border-color: #007bff;
+    }
+
+    .day-accordion-body {
+      display: none;
+      padding: 12px;
+      background: #141414;
+      border-top: 1px solid #2a2a2a;
     }
 
     .day-date-sub {
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: normal;
-      display: block;
-      margin-top: 2px;
       opacity: 0.85;
     }
 
-    .day-tab-add {
-      flex: 0 0 auto;
-      padding: 8px 12px;
-      background: #1e293b;
-      border: 1px dashed #22c55e;
-      color: #22c55e;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .day-header {
+    .day-top-actions {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
-      background: #1a1a1a;
-      padding: 8px 12px;
+      background: #1e1e1e;
+      padding: 8px 10px;
       border-radius: 8px;
-      border: 1px solid #2a2a2a;
+      border: 1px solid #333;
     }
 
-    .day-header-left {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
+    .day-tab-add {
+      width: 100%;
+      padding: 10px;
+      background: #1e293b;
+      border: 1px dashed #22c55e;
+      color: #22c55e;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 12px;
     }
 
     .btn-day-settings {
@@ -386,7 +391,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.1.8</span>
+    <span class="version-badge" id="appVersionBadge">v1.1.9</span>
   </div>
 
   <div class="stats-card">
@@ -405,40 +410,9 @@
 
   <button id="pwaInstallBtn">📲 Установить приложение</button>
 
-  <!-- Горизонтальная навигация по дням -->
-  <div class="days-nav" id="daysNav"></div>
-
-  <!-- Шапка выбранного дня (без дублирования названий) -->
-  <div class="day-header">
-    <div class="day-header-left">
-      <span id="currentDayDate" style="font-size:0.85rem; color:#a5b4fc; font-weight: bold;"></span>
-    </div>
-    <button class="btn-day-settings" onclick="toggleAccordion('editDaySection')" title="Настройки дня и добавление упражнений">⚙️</button>
-  </div>
-
-  <div class="accordion-content" id="editDaySection">
-    <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
-      <span id="form-title" style="font-weight:bold; font-size:0.85rem; color:#4da6ff;">+ Новое упражнение</span>
-      <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить этот день</button>
-    </div>
-    
-    <input type="hidden" id="editIndex" value="-1">
-    <div class="form-group">
-      <input type="text" id="exName" placeholder="Название (например: Планка)">
-    </div>
-    <div class="form-group">
-      <input type="text" id="exTarget" placeholder="Цель (например: 60 сек)">
-    </div>
-    
-    <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#222; padding:8px; border-radius:6px;">
-      <input type="checkbox" id="exIsTimed" style="margin:0;">
-      <label for="exIsTimed" style="font-size:0.8rem; color:#f0f0f0;">⏱ Упражнение на время (включить таймер)</label>
-    </div>
-
-    <button class="btn-main" onclick="saveExercise()">Сохранить упражнение</button>
-  </div>
-
-  <div id="exercisesContainer"></div>
+  <!-- Вертикальный список дней тренировок -->
+  <div class="days-vertical-list" id="daysVerticalList"></div>
+  <button class="day-tab-add" onclick="addNewDay()">➕ Добавить день тренировок</button>
 
   <!-- Блок уведомлений, планов и генератора промпта -->
   <button class="accordion-btn" style="border-color: #0284c7; color: #38bdf8;" onclick="toggleAccordion('remindersAndPlansSection')">
@@ -479,9 +453,9 @@
 
     <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
 
-    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🤖 Отчет по текущему дню для ИИ:</div>
-    <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:6px;">Нажмите кнопку, чтобы скопировать результаты за сегодня в чат:</div>
-    <button class="btn-sync" style="background:#4f46e5; margin:0;" onclick="copyAiPrompt()">📋 Скопировать отчет за сегодня</button>
+    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🤖 Отчет по активному дню для ИИ:</div>
+    <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:6px;">Нажмите кнопку, чтобы скопировать результаты выбранного дня в чат:</div>
+    <button class="btn-sync" style="background:#4f46e5; margin:0;" onclick="copyAiPrompt()">📋 Скопировать отчет за день</button>
   </div>
 
   <!-- Блок бэкапов и истории изменений -->
@@ -496,9 +470,9 @@
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
     <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #333; margin-bottom:10px; line-height:1.4; color:#94a3b8;">
-      <b>v1.1.8</b> — Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель вкладок и сетка таймеров.<br>
-      <b>v1.1.7</b> — Поле ввода пользовательского запроса для ИИ сделано пустым, добавлено автоматическое формирование правильной структуры промпта.<br>
-      <b>v1.1.6</b> — Добавлен парсер ответов ИИ для автоматического обновления программы.
+      <b>v1.1.9</b> — Дни тренировок перенесены в вертикальный список с раскрывающимися блоками упражнений.<br>
+      <b>v1.1.8</b> — Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель.<br>
+      <b>v1.1.7</b> — Поле ввода пользовательского запроса для ИИ сделано пустым.
     </div>
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
@@ -515,12 +489,12 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.1.8";
+    const APP_VERSION = "v1.1.9";
     
     const changelogHistory = [
-      { ver: "v1.1.8", text: "Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель вкладок и сетка таймеров." },
-      { ver: "v1.1.7", text: "Поле ввода пользовательского запроса для ИИ сделано пустым, добавлено автоматическое формирование правильной структуры промпта." },
-      { ver: "v1.1.6", text: "Добавлен парсер ответов ИИ для автоматического обновления программы." }
+      { ver: "v1.1.9", text: "Дни тренировок перенесены в вертикальный список с раскрывающимися блоками упражнений." },
+      { ver: "v1.1.8", text: "Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель." },
+      { ver: "v1.1.7", text: "Поле ввода пользовательского запроса для ИИ сделано пустым." }
     ];
 
     function renderChangelog() {
@@ -585,7 +559,7 @@
       ]
     };
 
-    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v4')) || presetPrograms.customProg;
+    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v5')) || presetPrograms.customProg;
     let historyData = JSON.parse(localStorage.getItem('workout_history')) || [];
     let activeDayIndex = 0;
     let activeTimers = {};
@@ -614,12 +588,11 @@
 
     function copyCustomAiPrompt() {
       const userNotes = document.getElementById('aiPromptInput').value.trim();
-      
       let fullPrompt = "Привет! Составь для меня программу тренировок.\n\n";
       if (userNotes) {
         fullPrompt += `Вот мои вводные данные, пожелания и инвентарь:\n${userNotes}\n\n`;
       }
-      fullPrompt += "Важно: выдай ответ в строго структурированном виде по дням (например, День 1, День 2 и т.д.), указав для каждого упражнения название и цель (подходы/повторения или секунды). Если упражнение выполняется на время, обязательно пометь его словом [ТАЙМЕР].";
+      fullPrompt += "Важно: выдай ответ в строго структурированном виде по дням, указав для каждого упражнения название и цель. Если упражнение выполняется на время, пометь его словом [ТАЙМЕР].";
 
       navigator.clipboard.writeText(fullPrompt).then(() => {
         alert("✅ Правильный промпт скопирован в буфер обмена!");
@@ -642,9 +615,7 @@
         if (!trimmed) return;
 
         if (/^(день\s*\d+|тренировка\s*\d+|#+\s*день)/i.test(trimmed)) {
-          if (currentDay) {
-            newDays.push(currentDay);
-          }
+          if (currentDay) newDays.push(currentDay);
           currentDay = {
             dayName: trimmed.replace(/^[#*]+\s*/, ''),
             exercises: []
@@ -667,9 +638,7 @@
         }
       });
 
-      if (currentDay) {
-        newDays.push(currentDay);
-      }
+      if (currentDay) newDays.push(currentDay);
 
       if (newDays.length > 0 && newDays.some(d => d.exercises.length > 0)) {
         if (confirm(`✅ Успешно распознано дней: ${newDays.length}. Заменить текущую программу тренировок на эту?`)) {
@@ -680,16 +649,16 @@
           document.getElementById('aiResponseInput').value = '';
         }
       } else {
-        alert("⚠️ Не удалось автоматически разобрать структуру. Убедитесь, что ИИ выдал список по дням и упражнениям со списком или нумерацией.");
+        alert("⚠️ Не удалось автоматически разобрать структуру.");
       }
     }
 
     function copyAiPrompt() {
       const dayReport = generateDayReportText(activeDayIndex);
-      const promptText = `Привет! Вот мои актуальные результаты и веса за сегодняшний день:\n${dayReport}\nПроанализируй прогресс и подскажи, стоит ли скорректировать рабочие веса или количество повторений/подходов.`;
+      const promptText = `Привет! Вот мои актуальные результаты за активный день:\n${dayReport}\nПроанализируй прогресс и подскажи, стоит ли скорректировать рабочие веса.`;
 
       navigator.clipboard.writeText(promptText).then(() => {
-        alert("✅ Запрос и текущие результаты скопированы в буфер обмена! Вставьте в чат.");
+        alert("✅ Отчет скопирован в буфер обмена!");
       });
     }
 
@@ -710,7 +679,7 @@
           alert("✅ Напоминания включены!");
           startReminderChecker();
         } else {
-          alert("❌ Уведомления заблокированы в настройках браузера.");
+          alert("❌ Уведомления заблокированы.");
         }
       });
     }
@@ -811,28 +780,135 @@
       }
     }
 
-    function renderDaysNav() {
-      const nav = document.getElementById('daysNav');
-      nav.innerHTML = '';
+    function renderVerticalDaysList() {
+      const listContainer = document.getElementById('daysVerticalList');
+      listContainer.innerHTML = '';
 
       workoutData.forEach((day, index) => {
         const dateInfo = getDayCalculatedDate(index);
-        const btn = document.createElement('button');
-        btn.className = `day-tab ${index === activeDayIndex ? 'active' : ''}`;
-        btn.innerHTML = `${day.dayName}<span class="day-date-sub">${dateInfo.formattedStr}</span>`;
-        btn.onclick = () => { 
-          activeDayIndex = index; 
-          document.getElementById('editDaySection').style.display = 'none';
-          render(); 
-        };
-        nav.appendChild(btn);
-      });
+        const isOpen = index === activeDayIndex;
 
-      const addBtn = document.createElement('button');
-      addBtn.className = 'day-tab-add';
-      addBtn.innerText = '➕';
-      addBtn.onclick = addNewDay;
-      nav.appendChild(addBtn);
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'day-accordion-item';
+
+        let exercisesHtml = '';
+        if (!day.exercises || day.exercises.length === 0) {
+          exercisesHtml = '<p style="text-align:center; color:#777; font-size:0.8rem; margin:10px 0;">Нет упражнений.</p>';
+        } else {
+          day.exercises.forEach((ex, exIdx) => {
+            const setsCount = ex.sets || 4;
+            let setsRows = '';
+
+            for (let s = 1; s <= setsCount; s++) {
+              const key = `d${index}_e${exIdx}_s${s}`;
+              const savedW = localStorage.getItem(key + '_w') || '';
+              const savedR = localStorage.getItem(key + '_r') || '';
+              const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
+
+              if (ex.isTimed) {
+                setsRows += `
+                  <div class="set-row">
+                    <span>Сет ${s}:</span>
+                    <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт</button>
+                    <input type="number" id="input_${key}" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                    <span style="font-size:0.7rem; color:#aaa;">сек</span>
+                    <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+                  </div>
+                `;
+              } else {
+                setsRows += `
+                  <div class="set-row">
+                    <span>Сет ${s}:</span>
+                    <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
+                    <span>кг ×</span>
+                    <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                    <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+                  </div>
+                `;
+              }
+            }
+
+            exercisesHtml += `
+              <div class="exercise-card">
+                <div class="ex-header">
+                  <div>
+                    <div class="ex-title">${ex.name} ${ex.isTimed ? '⏱' : ''}</div>
+                    <div class="ex-target">${ex.target}</div>
+                  </div>
+                  <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки">⚙️</button>
+                </div>
+                <div>${setsRows}</div>
+                
+                <div class="sets-control">
+                  <span>Подходов: <b>${setsCount}</b></span>
+                  <div class="sets-control-btns">
+                    <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, -1)">-</button>
+                    <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, 1)">+</button>
+                  </div>
+                </div>
+
+                <div class="actions-hidden" id="exActions_${exIdx}">
+                  <button class="btn-small btn-edit" onclick="editExercise(${exIdx})">✏️ Изменить</button>
+                  <button class="btn-small btn-delete" onclick="deleteExercise(${exIdx})">🗑 Удалить</button>
+                </div>
+              </div>
+            `;
+          });
+        }
+
+        itemDiv.innerHTML = `
+          <button class="day-accordion-header ${isOpen ? 'active' : ''}" onclick="selectAndToggleDay(${index})">
+            <span>${day.dayName} <span class="day-date-sub">(${dateInfo.formattedStr})</span></span>
+            <span>${isOpen ? '▲' : '▼'}</span>
+          </button>
+          <div class="day-accordion-body" id="dayBody_${index}" style="display: ${isOpen ? 'block' : 'none'};">
+            
+            <div class="day-top-actions">
+              <span style="font-size:0.75rem; color:#4da6ff; font-weight:bold;">Управление днем:</span>
+              <div style="display:flex; gap:4px;">
+                <button class="btn-small btn-edit" onclick="openAddExerciseModal()">+ Упражнение</button>
+                <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить день</button>
+              </div>
+            </div>
+
+            <div class="accordion-content" id="editDaySection" style="display:none; margin-top:8px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+                <span id="form-title" style="font-weight:bold; font-size:0.85rem; color:#4da6ff;">+ Новое упражнение</span>
+              </div>
+              <input type="hidden" id="editIndex" value="-1">
+              <div class="form-group">
+                <input type="text" id="exName" placeholder="Название (например: Планка)">
+              </div>
+              <div class="form-group">
+                <input type="text" id="exTarget" placeholder="Цель (например: 60 сек)">
+              </div>
+              <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#222; padding:8px; border-radius:6px;">
+                <input type="checkbox" id="exIsTimed" style="margin:0;">
+                <label for="exIsTimed" style="font-size:0.8rem; color:#f0f0f0;">⏱ Упражнение на время</label>
+              </div>
+              <button class="btn-main" onclick="saveExercise()">Сохранить упражнение</button>
+            </div>
+
+            <div>${exercisesHtml}</div>
+          </div>
+        `;
+        listContainer.appendChild(itemDiv);
+      });
+    }
+
+    function selectAndToggleDay(index) {
+      if (activeDayIndex === index) {
+        const body = document.getElementById(`dayBody_${index}`);
+        body.style.display = body.style.display === 'block' ? 'none' : 'block';
+      } else {
+        activeDayIndex = index;
+        render();
+      }
+    }
+
+    function openAddExerciseModal() {
+      const section = document.getElementById('editDaySection');
+      section.style.display = section.style.display === 'block' ? 'none' : 'block';
     }
 
     function changeSetsCount(exIdx, delta) {
@@ -880,87 +956,9 @@
             saveVal(key + '_c', true);
           }
 
-          if (navigator.vibrate) {
-            navigator.vibrate([200, 100, 200, 100, 300]);
-          }
+          if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
       }, 1000);
-    }
-
-    function renderExercises() {
-      const container = document.getElementById('exercisesContainer');
-      const currentDay = workoutData[activeDayIndex];
-      const dateInfo = getDayCalculatedDate(activeDayIndex);
-
-      document.getElementById('currentDayDate').innerText = `${currentDay.dayName} — ${dateInfo.formattedStr}`;
-
-      container.innerHTML = '';
-
-      if (!currentDay.exercises || currentDay.exercises.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#777; font-size:0.85rem; margin-top:20px;">Нет упражнений. Нажмите ⚙️ выше, чтобы добавить.</p>';
-        return;
-      }
-
-      currentDay.exercises.forEach((ex, exIdx) => {
-        const setsCount = ex.sets || 4;
-        let setsHtml = '';
-
-        for (let s = 1; s <= setsCount; s++) {
-          const key = `d${activeDayIndex}_e${exIdx}_s${s}`;
-          const savedW = localStorage.getItem(key + '_w') || '';
-          const savedR = localStorage.getItem(key + '_r') || '';
-          const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
-
-          if (ex.isTimed) {
-            setsHtml += `
-              <div class="set-row">
-                <span>Сет ${s}:</span>
-                <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт</button>
-                <input type="number" id="input_${key}" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
-                <span style="font-size:0.7rem; color:#aaa;">сек</span>
-                <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
-              </div>
-            `;
-          } else {
-            setsHtml += `
-              <div class="set-row">
-                <span>Сет ${s}:</span>
-                <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
-                <span>кг ×</span>
-                <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
-                <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
-              </div>
-            `;
-          }
-        }
-
-        const card = document.createElement('div');
-        card.className = 'exercise-card';
-        card.innerHTML = `
-          <div class="ex-header">
-            <div>
-              <div class="ex-title">${ex.name} ${ex.isTimed ? '⏱' : ''}</div>
-              <div class="ex-target">${ex.target}</div>
-            </div>
-            <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки">⚙️</button>
-          </div>
-          <div>${setsHtml}</div>
-          
-          <div class="sets-control">
-            <span>Подходов: <b>${setsCount}</b></span>
-            <div class="sets-control-btns">
-              <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, -1)">-</button>
-              <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, 1)">+</button>
-            </div>
-          </div>
-
-          <div class="actions-hidden" id="exActions_${exIdx}">
-            <button class="btn-small btn-edit" onclick="editExercise(${exIdx})">✏️ Изменить</button>
-            <button class="btn-small btn-delete" onclick="deleteExercise(${exIdx})">🗑 Удалить</button>
-          </div>
-        `;
-        container.appendChild(card);
-      });
     }
 
     function saveVal(key, val) { localStorage.setItem(key, val); }
@@ -985,13 +983,11 @@
       } else {
         workoutData[activeDayIndex].exercises[editIndex] = item;
         document.getElementById('editIndex').value = "-1";
-        document.getElementById('form-title').innerText = "+ Новое упражнение";
       }
 
       nameInput.value = '';
       targetInput.value = '';
       timedInput.checked = false;
-      document.getElementById('editDaySection').style.display = 'none';
       persistAndRender();
     }
 
@@ -1009,7 +1005,6 @@
       if (confirm(`Удалить "${workoutData[activeDayIndex].dayName}"?`)) {
         workoutData.splice(activeDayIndex, 1);
         activeDayIndex = 0;
-        document.getElementById('editDaySection').style.display = 'none';
         persistAndRender();
       }
     }
@@ -1021,9 +1016,7 @@
       document.getElementById('exIsTimed').checked = !!ex.isTimed;
       document.getElementById('editIndex').value = index;
       document.getElementById('form-title').innerText = "✏️ Изменить упражнение";
-      
       document.getElementById('editDaySection').style.display = 'block';
-      window.scrollTo({ top: 180, behavior: 'smooth' });
     }
 
     function deleteExercise(index) {
@@ -1071,7 +1064,7 @@
 
       navigator.clipboard.writeText(fullReport).then(() => {
         alert('✅ Отчет скопирован в буфер обмена!');
-      }).catch(() => alert('Скопируйте вручную:\n\n' + fullReport));
+      });
     }
 
     function saveCurrentDayToHistory() {
@@ -1088,7 +1081,7 @@
       localStorage.setItem('workout_history', JSON.stringify(historyData));
 
       renderHistory();
-      alert(`🎉 День "${currentDay.dayName}" зафиксирован в Историю (${dateInfo.formattedStr})!`);
+      alert(`🎉 День "${currentDay.dayName}" зафиксирован в Историю!`);
     }
 
     function renderHistory() {
@@ -1096,7 +1089,7 @@
       container.innerHTML = '';
 
       if (historyData.length === 0) {
-        container.innerHTML = '<p style="color:#666; font-size:0.8rem;">История пока пуста. Зафиксируйте свой первый день!</p>';
+        container.innerHTML = '<p style="color:#666; font-size:0.8rem;">История пока пуста.</p>';
         return;
       }
 
@@ -1120,7 +1113,7 @@
     }
 
     function clearCurrentResults() {
-      if (!confirm('Очистить все введенные веса, секунды и галочки на сегодня?')) return;
+      if (!confirm('Очистить веса и отметки?')) return;
       Object.keys(localStorage).forEach(key => {
         if (key.includes('_w') || key.includes('_r') || key.includes('_c')) {
           localStorage.removeItem(key);
@@ -1130,14 +1123,11 @@
     }
 
     function downloadBackup() {
-      const backupData = { 
-        version: APP_VERSION,
-        localStorageData: { ...localStorage } 
-      };
+      const backupData = { version: APP_VERSION, localStorageData: { ...localStorage } };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `workout_backup_${APP_VERSION}_${new Date().toISOString().split('T')[0]}.json`);
+      downloadAnchor.setAttribute("download", `workout_backup_${APP_VERSION}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -1156,21 +1146,20 @@
             Object.keys(imported.localStorageData).forEach(key => {
               localStorage.setItem(key, imported.localStorageData[key]);
             });
-            alert(`✅ Данные успешно восстановлены из бэкапа (Версия: ${imported.version || 'неизвестна'})!`);
+            alert('✅ Данные успешно восстановлены!');
             location.reload();
-          } else { alert('Некорректный файл бэкапа!'); }
-        } catch (err) { alert('Ошибка при чтении файла!'); }
+          } else { alert('Некорректный файл!'); }
+        } catch (err) { alert('Ошибка чтения файла!'); }
       };
       reader.readAsText(file);
     }
 
     function render() {
-      renderDaysNav();
-      renderExercises();
+      renderVerticalDaysList();
     }
 
     function persistAndRender() {
-      localStorage.setItem('my_full_workout_v4', JSON.stringify(workoutData));
+      localStorage.setItem('my_full_workout_v5', JSON.stringify(workoutData));
       render();
     }
 
@@ -1187,7 +1176,7 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') { installBtn.style.display = 'none'; }
+        if (outcome === 'accepted') installBtn.style.display = 'none';
         deferredPrompt = null;
       }
     });
@@ -1198,9 +1187,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       renderChangelog();
-      if (Notification.permission === "granted") {
-        startReminderChecker();
-      }
+      if (Notification.permission === "granted") startReminderChecker();
       getNewMotivation();
     });
 
