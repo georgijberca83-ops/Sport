@@ -411,7 +411,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.2.0</span>
+    <span class="version-badge" id="appVersionBadge">v1.2.1</span>
   </div>
 
   <div class="stats-card">
@@ -525,7 +525,7 @@
         <input type="text" id="exName" placeholder="Название (например: Планка)">
       </div>
       <div class="form-group">
-        <input type="text" id="exTarget" placeholder="Цель (например: 60 сек)">
+        <input type="text" id="exTarget" placeholder="Цель (например: 14 кг х 12 или 60 сек)">
       </div>
       <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#121212; padding:8px; border-radius:6px;">
         <input type="checkbox" id="exIsTimed" style="margin:0;">
@@ -535,15 +535,18 @@
     </div>
 
     <div id="modalExercisesContainer"></div>
+
+    <!-- Кнопка фиксации окончания дня тренировок -->
+    <button class="btn-sync" style="background:#166534; margin-top:20px; padding:14px; font-size:0.9rem;" onclick="finishWorkoutDay()">🏁 Тренировка окончена</button>
   </div>
 
   <script>
-    const APP_VERSION = "v1.2.0";
+    const APP_VERSION = "v1.2.1";
     
     const changelogHistory = [
+      { ver: "v1.2.1", text: "Исправлен расчет дат в пределах одной недели, автозаполнение полей по целям с возможностью редактирования, добавлена кнопка фиксации окончания тренировки." },
       { ver: "v1.2.0", text: "Добавлен отдельный экран для тренировки, нумерация упражнений 1,2,3, исправлен таймер (без авто-галочек), смягчены цвета интерфейса." },
-      { ver: "v1.1.9", text: "Дни тренировок перенесены в вертикальный список с раскрывающимися блоками упражнений." },
-      { ver: "v1.1.8", text: "Улучшен визуальный интерфейс: убран дублирующий заголовок дня." }
+      { ver: "v1.1.9", text: "Дни тренировок перенесены в вертикальный список с раскрывающимися блоками упражнений." }
     ];
 
     function renderChangelog() {
@@ -558,29 +561,29 @@
           dayName: 'День 1 (Пн)',
           exercises: [
             { name: 'Подтягивания прямым хватом', target: 'Цель: 3 × 6-7 раз', sets: 3 },
-            { name: 'Тяга гантелей в наклоне', target: 'Цель: 14-16 кг × 10-12', sets: 3 },
-            { name: 'Подтягивания обратным хватом', target: 'Цель: С резинкой × 6 раз', sets: 3 },
-            { name: 'Сгибания на бицепс с гантелями', target: 'Цель: 8 кг × 10-12', sets: 3 }
+            { name: 'Тяга гантелей в наклоне', target: 'Цель: 14 кг × 12 раз', sets: 3 },
+            { name: 'Подтягивания обратным хватом', target: 'Цель: 6 раз', sets: 3 },
+            { name: 'Сгибания на бицепс с гантелями', target: 'Цель: 8 кг × 12 раз', sets: 3 }
           ]
         },
         {
           dayName: 'День 2 (Ср)',
           exercises: [
-            { name: 'Негативные брусья', target: 'Цель: 3 × 5-6 (медленно)', sets: 3 },
-            { name: 'Отжимания от пола', target: 'Цель: Свой вес × 12-15', sets: 3 },
-            { name: 'Жим гантелей лежа', target: 'Цель: 12-14 кг × 8-10', sets: 3 },
+            { name: 'Негативные брусья', target: 'Цель: 6 раз', sets: 3 },
+            { name: 'Отжимания от пола', target: 'Цель: 15 раз', sets: 3 },
+            { name: 'Жим гантелей лежа', target: 'Цель: 14 кг × 10 раз', sets: 3 },
             { name: 'Жим гантелей сидя', target: 'Цель: 8 кг × 10 раз', sets: 3 },
-            { name: 'Махи гантелями в стороны', target: 'Цель: 4 кг × 10-12', sets: 3 },
+            { name: 'Махи гантелями в стороны', target: 'Цель: 4 кг × 12 раз', sets: 3 },
             { name: 'Французский жим с гантелями', target: 'Цель: 8 кг × 10 раз', sets: 3 }
           ]
         },
         {
           dayName: 'День 3 (Пт)',
           exercises: [
-            { name: 'Приседания с гантелями', target: 'Цель: 12-15 раз', sets: 4 },
-            { name: 'Болгарские выпады', target: 'Цель: 10 раз на ногу', sets: 3 },
-            { name: 'Румынская тяга с гантелями', target: 'Цель: 12-14 раз', sets: 3 },
-            { name: 'Подъем ног в висе (пресс)', target: 'Цель: 10-15 раз', sets: 3 },
+            { name: 'Приседания с гантелями', target: 'Цель: 15 раз', sets: 4 },
+            { name: 'Болгарские выпады', target: 'Цель: 10 раз', sets: 3 },
+            { name: 'Румынская тяга с гантелями', target: 'Цель: 14 раз', sets: 3 },
+            { name: 'Подъем ног в висе (пресс)', target: 'Цель: 15 раз', sets: 3 },
             { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
           ]
         }
@@ -589,8 +592,8 @@
         {
           dayName: 'День 1',
           exercises: [
-            { name: 'Жим гантелей лежа', target: 'Цель: 14-16 кг × 10-12', sets: 4 },
-            { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8', sets: 4 }
+            { name: 'Жим гантелей лежа', target: 'Цель: 16 кг × 10 раз', sets: 4 },
+            { name: 'Брусья (негативы)', target: 'Цель: 8 раз', sets: 4 }
           ]
         }
       ],
@@ -598,7 +601,7 @@
         {
           dayName: 'День 1',
           exercises: [
-            { name: 'Классические отжимания', target: 'Цель: 15-20 раз', sets: 4 },
+            { name: 'Классические отжимания', target: 'Цель: 20 раз', sets: 4 },
             { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
           ]
         }
@@ -713,7 +716,7 @@
 
     function getDayCalculatedDate(dayIndex) {
       let startDateStr = localStorage.getItem('workout_start_date') || new Date().toISOString().split('T')[0];
-      const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '2');
+      const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '1'); // По умолчанию сдвиг на 1 день, чтобы дни шли последовательно в рамках одной недели
       const baseDate = new Date(startDateStr);
       const targetDate = new Date(baseDate);
       targetDate.setDate(baseDate.getDate() + (dayIndex * restDaysInterval));
@@ -725,7 +728,7 @@
     }
 
     function configureSchedule() {
-      const step = prompt('Интервал между тренировочными днями (в днях):', localStorage.getItem('workout_day_step') || '2');
+      const step = prompt('Интервал между тренировочными днями (в днях, 1 = каждый день подряд):', localStorage.getItem('workout_day_step') || '1');
       if (step && !isNaN(parseInt(step))) {
         localStorage.setItem('workout_day_step', step);
         render();
@@ -751,6 +754,9 @@
         startDateStr = new Date().toISOString().split('T')[0];
         localStorage.setItem('workout_start_date', startDateStr);
       }
+      if (!localStorage.getItem('workout_day_step')) {
+        localStorage.setItem('workout_day_step', '1'); // Установка по умолчанию для компактного распределения по неделе
+      }
       updateStatsUI(startDateStr);
     }
 
@@ -774,7 +780,6 @@
       }
     }
 
-    // Главный экран: только список дней
     function renderMainDaysList() {
       const listContainer = document.getElementById('daysVerticalList');
       listContainer.innerHTML = '';
@@ -789,7 +794,6 @@
       });
     }
 
-    // Открытие модального окна конкретного дня
     function openWorkoutModal(index) {
       activeDayIndex = index;
       renderModalContent();
@@ -804,6 +808,21 @@
     function navigateDay(direction) {
       activeDayIndex = (activeDayIndex + direction + workoutData.length) % workoutData.length;
       renderModalContent();
+    }
+
+    // Автоизвлечение цифр из строки цели для предзаполнения
+    function parseTargetValues(targetStr) {
+      if (!targetStr) return { weight: '', reps: '' };
+      const numbers = targetStr.match(/\d+/g);
+      if (!numbers) return { weight: '', reps: '' };
+
+      if (numbers.length >= 2) {
+        // Если чисел несколько, первое часто вес, второе повторения (например, "14 кг × 12 раз")
+        return { weight: numbers[0], reps: numbers[1] };
+      } else if (numbers.length === 1) {
+        return { weight: '', reps: numbers[0] };
+      }
+      return { weight: '', reps: '' };
     }
 
     function renderModalContent() {
@@ -821,12 +840,25 @@
 
       day.exercises.forEach((ex, exIdx) => {
         const setsCount = ex.sets || 4;
+        const defaults = parseTargetValues(ex.target);
         let setsRows = '';
 
         for (let s = 1; s <= setsCount; s++) {
           const key = `d${activeDayIndex}_e${exIdx}_s${s}`;
-          const savedW = localStorage.getItem(key + '_w') || '';
-          const savedR = localStorage.getItem(key + '_r') || '';
+          
+          // Автозаполнение пустых полей значениями из цели, если пользователь еще ничего не вводил
+          let savedW = localStorage.getItem(key + '_w');
+          if (savedW === null) {
+            savedW = ex.isTimed ? '' : defaults.weight;
+            localStorage.setItem(key + '_w', savedW);
+          }
+
+          let savedR = localStorage.getItem(key + '_r');
+          if (savedR === null) {
+            savedR = ex.isTimed ? (defaults.reps || '60') : defaults.reps;
+            localStorage.setItem(key + '_r', savedR);
+          }
+
           const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
 
           if (ex.isTimed) {
@@ -896,7 +928,7 @@
       const btn = document.getElementById(`btn_${key}`);
       const input = document.getElementById(`input_${key}`);
       
-      let duration = 60; // Честный дефолтный таймер на 60 секунд без случайного парсинга текста
+      let duration = 60;
       const match = targetText.match(/\d+/);
       if (match && parseInt(match[0]) > 5) {
         duration = parseInt(match[0]);
@@ -1040,6 +1072,12 @@
       localStorage.setItem('workout_history', JSON.stringify(historyData));
       renderHistory();
       alert(`🎉 День зафиксирован в Историю!`);
+    }
+
+    // Функция фиксации окончания тренировки (автосохранение в историю и закрытие окна)
+    function finishWorkoutDay() {
+      saveCurrentDayToHistory();
+      closeWorkoutModal();
     }
 
     function renderHistory() {
