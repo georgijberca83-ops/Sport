@@ -73,14 +73,14 @@
 
     .day-tab {
       flex: 1;
-      padding: 10px 4px;
+      padding: 8px 6px;
       background: #222;
       border: 1px solid #333;
       color: #aaa;
       border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       text-align: center;
       white-space: nowrap;
     }
@@ -91,6 +91,14 @@
       border-color: #007bff;
     }
 
+    .day-date-sub {
+      font-size: 0.65rem;
+      font-weight: normal;
+      display: block;
+      margin-top: 2px;
+      opacity: 0.85;
+    }
+
     .day-header {
       display: flex;
       justify-content: space-between;
@@ -98,7 +106,7 @@
       margin-bottom: 10px;
     }
 
-    /* Кнопки-аккордеоны (скрывающиеся блоки) */
+    /* Кнопки-аккордеоны */
     .accordion-btn {
       width: 100%;
       padding: 10px;
@@ -155,6 +163,13 @@
       border-radius: 10px;
       margin-bottom: 10px;
       border: 1px solid #2a2a2a;
+      position: relative;
+    }
+
+    .ex-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .ex-title {
@@ -162,6 +177,7 @@
       color: #fff;
       font-size: 0.9rem;
       margin-bottom: 2px;
+      padding-right: 20px;
     }
 
     .ex-target {
@@ -169,6 +185,17 @@
       color: #4da6ff;
       margin-bottom: 8px;
     }
+
+    .btn-gear {
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+
+    .btn-gear:hover { color: #aaa; }
 
     .set-row {
       display: flex;
@@ -199,10 +226,12 @@
       margin-left: auto;
     }
 
-    .actions {
-      display: flex;
+    .actions-hidden {
+      display: none;
       gap: 8px;
       margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed #333;
     }
 
     .btn-small {
@@ -273,7 +302,10 @@
   <div class="stats-card">
     <div class="stats-main" id="daysCounter">Загрузка стажа...</div>
     <div class="stats-sub" id="startDateText">Старт: ...</div>
-    <button class="btn-small btn-edit" style="margin-top:6px;" onclick="resetStartDate()">⚙️ Изменить дату старта</button>
+    <div style="margin-top:6px; display:flex; justify-content:center; gap:8px;">
+      <button class="btn-small btn-edit" onclick="resetStartDate()">⚙️ Дата старта</button>
+      <button class="btn-small btn-edit" style="background:#0284c7;" onclick="configureSchedule()">📅 Расписание дней</button>
+    </div>
   </div>
 
   <button id="pwaInstallBtn">📲 Установить приложение</button>
@@ -281,7 +313,10 @@
   <div class="days-nav" id="daysNav"></div>
 
   <div class="day-header">
-    <h3 id="currentDayTitle" style="margin: 0; color:#4da6ff;">День 1</h3>
+    <div>
+      <h3 id="currentDayTitle" style="margin: 0; color:#4da6ff; display:inline-block;">День 1</h3>
+      <span id="currentDayDate" style="font-size:0.85rem; color:#a5b4fc; margin-left:8px;"></span>
+    </div>
   </div>
 
   <!-- СКРЫВАЕМЫЙ БЛОК: Управление днем и добавление упражнений -->
@@ -373,6 +408,38 @@
     let historyData = JSON.parse(localStorage.getItem('workout_history')) || [];
     let activeDayIndex = 0;
 
+    const daysOfWeekShort = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+    const monthsShort = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+
+    function getDayCalculatedDate(dayIndex) {
+      let startDateStr = localStorage.getItem('workout_start_date');
+      if (!startDateStr) startDateStr = new Date().toISOString().split('T')[0];
+      
+      const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '2'); // По умолчанию через 2 дня
+      const baseDate = new Date(startDateStr);
+      
+      // Расчет даты дня (каждый день тренировки идет с шагом restDaysInterval)
+      const targetDate = new Date(baseDate);
+      targetDate.setDate(baseDate.getDate() + (dayIndex * restDaysInterval));
+
+      const dayOfWeek = daysOfWeekShort[targetDate.getDay()];
+      const dayNum = targetDate.getDate();
+      const monthName = monthsShort[targetDate.getMonth()];
+
+      return {
+        formattedStr: `${dayOfWeek}, ${dayNum} ${monthName}`,
+        fullDate: targetDate
+      };
+    }
+
+    function configureSchedule() {
+      const step = prompt('Укажите интервал между тренировочными днями в днях (например, 2 = тренировка через день, 1 = каждый день):', localStorage.getItem('workout_day_step') || '2');
+      if (step && !isNaN(parseInt(step))) {
+        localStorage.setItem('workout_day_step', step);
+        render();
+      }
+    }
+
     function toggleAccordion(id) {
       const content = document.getElementById(id);
       const icon = document.getElementById('icon_' + id);
@@ -383,6 +450,11 @@
         content.style.display = 'block';
         icon.innerText = '▲';
       }
+    }
+
+    function toggleExActions(idx) {
+      const actions = document.getElementById(`exActions_${idx}`);
+      actions.style.display = actions.style.display === 'flex' ? 'none' : 'flex';
     }
 
     function initStartDate() {
@@ -398,7 +470,7 @@
       const start = new Date(startDateStr);
       const today = new Date();
       const diffTime = today.getTime() - start.getTime();
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      const diffDays = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1);
       const months = (diffDays / 30.44).toFixed(1);
 
       document.getElementById('daysCounter').innerText = `🔥 Занимаюсь: ${diffDays} дн. (~${months} мес.)`;
@@ -410,6 +482,7 @@
       if (newDate && !isNaN(Date.parse(newDate))) {
         localStorage.setItem('workout_start_date', newDate);
         updateStatsUI(newDate);
+        render();
       } else if (newDate) {
         alert('Некорректный формат!');
       }
@@ -420,9 +493,10 @@
       nav.innerHTML = '';
 
       workoutData.forEach((day, index) => {
+        const dateInfo = getDayCalculatedDate(index);
         const btn = document.createElement('button');
         btn.className = `day-tab ${index === activeDayIndex ? 'active' : ''}`;
-        btn.innerText = day.dayName;
+        btn.innerHTML = `${day.dayName}<span class="day-date-sub">${dateInfo.formattedStr}</span>`;
         btn.onclick = () => { activeDayIndex = index; render(); };
         nav.appendChild(btn);
       });
@@ -439,7 +513,10 @@
     function renderExercises() {
       const container = document.getElementById('exercisesContainer');
       const currentDay = workoutData[activeDayIndex];
+      const dateInfo = getDayCalculatedDate(activeDayIndex);
+
       document.getElementById('currentDayTitle').innerText = currentDay.dayName;
+      document.getElementById('currentDayDate').innerText = `— ${dateInfo.formattedStr}`;
 
       container.innerHTML = '';
 
@@ -472,10 +549,15 @@
         const card = document.createElement('div');
         card.className = 'exercise-card';
         card.innerHTML = `
-          <div class="ex-title">${ex.name}</div>
-          <div class="ex-target">${ex.target}</div>
+          <div class="ex-header">
+            <div>
+              <div class="ex-title">${ex.name}</div>
+              <div class="ex-target">${ex.target}</div>
+            </div>
+            <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки">⚙️</button>
+          </div>
           <div>${setsHtml}</div>
-          <div class="actions">
+          <div class="actions-hidden" id="exActions_${exIdx}">
             <button class="btn-small btn-edit" onclick="editExercise(${exIdx})">✏️ Изменить</button>
             <button class="btn-small btn-delete" onclick="deleteExercise(${exIdx})">🗑 Удалить</button>
           </div>
@@ -537,7 +619,6 @@
       document.getElementById('editIndex').value = index;
       document.getElementById('form-title').innerText = "✏️ Изменить упражнение";
       
-      // Автоматически открываем аккордеон редактирования, если он закрыт
       document.getElementById('editDaySection').style.display = 'block';
       document.getElementById('icon_editDaySection').innerText = '▲';
       window.scrollTo({ top: 200, behavior: 'smooth' });
@@ -552,7 +633,8 @@
 
     function generateDayReportText(dayIndex) {
       const day = workoutData[dayIndex];
-      let report = `═══ ${day.dayName.toUpperCase()} ═══\n`;
+      const dateInfo = getDayCalculatedDate(dayIndex);
+      let report = `═══ ${day.dayName.toUpperCase()} (${dateInfo.formattedStr}) ═══\n`;
       
       day.exercises.forEach((ex, eIdx) => {
         report += `🔹 ${ex.name} (${ex.target})\n`;
@@ -588,11 +670,11 @@
 
     function saveCurrentDayToHistory() {
       const currentDay = workoutData[activeDayIndex];
-      const dateStr = new Date().toLocaleDateString('ru-RU');
+      const dateInfo = getDayCalculatedDate(activeDayIndex);
       const reportText = generateDayReportText(activeDayIndex);
 
       const dayRecord = {
-        title: `${currentDay.dayName} — ${dateStr}`,
+        title: `${currentDay.dayName} — ${dateInfo.formattedStr}`,
         content: reportText
       };
 
@@ -600,7 +682,7 @@
       localStorage.setItem('workout_history', JSON.stringify(historyData));
 
       renderHistory();
-      alert(`🎉 День "${currentDay.dayName}" зафиксирован в Историю за ${dateStr}!`);
+      alert(`🎉 День "${currentDay.dayName}" зафиксирован в Историю (${dateInfo.formattedStr})!`);
     }
 
     function renderHistory() {
