@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Трекер Тренировок</title>
+  <title>Дневник тренировок</title>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#121212">
   <style>
@@ -16,100 +16,102 @@
       background-color: #121212;
       color: #e0e0e0;
       margin: 0;
-      padding: 16px;
+      padding: 12px;
+      padding-bottom: 40px;
     }
 
-    h1 { text-align: center; margin-top: 0; }
+    h1 {
+      font-size: 1.2rem;
+      text-align: center;
+      color: #4da6ff;
+      margin: 10px 0;
+    }
 
     #pwaInstallBtn {
       display: block;
       width: 100%;
-      max-width: 400px;
-      margin: 0 auto 16px auto;
       padding: 12px;
-      background-color: #2ea44f;
-      color: white;
+      background: #28a745;
+      color: #fff;
       border: none;
       border-radius: 8px;
       font-weight: bold;
-      font-size: 15px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
       cursor: pointer;
     }
 
-    /* Табы (Дни) */
+    /* Навигация по дням */
     .days-nav {
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      margin-bottom: 12px;
       overflow-x: auto;
-      padding-bottom: 12px;
-      margin-bottom: 16px;
     }
 
     .day-tab {
-      padding: 8px 16px;
-      background: #2a2a2a;
-      border: 1px solid #444;
-      border-radius: 20px;
+      flex: 1;
+      padding: 10px 4px;
+      background: #222;
+      border: 1px solid #333;
       color: #aaa;
-      white-space: nowrap;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      text-align: center;
+      white-space: nowrap;
     }
 
     .day-tab.active {
-      background: #3b82f6;
-      color: white;
-      border-color: #3b82f6;
-      font-weight: bold;
+      background: #007bff;
+      color: #fff;
+      border-color: #007bff;
     }
 
     .btn-add-day {
-      padding: 8px 14px;
+      padding: 10px 12px;
       background: #1e1e1e;
-      border: 1px dashed #666;
-      border-radius: 20px;
-      color: #2ea44f;
+      border: 1px dashed #28a745;
+      color: #28a745;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
-      white-space: nowrap;
+      font-size: 0.8rem;
+      font-weight: bold;
     }
 
-    /* Управление днем */
     .day-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      background: #1e1e1e;
-      padding: 12px 16px;
-      border-radius: 8px;
+      margin-bottom: 12px;
     }
 
-    /* Форма добавления */
+    /* Форма добавления/редактирования */
     .add-card {
       background: #1e1e1e;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 20px;
-      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #2a2a2a;
     }
 
-    .form-group { margin-bottom: 10px; }
+    .form-group { margin-bottom: 8px; }
 
-    input[type="text"] {
+    input[type="text"], textarea {
       width: 100%;
-      padding: 10px;
-      background: #2a2a2a;
+      padding: 8px;
+      background: #121212;
       border: 1px solid #444;
       border-radius: 6px;
       color: #fff;
-      font-size: 14px;
+      font-size: 0.85rem;
     }
 
     .btn-main {
       width: 100%;
       padding: 10px;
-      background: #3b82f6;
+      background: #007bff;
       color: white;
       border: none;
       border-radius: 6px;
@@ -120,127 +122,183 @@
     /* Карточки упражнений */
     .exercise-card {
       background: #1e1e1e;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-      border: 1px solid #333;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #2a2a2a;
     }
 
     .ex-title {
-      font-size: 18px;
       font-weight: bold;
-      color: #ffffff;
-      margin: 0 0 4px 0;
+      color: #fff;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
     }
 
     .ex-target {
-      color: #60a5fa;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    .sets-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+      font-size: 0.75rem;
+      color: #4da6ff;
+      margin-bottom: 8px;
     }
 
     .set-row {
       display: flex;
-      align-items: center;
       gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.8rem;
+      background: #262626;
+      padding: 4px 8px;
+      border-radius: 6px;
     }
 
-    .set-label { width: 45px; font-size: 13px; color: #aaa; }
-
-    .set-input {
-      width: 60px;
-      padding: 6px;
-      background: #2a2a2a;
+    input[type="number"] {
+      width: 50px;
+      padding: 4px;
       border: 1px solid #444;
+      background: #121212;
+      color: #fff;
       border-radius: 4px;
-      color: white;
       text-align: center;
+      font-size: 0.85rem;
     }
 
-    .checkbox-custom {
-      width: 22px;
-      height: 22px;
-      accent-color: #3b82f6;
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #007bff;
       margin-left: auto;
     }
 
     .actions {
       display: flex;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 8px;
     }
 
     .btn-small {
-      padding: 6px 12px;
+      padding: 4px 8px;
       border: none;
       border-radius: 4px;
-      font-size: 12px;
+      font-size: 0.75rem;
       cursor: pointer;
     }
 
     .btn-edit { background: #4b5563; color: white; }
-    .btn-delete { background: #ef4444; color: white; }
+    .btn-delete { background: #dc3545; color: white; }
+
+    /* Блок Импорта / Экспорта */
+    .sync-card {
+      background: #1a1a24;
+      border: 1px solid #3b3b58;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 24px;
+    }
+
+    .sync-title {
+      font-weight: bold;
+      font-size: 0.9rem;
+      color: #a5b4fc;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .btn-sync {
+      width: 100%;
+      padding: 10px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .btn-clear {
+      background: #374151;
+      color: #9ca3af;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Трекер Тренировок</h1>
+  <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
 
-  <button id="pwaInstallBtn">📥 Установить приложение</button>
+  <button id="pwaInstallBtn">📲 Установить приложение</button>
 
-  <!-- Переключатель Дней -->
   <div class="days-nav" id="daysNav"></div>
 
-  <!-- Шапка текущего дня -->
   <div class="day-header">
-    <h2 id="currentDayTitle" style="margin: 0;">День 1</h2>
-    <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить этот день</button>
+    <h3 id="currentDayTitle" style="margin: 0; color:#4da6ff;">День 1</h3>
+    <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить день</button>
   </div>
 
-  <!-- Форма добавления/редактирования упражнения -->
+  <!-- Форма добавления/изменения -->
   <div class="add-card">
-    <h3 id="form-title" style="margin-top:0;">+ Добавить упражнение</h3>
+    <span id="form-title" style="font-weight:bold; font-size:0.85rem; display:block; margin-bottom:8px;">+ Добавить упражнение</span>
     <input type="hidden" id="editIndex" value="-1">
     <div class="form-group">
-      <input type="text" id="exName" placeholder="Название (например: Жим гантелей)">
+      <input type="text" id="exName" placeholder="Название упражнения">
     </div>
     <div class="form-group">
-      <input type="text" id="exTarget" placeholder="Цель (например: 8-10 кг × 10-12)">
+      <input type="text" id="exTarget" placeholder="Цель (например: 14-16 кг × 10-12)">
     </div>
-    <button class="btn-main" onclick="saveExercise()">Сохранить упражнение</button>
+    <button class="btn-main" onclick="saveExercise()">Сохранить</button>
   </div>
 
-  <!-- Список упражнений выбранного дня -->
   <div id="exercisesContainer"></div>
 
+  <!-- Блок обмена данными с ИИ-тренером -->
+  <div class="sync-card">
+    <div class="sync-title">🔄 Синхронизация с тренером</div>
+    
+    <button class="btn-sync" onclick="exportReport()">📋 Скопировать отчет недели</button>
+    <button class="btn-small btn-clear" style="width:100%; margin-bottom:12px;" onclick="clearCurrentResults()">🧹 Очистить результаты сетов</button>
+
+    <div style="font-size:0.75rem; color:#aaa; margin-bottom:4px;">Вставить новую программу от тренера (JSON):</div>
+    <textarea id="importInput" rows="3" placeholder="Вставьте сюда скопированный JSON-код программы..."></textarea>
+    <button class="btn-sync" style="background:#10b981; margin-top:6px; margin-bottom:0;" onclick="importProgram()">📥 Загрузить новый план</button>
+  </div>
+
   <script>
-    // Начальная программа по умолчанию (если память пуста)
-    const defaultProgram = [
+    const originalProgram = [
       {
         dayName: 'День 1',
         exercises: [
-          { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8' },
-          { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12' }
+          { name: 'Жим гантелей лежа', target: 'Цель: 14-16 кг × 10-12', sets: 4 },
+          { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8', sets: 4 },
+          { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12', sets: 3 },
+          { name: 'Махи в стороны', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
+          { name: 'Отжимания от скамьи', target: 'Цель: Свой вес × 10-12', sets: 3 }
         ]
       },
       {
         dayName: 'День 2',
         exercises: [
-          { name: 'Приседания', target: 'Цель: 50 кг × 10' }
+          { name: 'Подтягивания', target: 'Цель: Свой вес × MAX', sets: 3 },
+          { name: 'Тяга гантели к поясу', target: 'Цель: 16-18 кг × 10-12', sets: 4 },
+          { name: 'Махи в наклоне', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
+          { name: "Сгибания 'Молот'", target: 'Цель: 8-10 кг × 10-12', sets: 4 },
+          { name: 'Подъем ног в висе', target: 'Цель: Свой вес × 8-12', sets: 3 }
+        ]
+      },
+      {
+        dayName: 'День 3',
+        exercises: [
+          { name: 'Скакалка', target: 'Цель: 3 раунда × 2 мин', sets: 3 },
+          { name: 'Зашагивания на скамью', target: 'Цель: 8-10 кг × 10-12', sets: 4 },
+          { name: 'Румынская тяга', target: 'Цель: 12-15 кг × 12', sets: 4 },
+          { name: 'Забеги по лестнице', target: 'Цель: 5 подъемов', sets: 5 },
+          { name: 'Подъемы на носки', target: 'Цель: Свой вес × 15-20', sets: 4 }
         ]
       }
     ];
 
-    let workoutData = JSON.parse(localStorage.getItem('workout_program_v2')) || defaultProgram;
+    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v3')) || originalProgram;
     let activeDayIndex = 0;
 
-    // Отрисовка закладок (дней)
     function renderDaysNav() {
       const nav = document.getElementById('daysNav');
       nav.innerHTML = '';
@@ -256,15 +314,13 @@
         nav.appendChild(btn);
       });
 
-      // Кнопка добавления нового дня
       const addBtn = document.createElement('button');
       addBtn.className = 'btn-add-day';
-      addBtn.innerText = '+ Новый день';
+      addBtn.innerText = '+ День';
       addBtn.onclick = addNewDay;
       nav.appendChild(addBtn);
     }
 
-    // Отрисовка списка упражнений для активного дня
     function renderExercises() {
       const container = document.getElementById('exercisesContainer');
       const currentDay = workoutData[activeDayIndex];
@@ -273,39 +329,48 @@
       container.innerHTML = '';
 
       if (!currentDay.exercises || currentDay.exercises.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#777;">В этом дне пока нет упражнений.</p>';
+        container.innerHTML = '<p style="text-align:center; color:#777; font-size:0.85rem;">Нет упражнений в этом дне.</p>';
         return;
       }
 
-      currentDay.exercises.forEach((ex, index) => {
+      currentDay.exercises.forEach((ex, exIdx) => {
+        const setsCount = ex.sets || 4;
+        let setsHtml = '';
+
+        for (let s = 1; s <= setsCount; s++) {
+          const key = `d${activeDayIndex}_e${exIdx}_s${s}`;
+          const savedW = localStorage.getItem(key + '_w') || '';
+          const savedR = localStorage.getItem(key + '_r') || '';
+          const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
+
+          setsHtml += `
+            <div class="set-row">
+              <span>Сет ${s}:</span>
+              <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
+              <span>кг ×</span>
+              <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+              <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+            </div>
+          `;
+        }
+
         const card = document.createElement('div');
         card.className = 'exercise-card';
         card.innerHTML = `
           <div class="ex-title">${ex.name}</div>
           <div class="ex-target">${ex.target}</div>
-          
-          <div class="sets-grid">
-            ${[1, 2, 3, 4].map(setNum => `
-              <div class="set-row">
-                <span class="set-label">Сет ${setNum}:</span>
-                <input type="text" class="set-input" placeholder="кг">
-                <span style="font-size: 13px; color: #aaa;">кг ×</span>
-                <input type="text" class="set-input" placeholder="повтор">
-                <input type="checkbox" class="checkbox-custom">
-              </div>
-            `).join('')}
-          </div>
-
+          <div>${setsHtml}</div>
           <div class="actions">
-            <button class="btn-small btn-edit" onclick="editExercise(${index})">✏️ Редактировать</button>
-            <button class="btn-small btn-delete" onclick="deleteExercise(${index})">🗑 Удалить</button>
+            <button class="btn-small btn-edit" onclick="editExercise(${exIdx})">✏️ Изменить</button>
+            <button class="btn-small btn-delete" onclick="deleteExercise(${exIdx})">🗑 Удалить</button>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // Сохранение упражнения
+    function saveVal(key, val) { localStorage.setItem(key, val); }
+
     function saveExercise() {
       const nameInput = document.getElementById('exName');
       const targetInput = document.getElementById('exTarget');
@@ -318,7 +383,8 @@
 
       const item = {
         name: nameInput.value.trim(),
-        target: targetInput.value.trim() ? targetInput.value.trim() : 'Цель не указана'
+        target: targetInput.value.trim() ? targetInput.value.trim() : 'Цель не указана',
+        sets: 4
       };
 
       if (editIndex === -1) {
@@ -334,9 +400,8 @@
       persistAndRender();
     }
 
-    // Добавление нового дня
     function addNewDay() {
-      const name = prompt('Введите название дня (например: День 3 или Спина/Бицепс):');
+      const name = prompt('Введите название дня:');
       if (name) {
         workoutData.push({ dayName: name, exercises: [] });
         activeDayIndex = workoutData.length - 1;
@@ -344,13 +409,9 @@
       }
     }
 
-    // Удаление текущего дня
     function deleteCurrentDay() {
-      if (workoutData.length <= 1) {
-        alert('Нельзя удалить единственный день!');
-        return;
-      }
-      if (confirm(`Удалить "${workoutData[activeDayIndex].dayName}" и все его упражнения?`)) {
+      if (workoutData.length <= 1) return alert('Нельзя удалить единственный день!');
+      if (confirm(`Удалить "${workoutData[activeDayIndex].dayName}"?`)) {
         workoutData.splice(activeDayIndex, 1);
         activeDayIndex = 0;
         persistAndRender();
@@ -373,17 +434,83 @@
       }
     }
 
+    // ЭКСПОРТ ОТЧЕТА ДЛЯ ЧАТА
+    function exportReport() {
+      let report = "📊 **ОТЧЕТ О ТРЕНИРОВКАХ ЗА НЕДЕЛЮ**\n\n";
+
+      workoutData.forEach((day, dIdx) => {
+        report += `═══ ${day.dayName.toUpperCase()} ═══\n`;
+        day.exercises.forEach((ex, eIdx) => {
+          report += `🔹 ${ex.name} (${ex.target})\n`;
+          let setsDone = [];
+          const setsCount = ex.sets || 4;
+          for (let s = 1; s <= setsCount; s++) {
+            const key = `d${dIdx}_e${eIdx}_s${s}`;
+            const w = localStorage.getItem(key + '_w');
+            const r = localStorage.getItem(key + '_r');
+            const c = localStorage.getItem(key + '_c') === 'true';
+            
+            if (w || r || c) {
+              setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
+            }
+          }
+          if (setsDone.length > 0) {
+            report += "   " + setsDone.join("\n   ") + "\n";
+          } else {
+            report += "   (Нет записей)\n";
+          }
+        });
+        report += "\n";
+      });
+
+      navigator.clipboard.writeText(report).then(() => {
+        alert('✅ Отчет скопирован в буфер обмена! Просто вставьте его в чат.');
+      }).catch(err => {
+        alert('Скопируйте вручную:\n\n' + report);
+      });
+    }
+
+    // ИМПОРТ НОВОГО ПЛАНА
+    function importProgram() {
+      const jsonText = document.getElementById('importInput').value.trim();
+      if (!jsonText) return alert('Вставьте JSON код!');
+
+      try {
+        const newData = JSON.parse(jsonText);
+        if (Array.isArray(newData)) {
+          workoutData = newData;
+          persistAndRender();
+          clearCurrentResults();
+          document.getElementById('importInput').value = '';
+          alert('🚀 Новый план успешно загружен!');
+        } else {
+          alert('Ошибка в формате данных!');
+        }
+      } catch (e) {
+        alert('Неверный формат кода. Убедитесь, что скопировали код целиком!');
+      }
+    }
+
+    // Очистить выполненные сеты (перед новой неделей)
+    function clearCurrentResults() {
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('_w') || key.includes('_r') || key.includes('_c')) {
+          localStorage.removeItem(key);
+        }
+      });
+      render();
+    }
+
     function render() {
       renderDaysNav();
       renderExercises();
     }
 
     function persistAndRender() {
-      localStorage.setItem('workout_program_v2', JSON.stringify(workoutData));
+      localStorage.setItem('my_full_workout_v3', JSON.stringify(workoutData));
       render();
     }
 
-    // PWA Установка
     let deferredPrompt;
     const installBtn = document.getElementById('pwaInstallBtn');
 
@@ -396,9 +523,7 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          installBtn.style.display = 'none';
-        }
+        if (outcome === 'accepted') { installBtn.style.display = 'none'; }
         deferredPrompt = null;
       } else {
         alert('Нажмите 3 точки в углу браузера (⋮) и выберите "Добавить на главный экран" или "Установить приложение"');
