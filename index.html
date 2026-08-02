@@ -35,6 +35,14 @@
     <div id="day3" class="day-content"><div id="ex-list-3"></div></div>
 
     <script>
+        // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW зарегистрирован!', reg))
+                .catch(err => console.error('Ошибка SW:', err));
+        });
+    }
         const data = {
             1: [
                 { name: "Жим гантелей лежа", target: "Цель: 14-16 кг × 10-12", sets: 4 },
