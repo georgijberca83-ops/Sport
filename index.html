@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,7 @@
     <!-- Подключение PWA и метатегов -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#121212">
-    <link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2543/2543320.png">
 
     <style>
         body { font-family: -apple-system, Roboto, sans-serif; background: #121212; color: #fff; padding: 12px; margin: 0; }
@@ -24,10 +24,17 @@
         .set-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; font-size: 0.8rem; background: #262626; padding: 4px 8px; border-radius: 6px; }
         input[type="number"] { width: 45px; padding: 4px; border: 1px solid #444; background: #121212; color: #fff; border-radius: 4px; text-align: center; font-size: 0.85rem; }
         input[type="checkbox"] { width: 18px; height: 18px; accent-color: #007bff; margin-left: auto; }
+        
+        /* Стиль для кнопки установки */
+        #pwaInstallBtn { display: none; width: 100%; padding: 12px; background: #28a745; color: #fff; border: none; border-radius: 8px; font-weight: bold; margin-bottom: 12px; font-size: 0.9rem; cursor: pointer; }
     </style>
 </head>
 <body>
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
+
+    <!-- Кнопка установки прямо на странице -->
+    <button id="pwaInstallBtn">📲 Установить приложение на телефон</button>
+
     <div class="tabs">
         <button class="tab active" onclick="switchDay(1, event)">День 1</button>
         <button class="tab" onclick="switchDay(2, event)">День 2</button>
@@ -99,14 +106,35 @@
         }
         render();
 
-        // --- ДОБАВЛЕНО: Регистрация Service Worker ---
+        // Регистрация Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW зарегистрирован успешно:', reg))
-                    .catch(err => console.error('Ошибка регистрации SW:', err));
+                    .then(reg => console.log('SW загружен:', reg))
+                    .catch(err => console.error('Ошибка SW:', err));
             });
         }
+
+        // Логика работы кнопки установки PWA
+        let deferredPrompt;
+        const installBtn = document.getElementById('pwaInstallBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+
+            installBtn.addEventListener('click', () => {
+                installBtn.style.display = 'none';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Пользователь установил приложение');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
     </script>
 </body>
 </html>
