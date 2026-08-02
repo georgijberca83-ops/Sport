@@ -240,7 +240,7 @@
     }
 
     input[type="number"] {
-      width: 50px;
+      width: 55px;
       padding: 4px;
       border: 1px solid #444;
       background: #121212;
@@ -257,7 +257,6 @@
       margin-left: auto;
     }
 
-    /* Стиль кнопки таймера */
     .btn-timer {
       background: #0284c7;
       color: white;
@@ -267,14 +266,37 @@
       font-weight: bold;
       font-size: 0.75rem;
       cursor: pointer;
+      flex: 1;
     }
 
-    .btn-timer.running {
-      background: #d97706;
+    .btn-timer.running { background: #d97706; }
+    .btn-timer.finished { background: #16a34a; }
+
+    /* Управление подходами */
+    .sets-control {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed #333;
+      font-size: 0.75rem;
+      color: #aaa;
     }
 
-    .btn-timer.finished {
-      background: #16a34a;
+    .sets-control-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .btn-set-change {
+      background: #334155;
+      color: white;
+      border: none;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
     }
 
     .actions-hidden {
@@ -361,7 +383,6 @@
     <button class="btn-day-settings" onclick="toggleAccordion('editDaySection')" title="Настройки дня и добавление упражнений">⚙️</button>
   </div>
 
-  <!-- ФОРМА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ -->
   <div class="accordion-content" id="editDaySection">
     <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
       <span id="form-title" style="font-weight:bold; font-size:0.85rem; color:#4da6ff;">+ Новое упражнение</span>
@@ -373,10 +394,9 @@
       <input type="text" id="exName" placeholder="Название (например: Планка)">
     </div>
     <div class="form-group">
-      <input type="text" id="exTarget" placeholder="Цель (например: 60 сек или 16 кг × 10)">
+      <input type="text" id="exTarget" placeholder="Цель (например: 60 сек)">
     </div>
     
-    <!-- Чекбокс таймера -->
     <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#222; padding:8px; border-radius:6px;">
       <input type="checkbox" id="exIsTimed" style="margin:0;">
       <label for="exIsTimed" style="font-size:0.8rem; color:#f0f0f0;">⏱ Упражнение на время (включить таймер)</label>
@@ -546,19 +566,24 @@
       nav.appendChild(addBtn);
     }
 
-    /* ФУНКЦИЯ ТАЙМЕРА */
+    function changeSetsCount(exIdx, delta) {
+      const ex = workoutData[activeDayIndex].exercises[exIdx];
+      ex.sets = Math.max(1, (ex.sets || 4) + delta);
+      persistAndRender();
+    }
+
     function startTimer(key, targetText) {
       const btn = document.getElementById(`btn_${key}`);
+      const input = document.getElementById(`input_${key}`);
       const checkbox = document.getElementById(`chk_${key}`);
       
-      // Ищем число секунд в описании (по умолчанию 60 сек, если не указано)
       const match = targetText.match(/\d+/);
       let duration = match ? parseInt(match[0]) : 60;
 
       if (activeTimers[key]) {
         clearInterval(activeTimers[key]);
         delete activeTimers[key];
-        btn.innerText = `▶️ Старт (${duration}с)`;
+        btn.innerText = `▶️ Старт`;
         btn.className = 'btn-timer';
         return;
       }
@@ -574,14 +599,17 @@
         if (timeLeft <= 0) {
           clearInterval(activeTimers[key]);
           delete activeTimers[key];
-          btn.innerText = '✅ Выполнено!';
+          btn.innerText = '✅ Готово';
           btn.className = 'btn-timer finished';
           
+          if (input) {
+            input.value = duration;
+            saveVal(key + '_r', duration);
+          }
           if (checkbox) {
             checkbox.checked = true;
             saveVal(key + '_c', true);
           }
-          saveVal(key + '_r', duration);
 
           if (navigator.vibrate) {
             navigator.vibrate([200, 100, 200, 100, 300]);
@@ -616,19 +644,16 @@
           const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
 
           if (ex.isTimed) {
-            // ВЕРСТКА ДЛЯ УПРАЖНЕНИЯ НА ВРЕМЯ
-            const defaultSec = savedR || (ex.target.match(/\d+/) ? ex.target.match(/\d+/)[0] : '60');
             setsHtml += `
               <div class="set-row">
                 <span>Сет ${s}:</span>
-                <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт (${defaultSec}с)</button>
-                <span>фактич:</span>
-                <input type="number" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт</button>
+                <input type="number" id="input_${key}" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                <span>сек</span>
                 <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
               </div>
             `;
           } else {
-            // ВЕРСТКА ДЛЯ ОБЫЧНОГО УПРАЖНЕНИЯ
             setsHtml += `
               <div class="set-row">
                 <span>Сет ${s}:</span>
@@ -652,6 +677,16 @@
             <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки">⚙️</button>
           </div>
           <div>${setsHtml}</div>
+          
+          <!-- Управление количеством подходов -->
+          <div class="sets-control">
+            <span>Подходов: <b>${setsCount}</b></span>
+            <div class="sets-control-btns">
+              <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, -1)">-</button>
+              <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, 1)">+</button>
+            </div>
+          </div>
+
           <div class="actions-hidden" id="exActions_${exIdx}">
             <button class="btn-small btn-edit" onclick="editExercise(${exIdx})">✏️ Изменить</button>
             <button class="btn-small btn-delete" onclick="deleteExercise(${exIdx})">🗑 Удалить</button>
@@ -867,7 +902,7 @@
         const newData = JSON.parse(jsonText);
         if (Array.isArray(newData)) {
           workoutData = newData;
-          persistAndRender();
+        persistAndRender();
           document.getElementById('importInput').value = '';
           alert('🚀 Новый план загружен!');
         } else alert('Ошибка в формате!');
