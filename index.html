@@ -60,6 +60,7 @@
       font-size: 0.8rem;
       cursor: pointer;
       font-weight: bold;
+      z-index: 10;
     }
     .stats-card {
       background: var(--card-bg);
@@ -253,7 +254,7 @@
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: var(--bg-color);
-      z-index: 1500;
+      z-index: 2500;
       overflow-y: auto;
       padding: 12px;
     }
@@ -465,7 +466,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.4.8</span>
+    <span class="version-badge">v1.4.9</span>
     <button class="top-settings-btn" onclick="openSettingsModal()">⚙️ Настройки</button>
   </div>
 
@@ -672,7 +673,7 @@
     }
 
     function changeTheme() {
-      appData.theme = document.getElementById('themeSelect'].value;
+      appData.theme = document.getElementById('themeSelect').value;
       saveData();
       applyThemeAndFont();
       playBeep(440, 100);
@@ -708,7 +709,7 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem('recompo_tracker_data_v148');
+      const saved = localStorage.getItem('recompo_tracker_data_v149');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
@@ -720,7 +721,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('recompo_tracker_data_v148', JSON.stringify(appData));
+      localStorage.setItem('recompo_tracker_data_v149', JSON.stringify(appData));
       updateStats();
     }
 
