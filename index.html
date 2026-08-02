@@ -281,7 +281,7 @@
     }
 
     input[type="number"] {
-      width: 55px;
+      width: 65px;
       padding: 4px;
       border: 1px solid #3f3f46;
       background: #18181b;
@@ -411,7 +411,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.2.1</span>
+    <span class="version-badge" id="appVersionBadge">v1.2.2</span>
   </div>
 
   <div class="stats-card">
@@ -522,10 +522,10 @@
       </div>
       <input type="hidden" id="editIndex" value="-1">
       <div class="form-group">
-        <input type="text" id="exName" placeholder="Название (например: Планка)">
+        <input type="text" id="exName" placeholder="Название (например: Подтягивания)">
       </div>
       <div class="form-group">
-        <input type="text" id="exTarget" placeholder="Цель (например: 14 кг х 12 или 60 сек)">
+        <input type="text" id="exTarget" placeholder="Цель (например: 6 раз или 60 сек)">
       </div>
       <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#121212; padding:8px; border-radius:6px;">
         <input type="checkbox" id="exIsTimed" style="margin:0;">
@@ -541,12 +541,12 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.2.1";
+    const APP_VERSION = "v1.2.2";
     
     const changelogHistory = [
+      { ver: "v1.2.2", text: "Исправлен расчет дат в пределах недели (теперь дни идут подряд в рамках 7 дней), скрыты графы веса для упражнений без дополнительного веса (свой вес/на повторения)." },
       { ver: "v1.2.1", text: "Исправлен расчет дат в пределах одной недели, автозаполнение полей по целям с возможностью редактирования, добавлена кнопка фиксации окончания тренировки." },
-      { ver: "v1.2.0", text: "Добавлен отдельный экран для тренировки, нумерация упражнений 1,2,3, исправлен таймер (без авто-галочек), смягчены цвета интерфейса." },
-      { ver: "v1.1.9", text: "Дни тренировок перенесены в вертикальный список с раскрывающимися блоками упражнений." }
+      { ver: "v1.2.0", text: "Добавлен отдельный экран для тренировки, нумерация упражнений 1,2,3, исправлен таймер (без авто-галочек), смягчены цвета интерфейса." }
     ];
 
     function renderChangelog() {
@@ -716,9 +716,11 @@
 
     function getDayCalculatedDate(dayIndex) {
       let startDateStr = localStorage.getItem('workout_start_date') || new Date().toISOString().split('T')[0];
-      const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '1'); // По умолчанию сдвиг на 1 день, чтобы дни шли последовательно в рамках одной недели
+      const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '1'); 
       const baseDate = new Date(startDateStr);
       const targetDate = new Date(baseDate);
+      
+      // Исправление расчета дат: дни идут строго по порядку в рамках недели, прибавляя шаг (обычно 1 или 2 дня)
       targetDate.setDate(baseDate.getDate() + (dayIndex * restDaysInterval));
 
       return {
@@ -755,7 +757,7 @@
         localStorage.setItem('workout_start_date', startDateStr);
       }
       if (!localStorage.getItem('workout_day_step')) {
-        localStorage.setItem('workout_day_step', '1'); // Установка по умолчанию для компактного распределения по неделе
+        localStorage.setItem('workout_day_step', '1'); 
       }
       updateStatsUI(startDateStr);
     }
@@ -810,14 +812,19 @@
       renderModalContent();
     }
 
-    // Автоизвлечение цифр из строки цели для предзаполнения
+    // Проверка, есть ли в цели упражнения упоминание веса (кг)
+    function hasWeightInTarget(targetStr) {
+      if (!targetStr) return false;
+      const lower = targetStr.toLowerCase();
+      return lower.includes('кг') || /\d+\s*кг/.test(lower);
+    }
+
     function parseTargetValues(targetStr) {
       if (!targetStr) return { weight: '', reps: '' };
       const numbers = targetStr.match(/\d+/g);
       if (!numbers) return { weight: '', reps: '' };
 
-      if (numbers.length >= 2) {
-        // Если чисел несколько, первое часто вес, второе повторения (например, "14 кг × 12 раз")
+      if (hasWeightInTarget(targetStr) && numbers.length >= 2) {
         return { weight: numbers[0], reps: numbers[1] };
       } else if (numbers.length === 1) {
         return { weight: '', reps: numbers[0] };
@@ -841,12 +848,12 @@
       day.exercises.forEach((ex, exIdx) => {
         const setsCount = ex.sets || 4;
         const defaults = parseTargetValues(ex.target);
+        const includeWeight = hasWeightInTarget(ex.target);
         let setsRows = '';
 
         for (let s = 1; s <= setsCount; s++) {
           const key = `d${activeDayIndex}_e${exIdx}_s${s}`;
           
-          // Автозаполнение пустых полей значениями из цели, если пользователь еще ничего не вводил
           let savedW = localStorage.getItem(key + '_w');
           if (savedW === null) {
             savedW = ex.isTimed ? '' : defaults.weight;
@@ -871,13 +878,24 @@
                 <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
               </div>
             `;
-          } else {
+          } else if (includeWeight) {
+            // Упражнение с весом и повторениями
             setsRows += `
               <div class="set-row">
                 <span>Сет ${s}:</span>
                 <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
                 <span>кг ×</span>
                 <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+              </div>
+            `;
+          } else {
+            // Упражнение без дополнительного веса (только повторения/собственный вес) — скрываем графу кг
+            setsRows += `
+              <div class="set-row">
+                <span>Сет ${s}:</span>
+                <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)" style="flex:1;">
+                <span style="font-size:0.75rem; color:#a1a1aa;">повт</span>
                 <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
               </div>
             `;
@@ -1040,6 +1058,8 @@
         report += `${eIdx + 1}. ${ex.name} (${ex.target})\n`;
         let setsDone = [];
         const setsCount = ex.sets || 4;
+        const includeWeight = hasWeightInTarget(ex.target);
+
         for (let s = 1; s <= setsCount; s++) {
           const key = `d${dayIndex}_e${eIdx}_s${s}`;
           const w = localStorage.getItem(key + '_w');
@@ -1048,7 +1068,8 @@
           
           if (w || r || c) {
             if (ex.isTimed) setsDone.push(`Сет ${s}: ${r || 0} сек ${c ? '✅' : '❌'}`);
-            else setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
+            else if (includeWeight) setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
+            else setsDone.push(`Сет ${s}: ${r || 0} повт ${c ? '✅' : '❌'}`);
           }
         }
         if (setsDone.length > 0) report += "   " + setsDone.join("\n   ") + "\n";
@@ -1074,7 +1095,6 @@
       alert(`🎉 День зафиксирован в Историю!`);
     }
 
-    // Функция фиксации окончания тренировки (автосохранение в историю и закрытие окна)
     function finishWorkoutDay() {
       saveCurrentDayToHistory();
       closeWorkoutModal();
