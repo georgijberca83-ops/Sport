@@ -339,14 +339,14 @@
       border: 1px solid var(--border-color);
     }
     input[type="number"] {
-      width: 65px;
+      width: 55px;
       padding: 6px;
       border: 1px solid var(--border-color);
       background: var(--card-bg);
       color: var(--text-main);
       border-radius: 6px;
       text-align: center;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
     input[type="checkbox"] {
       width: 20px;
@@ -447,7 +447,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.4.5</span>
+    <span class="version-badge">v1.4.6</span>
   </div>
 
   <div class="stats-card">
@@ -485,9 +485,19 @@
 
   <button class="day-tab-add" onclick="openAddDayModal()">+ Добавить день тренировок</button>
 
-  <!-- Аккордеон: Настройки визуала, звука и бэкапа -->
+  <button class="accordion-btn" onclick="toggleAccordion('historyAccordion')">
+    <span>📁 История тренировок</span> <span>▼</span>
+  </button>
+  <div id="historyAccordion" class="accordion-content">
+    <div style="font-weight: bold; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-main);">Архив занятий</div>
+    <div id="historyContainer">
+      <div style="font-size: 0.75rem; color: var(--text-sub);">История пока пуста. Завершите тренировку, чтобы она появилась здесь.</div>
+    </div>
+  </div>
+
+  <!-- Единый блок настроек в самом низу -->
   <button class="accordion-btn" onclick="toggleAccordion('settingsAccordion')">
-    <span>⚙️ Настройки (Визуал, Звук, Бэкап)</span> <span>▼</span>
+    <span>⚙️ Настройки приложения (Тема, Шрифт, Звук, Бэкап)</span> <span>▼</span>
   </button>
   <div id="settingsAccordion" class="accordion-content">
     <div class="form-group">
@@ -528,16 +538,6 @@
     <button class="btn-sync" onclick="exportData()" style="margin-top:4px;">💾 Экспорт данных (Бэкап)</button>
     <button class="btn-sync" onclick="triggerImport()">📂 Импорт данных</button>
     <input type="file" id="importFile" style="display:none" onchange="importData(event)">
-  </div>
-
-  <button class="accordion-btn" onclick="toggleAccordion('historyAccordion')">
-    <span>📁 История тренировок</span> <span>▼</span>
-  </button>
-  <div id="historyAccordion" class="accordion-content">
-    <div style="font-weight: bold; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-main);">Архив занятий</div>
-    <div id="historyContainer">
-      <div style="font-size: 0.75rem; color: var(--text-sub);">История пока пуста. Завершите тренировку, чтобы она появилась здесь.</div>
-    </div>
   </div>
 
   <!-- Плашка глобального таймера отдыха -->
@@ -581,8 +581,8 @@
           name: "День 1: Спина, Бицепс + Фокус на Кор",
           weekday: 1,
           exercises: [
-            { id: 101, name: "Разминка", target: "Суставная разминка + вис на турнике 2 подхода по 30 секунд [ТАЙМЕР]", sets: 3, type: "timer" },
-            { id: 102, name: "Подтягивания (прямой хват)", target: "3 подхода (цель держать стабильно 6, 6, 4 повторений) (Цель ширина спины).", sets: 3, type: "reps" }
+            { id: 101, name: "Разминка", target: "Суставная разминка + вис на турнике 2 подхода по 30 секунд [ТАЙМЕР]", sets: 3, type: "timer", weight: 0 },
+            { id: 102, name: "Подтягивания (прямой хват)", target: "3 подхода (цель держать стабильно 6, 6, 4 повторений) (Цель ширина спины).", sets: 3, type: "reps", weight: 0 }
           ]
         }
       ],
@@ -677,7 +677,7 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem('recompo_tracker_data_v145');
+      const saved = localStorage.getItem('recompo_tracker_data_v146');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
@@ -691,7 +691,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('recompo_tracker_data_v145', JSON.stringify(appData));
+      localStorage.setItem('recompo_tracker_data_v146', JSON.stringify(appData));
       updateStats();
     }
 
@@ -796,12 +796,15 @@
 
         let setsHtml = '';
         const defaultVal = parseTargetValues(ex.target, ex.type);
+        const defaultWeight = ex.weight !== undefined ? ex.weight : 0;
 
         for (let i = 1; i <= ex.sets; i++) {
           if (ex.type === 'timer') {
             setsHtml += `
               <div class="set-row">
-                <span style="width:45px; color:var(--text-sub);">Сет ${i}:</span>
+                <span style="width:40px; color:var(--text-sub);">Сет ${i}:</span>
+                <input type="number" id="weight_${ex.id}_${i}" value="${defaultWeight}" title="Вес (кг)" placeholder="кг">
+                <span style="font-size:0.7rem; color:var(--text-sub);">кг</span>
                 <button class="btn-timer" id="timer_btn_${ex.id}_${i}" onclick="toggleTimer(${ex.id}, ${i}, ${defaultVal})">▶ Старт (${defaultVal}с)</button>
                 <input type="number" id="val_${ex.id}_${i}" value="${defaultVal}">
                 <span style="font-size:0.75rem; color:var(--text-sub);">сек</span>
@@ -811,8 +814,10 @@
           } else {
             setsHtml += `
               <div class="set-row">
-                <span style="width:45px; color:var(--text-sub);">Сет ${i}:</span>
-                <input type="number" id="val_${ex.id}_${i}" value="${defaultVal}" style="flex:1;">
+                <span style="width:40px; color:var(--text-sub);">Сет ${i}:</span>
+                <input type="number" id="weight_${ex.id}_${i}" value="${defaultWeight}" title="Вес (кг)" placeholder="кг">
+                <span style="font-size:0.7rem; color:var(--text-sub);">кг</span>
+                <input type="number" id="val_${ex.id}_${i}" value="${defaultVal}" style="flex:1;" placeholder="повт">
                 <span style="font-size:0.75rem; color:var(--text-sub);">повт</span>
                 <input type="checkbox" id="check_${ex.id}_${i}" onchange="handleSetCheck(this)">
               </div>
@@ -925,7 +930,6 @@
       const btn = document.getElementById(`timer_btn_${exId}_${setId}`);
       const input = document.getElementById(`val_${exId}_${setId}`);
 
-      // Если таймер уже запущен — останавливаем/сбрасываем
       if (activeTimers[`${exId}_${setId}`]) {
         clearInterval(activeTimers[`${exId}_${setId}`]);
         delete activeTimers[`${exId}_${setId}`];
@@ -969,9 +973,10 @@
       day.exercises.forEach((ex, idx) => {
         report += `${idx + 1}. ${ex.name}\n`;
         for (let i = 1; i <= ex.sets; i++) {
+          const weight = document.getElementById(`weight_${ex.id}_${i}`)?.value || 0;
           const val = document.getElementById(`val_${ex.id}_${i}`)?.value || 0;
           const checked = document.getElementById(`check_${ex.id}_${i}`)?.checked ? '✅' : '⚪';
-          report += `   Сет ${i}: ${val} ${ex.type === 'timer' ? 'сек' : 'повт'} ${checked}\n`;
+          report += `   Сет ${i}: ${weight} кг × ${val} ${ex.type === 'timer' ? 'сек' : 'повт'} ${checked}\n`;
           hasData = true;
         }
       });
@@ -1077,7 +1082,8 @@
                 name: cleanExName.split('–')[0].split('-')[0].trim(),
                 target: trimmed,
                 sets: setsCount > 0 ? setsCount : 3,
-                type: isTimer ? 'timer' : 'reps'
+                type: isTimer ? 'timer' : 'reps',
+                weight: 0
               });
             }
           }
@@ -1097,7 +1103,6 @@
         statusMsg.style.display = 'block';
         playBeep(784, 150);
 
-        // Автоматически скрываем блок плана ИИ после успешного применения
         setTimeout(() => {
           document.getElementById('aiPlanAccordion').style.display = 'none';
         }, 800);
@@ -1173,7 +1178,8 @@
         name,
         target: target || "",
         sets: 3,
-        type: typeChoice === 'timer' ? 'timer' : 'reps'
+        type: typeChoice === 'timer' ? 'timer' : 'reps',
+        weight: 0
       });
       saveData();
       renderExercises(day);
