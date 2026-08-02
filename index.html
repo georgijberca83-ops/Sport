@@ -49,7 +49,6 @@
       margin-top: 4px;
     }
 
-    /* Кнопка установки скрыта по умолчанию */
     #pwaInstallBtn {
       display: none;
       width: 100%;
@@ -101,7 +100,6 @@
       opacity: 0.85;
     }
 
-    /* Компактная кнопка добавления дня */
     .day-tab-add {
       flex: 0 0 auto;
       padding: 8px 12px;
@@ -114,11 +112,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
-    }
-
-    .day-tab-add:hover {
-      background: #14532d;
     }
 
     .day-header {
@@ -138,7 +131,6 @@
       gap: 8px;
     }
 
-    /* Кнопка-шестеренка возле названия дня */
     .btn-day-settings {
       background: none;
       border: none;
@@ -146,14 +138,8 @@
       cursor: pointer;
       padding: 2px 6px;
       border-radius: 6px;
-      transition: background 0.2s;
     }
 
-    .btn-day-settings:hover {
-      background: #333;
-    }
-
-    /* Панель настроек дня */
     .accordion-content {
       display: none;
       background: #1a1a1a;
@@ -242,8 +228,6 @@
       padding: 2px 4px;
     }
 
-    .btn-gear:hover { color: #aaa; }
-
     .set-row {
       display: flex;
       gap: 6px;
@@ -273,6 +257,26 @@
       margin-left: auto;
     }
 
+    /* Стиль кнопки таймера */
+    .btn-timer {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 0.75rem;
+      cursor: pointer;
+    }
+
+    .btn-timer.running {
+      background: #d97706;
+    }
+
+    .btn-timer.finished {
+      background: #16a34a;
+    }
+
     .actions-hidden {
       display: none;
       gap: 8px;
@@ -292,7 +296,6 @@
     .btn-edit { background: #4b5563; color: white; }
     .btn-delete { background: #dc3545; color: white; }
 
-    /* Блок Бэкапа */
     .btn-sync {
       width: 100%;
       padding: 10px;
@@ -337,7 +340,6 @@
 
   <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
 
-  <!-- Статистика стажа -->
   <div class="stats-card">
     <div class="stats-main" id="daysCounter">Загрузка стажа...</div>
     <div class="stats-sub" id="startDateText">Старт: ...</div>
@@ -347,12 +349,10 @@
     </div>
   </div>
 
-  <!-- Кнопка скрыта через CSS (display: none) -->
   <button id="pwaInstallBtn">📲 Установить приложение</button>
 
   <div class="days-nav" id="daysNav"></div>
 
-  <!-- Шапка дня с компактной иконкой настроек -->
   <div class="day-header">
     <div class="day-header-left">
       <h3 id="currentDayTitle" style="margin: 0; color:#4da6ff;">День 1</h3>
@@ -361,7 +361,7 @@
     <button class="btn-day-settings" onclick="toggleAccordion('editDaySection')" title="Настройки дня и добавление упражнений">⚙️</button>
   </div>
 
-  <!-- СКРЫВАЕМЫЙ БЛОК НАСТРОЕК ДНЯ И ДОБАВЛЕНИЯ УПРАЖНЕНИЯ -->
+  <!-- ФОРМА ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ -->
   <div class="accordion-content" id="editDaySection">
     <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
       <span id="form-title" style="font-weight:bold; font-size:0.85rem; color:#4da6ff;">+ Новое упражнение</span>
@@ -370,17 +370,23 @@
     
     <input type="hidden" id="editIndex" value="-1">
     <div class="form-group">
-      <input type="text" id="exName" placeholder="Название упражнения">
+      <input type="text" id="exName" placeholder="Название (например: Планка)">
     </div>
     <div class="form-group">
-      <input type="text" id="exTarget" placeholder="Цель (например: 14-16 кг × 10-12)">
+      <input type="text" id="exTarget" placeholder="Цель (например: 60 сек или 16 кг × 10)">
     </div>
+    
+    <!-- Чекбокс таймера -->
+    <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#222; padding:8px; border-radius:6px;">
+      <input type="checkbox" id="exIsTimed" style="margin:0;">
+      <label for="exIsTimed" style="font-size:0.8rem; color:#f0f0f0;">⏱ Упражнение на время (включить таймер)</label>
+    </div>
+
     <button class="btn-main" onclick="saveExercise()">Сохранить упражнение</button>
   </div>
 
   <div id="exercisesContainer"></div>
 
-  <!-- СКРЫВАЕМЫЙ БЛОК: Сохранение, Бэкап и Отчеты -->
   <button class="accordion-btn" style="border-color: #3b3b58; color: #a5b4fc;" onclick="toggleAccordion('backupSection')">
     <span>💾 Отчеты, сброс и Бэкап данных</span>
     <span id="icon_backupSection">▼</span>
@@ -402,7 +408,6 @@
     <button class="btn-sync" style="background:#10b981; margin-top:6px;" onclick="importProgram()">📥 Загрузить новый план</button>
   </div>
 
-  <!-- Раздел сохраненной истории -->
   <div style="margin-top: 15px;">
     <h3 style="font-size:1rem; color:#a5b4fc; margin-bottom:8px;">📜 История тренировок</h3>
     <div id="historyContainer"></div>
@@ -427,13 +432,13 @@
           { name: 'Тяга гантели к поясу', target: 'Цель: 16-18 кг × 10-12', sets: 4 },
           { name: 'Махи в наклоне', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
           { name: "Сгибания 'Молот'", target: 'Цель: 8-10 кг × 10-12', sets: 4 },
-          { name: 'Подъем ног в висе', target: 'Цель: Свой вес × 8-12', sets: 3 }
+          { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
         ]
       },
       {
         dayName: 'День 3',
         exercises: [
-          { name: 'Скакалка', target: 'Цель: 3 раунда × 2 мин', sets: 3 },
+          { name: 'Скакалка', target: 'Цель: 3 раунда × 120 сек', sets: 3, isTimed: true },
           { name: 'Зашагивания на скамью', target: 'Цель: 8-10 кг × 10-12', sets: 4 },
           { name: 'Румынская тяга', target: 'Цель: 12-15 кг × 12', sets: 4 },
           { name: 'Забеги по лестнице', target: 'Цель: 5 подъемов', sets: 5 },
@@ -445,6 +450,7 @@
     let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v3')) || originalProgram;
     let historyData = JSON.parse(localStorage.getItem('workout_history')) || [];
     let activeDayIndex = 0;
+    let activeTimers = {};
 
     const daysOfWeekShort = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
     const monthsShort = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
@@ -459,18 +465,14 @@
       const targetDate = new Date(baseDate);
       targetDate.setDate(baseDate.getDate() + (dayIndex * restDaysInterval));
 
-      const dayOfWeek = daysOfWeekShort[targetDate.getDay()];
-      const dayNum = targetDate.getDate();
-      const monthName = monthsShort[targetDate.getMonth()];
-
       return {
-        formattedStr: `${dayOfWeek}, ${dayNum} ${monthName}`,
+        formattedStr: `${daysOfWeekShort[targetDate.getDay()]}, ${targetDate.getDate()} ${monthsShort[targetDate.getMonth()]}`,
         fullDate: targetDate
       };
     }
 
     function configureSchedule() {
-      const step = prompt('Укажите интервал между тренировочными днями в днях (например, 2 = тренировка через день, 1 = каждый день):', localStorage.getItem('workout_day_step') || '2');
+      const step = prompt('Интервал между тренировочными днями (в днях):', localStorage.getItem('workout_day_step') || '2');
       if (step && !isNaN(parseInt(step))) {
         localStorage.setItem('workout_day_step', step);
         render();
@@ -483,9 +485,7 @@
       const isVisible = content.style.display === 'block';
 
       content.style.display = isVisible ? 'none' : 'block';
-      if (icon) {
-        icon.innerText = isVisible ? '▼' : '▲';
-      }
+      if (icon) icon.innerText = isVisible ? '▼' : '▲';
     }
 
     function toggleExActions(idx) {
@@ -514,13 +514,11 @@
     }
 
     function resetStartDate() {
-      const newDate = prompt('Укажите реальную дату первого дня тренировок (ГГГГ-ММ-ДД):');
+      const newDate = prompt('Дата первого дня тренировок (ГГГГ-ММ-ДД):');
       if (newDate && !isNaN(Date.parse(newDate))) {
         localStorage.setItem('workout_start_date', newDate);
         updateStatsUI(newDate);
         render();
-      } else if (newDate) {
-        alert('Некорректный формат!');
       }
     }
 
@@ -543,10 +541,53 @@
 
       const addBtn = document.createElement('button');
       addBtn.className = 'day-tab-add';
-      addBtn.title = 'Добавить день';
       addBtn.innerText = '➕';
       addBtn.onclick = addNewDay;
       nav.appendChild(addBtn);
+    }
+
+    /* ФУНКЦИЯ ТАЙМЕРА */
+    function startTimer(key, targetText) {
+      const btn = document.getElementById(`btn_${key}`);
+      const checkbox = document.getElementById(`chk_${key}`);
+      
+      // Ищем число секунд в описании (по умолчанию 60 сек, если не указано)
+      const match = targetText.match(/\d+/);
+      let duration = match ? parseInt(match[0]) : 60;
+
+      if (activeTimers[key]) {
+        clearInterval(activeTimers[key]);
+        delete activeTimers[key];
+        btn.innerText = `▶️ Старт (${duration}с)`;
+        btn.className = 'btn-timer';
+        return;
+      }
+
+      let timeLeft = duration;
+      btn.className = 'btn-timer running';
+      btn.innerText = `⏱ ${timeLeft} с`;
+
+      activeTimers[key] = setInterval(() => {
+        timeLeft--;
+        btn.innerText = `⏱ ${timeLeft} с`;
+
+        if (timeLeft <= 0) {
+          clearInterval(activeTimers[key]);
+          delete activeTimers[key];
+          btn.innerText = '✅ Выполнено!';
+          btn.className = 'btn-timer finished';
+          
+          if (checkbox) {
+            checkbox.checked = true;
+            saveVal(key + '_c', true);
+          }
+          saveVal(key + '_r', duration);
+
+          if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200, 100, 300]);
+          }
+        }
+      }, 1000);
     }
 
     function renderExercises() {
@@ -574,15 +615,30 @@
           const savedR = localStorage.getItem(key + '_r') || '';
           const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
 
-          setsHtml += `
-            <div class="set-row">
-              <span>Сет ${s}:</span>
-              <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
-              <span>кг ×</span>
-              <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
-              <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
-            </div>
-          `;
+          if (ex.isTimed) {
+            // ВЕРСТКА ДЛЯ УПРАЖНЕНИЯ НА ВРЕМЯ
+            const defaultSec = savedR || (ex.target.match(/\d+/) ? ex.target.match(/\d+/)[0] : '60');
+            setsHtml += `
+              <div class="set-row">
+                <span>Сет ${s}:</span>
+                <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт (${defaultSec}с)</button>
+                <span>фактич:</span>
+                <input type="number" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+              </div>
+            `;
+          } else {
+            // ВЕРСТКА ДЛЯ ОБЫЧНОГО УПРАЖНЕНИЯ
+            setsHtml += `
+              <div class="set-row">
+                <span>Сет ${s}:</span>
+                <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
+                <span>кг ×</span>
+                <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+              </div>
+            `;
+          }
         }
 
         const card = document.createElement('div');
@@ -590,10 +646,10 @@
         card.innerHTML = `
           <div class="ex-header">
             <div>
-              <div class="ex-title">${ex.name}</div>
+              <div class="ex-title">${ex.name} ${ex.isTimed ? '⏱' : ''}</div>
               <div class="ex-target">${ex.target}</div>
             </div>
-            <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки упражнения">⚙️</button>
+            <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки">⚙️</button>
           </div>
           <div>${setsHtml}</div>
           <div class="actions-hidden" id="exActions_${exIdx}">
@@ -610,6 +666,7 @@
     function saveExercise() {
       const nameInput = document.getElementById('exName');
       const targetInput = document.getElementById('exTarget');
+      const timedInput = document.getElementById('exIsTimed');
       const editIndex = parseInt(document.getElementById('editIndex').value);
 
       if (!nameInput.value.trim()) return alert('Введите название!');
@@ -617,7 +674,8 @@
       const item = {
         name: nameInput.value.trim(),
         target: targetInput.value.trim() ? targetInput.value.trim() : 'Цель не указана',
-        sets: 4
+        sets: 4,
+        isTimed: timedInput.checked
       };
 
       if (editIndex === -1) {
@@ -630,6 +688,7 @@
 
       nameInput.value = '';
       targetInput.value = '';
+      timedInput.checked = false;
       document.getElementById('editDaySection').style.display = 'none';
       persistAndRender();
     }
@@ -657,6 +716,7 @@
       const ex = workoutData[activeDayIndex].exercises[index];
       document.getElementById('exName').value = ex.name;
       document.getElementById('exTarget').value = ex.target;
+      document.getElementById('exIsTimed').checked = !!ex.isTimed;
       document.getElementById('editIndex').value = index;
       document.getElementById('form-title').innerText = "✏️ Изменить упражнение";
       
@@ -687,7 +747,11 @@
           const c = localStorage.getItem(key + '_c') === 'true';
           
           if (w || r || c) {
-            setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
+            if (ex.isTimed) {
+              setsDone.push(`Сет ${s}: ${r || 0} сек ${c ? '✅' : '❌'}`);
+            } else {
+              setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
+            }
           }
         }
         if (setsDone.length > 0) report += "   " + setsDone.join("\n   ") + "\n";
@@ -754,7 +818,7 @@
     }
 
     function clearCurrentResults() {
-      if (!confirm('Очистить все введенные веса и галочки на сегодня?')) return;
+      if (!confirm('Очистить все введенные веса, секунды и галочки на сегодня?')) return;
       Object.keys(localStorage).forEach(key => {
         if (key.includes('_w') || key.includes('_r') || key.includes('_c')) {
           localStorage.removeItem(key);
