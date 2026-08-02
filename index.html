@@ -20,11 +20,28 @@
       padding-bottom: 50px;
     }
 
+    .app-header {
+      text-align: center;
+      margin: 5px 0 12px 0;
+    }
+
     h1 {
       font-size: 1.2rem;
-      text-align: center;
       color: #4da6ff;
-      margin: 5px 0 12px 0;
+      margin: 0;
+      display: inline-block;
+    }
+
+    .version-badge {
+      font-size: 0.65rem;
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      padding: 2px 6px;
+      border-radius: 6px;
+      vertical-align: super;
+      margin-left: 6px;
+      font-weight: bold;
     }
 
     /* Статистика и авто-счетчик стажа */
@@ -47,6 +64,17 @@
       font-size: 0.75rem;
       color: #94a3b8;
       margin-top: 4px;
+    }
+
+    /* Интерактивный блок мотивации на главном экране */
+    .motivation-box {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+      cursor: pointer;
     }
 
     #pwaInstallBtn {
@@ -168,7 +196,7 @@
 
     .form-group { margin-bottom: 8px; }
 
-    input[type="text"], textarea {
+    input[type="text"], input[type="password"], textarea, select {
       width: 100%;
       padding: 8px;
       background: #121212;
@@ -360,7 +388,10 @@
 </head>
 <body>
 
-  <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
+  <div class="app-header">
+    <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
+    <span class="version-badge" id="appVersionBadge">v1.0.0</span>
+  </div>
 
   <div class="stats-card">
     <div class="stats-main" id="daysCounter">Загрузка стажа...</div>
@@ -369,6 +400,12 @@
       <button class="btn-small btn-edit" onclick="resetStartDate()">⚙️ Дата старта</button>
       <button class="btn-small btn-edit" style="background:#0284c7;" onclick="configureSchedule()">📅 Расписание дней</button>
     </div>
+  </div>
+
+  <!-- Мотивационный блок -->
+  <div class="motivation-box" onclick="getNewMotivation()" title="Нажми для новой мотивации">
+    <div style="font-size: 0.7rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">⚡ Мотивация на сегодня (нажми)</div>
+    <div id="motivationText" style="font-size: 0.85rem; color: #e2e8f0; font-weight: 500; line-height: 1.4;">Загрузка...</div>
   </div>
 
   <button id="pwaInstallBtn">📲 Установить приложение</button>
@@ -407,8 +444,34 @@
 
   <div id="exercisesContainer"></div>
 
+  <!-- Блок уведомлений и готовых планов -->
+  <button class="accordion-btn" style="border-color: #0284c7; color: #38bdf8;" onclick="toggleAccordion('remindersAndPlansSection')">
+    <span>🔔 Напоминания и Готовые планы</span>
+    <span id="icon_remindersAndPlansSection">▼</span>
+  </button>
+  <div class="accordion-content" id="remindersAndPlansSection">
+    
+    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🔔 Напоминания о тренировке:</div>
+    <div style="display:flex; gap:6px; margin-bottom:12px;">
+      <button class="btn-sync" style="background:#0284c7; margin:0;" onclick="toggleWorkoutReminders()">🔔 Включить напоминания</button>
+    </div>
+
+    <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+
+    <div style="font-size:0.75rem; color:#4da6ff; margin-bottom:4px; font-weight:bold;">📋 Быстрый выбор программы тренировок:</div>
+    <div class="form-group" style="margin-bottom:6px;">
+      <select id="presetPlanSelect">
+        <option value="recomp">Рекомпозиция (База с гантелями/турником)</option>
+        <option value="home">Домашняя зарядка (Без инвентаря)</option>
+        <option value="fullbody">Фуллбади 3 дня</option>
+      </select>
+    </div>
+    <button class="btn-sync" style="background:#059669; margin:0;" onclick="applyPresetPlan()">🚀 Загрузить выбранный план</button>
+  </div>
+
+  <!-- Блок бэкапов и истории изменений (Версий) -->
   <button class="accordion-btn" style="border-color: #3b3b58; color: #a5b4fc;" onclick="toggleAccordion('backupSection')">
-    <span>💾 Отчеты, сброс и Бэкап данных</span>
+    <span>💾 Отчеты, Версии и Бэкап</span>
     <span id="icon_backupSection">▼</span>
   </button>
   <div class="accordion-content" id="backupSection">
@@ -416,12 +479,9 @@
     <button class="btn-sync" onclick="exportReport()">📋 Скопировать отчет за все дни</button>
     <button class="btn-small btn-delete" style="width:100%; margin-bottom:10px; background:#374151; padding:8px;" onclick="clearCurrentResults()">🧹 Сбросить веса на сегодня</button>
 
-    <div style="font-size:0.75rem; color:#4da6ff; margin-top:12px; margin-bottom:4px; font-weight:bold;">🤖 Создать план под себя через ИИ:</div>
-    <div class="form-group" style="margin-bottom:6px;">
-      <textarea id="aiPromptInput" rows="2" placeholder="Опишите цель, инвентарь, дни (например: 3 дня в зале, цель масса)"></textarea>
-    </div>
-    <div style="display:flex; gap:6px; margin-bottom:10px;">
-      <button class="btn-sync" style="background:#0284c7; margin:0;" onclick="copyAiPrompt()">📋 Скопировать промпт</button>
+    <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
+    <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #333; margin-bottom:10px; line-height:1.4; color:#94a3b8;">
+      <b>v1.0.0</b> — Добавлены уведомления, готовые программы и версионирование.
     </div>
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
@@ -430,10 +490,6 @@
       <button class="btn-sync" style="background:#0369a1; margin:0;" onclick="document.getElementById('fileInput').click()">📂 Восстановить</button>
     </div>
     <input type="file" id="fileInput" style="display:none" accept=".json" onchange="restoreBackup(event)">
-
-    <div style="font-size:0.75rem; color:#aaa; margin-top:8px; margin-bottom:4px;">Загрузить план от тренера или ИИ (JSON):</div>
-    <textarea id="importInput" rows="2" placeholder="Вставьте JSON..."></textarea>
-    <button class="btn-sync" style="background:#10b981; margin-top:6px;" onclick="importProgram()">📥 Загрузить новый план</button>
   </div>
 
   <div style="margin-top: 15px;">
@@ -442,40 +498,94 @@
   </div>
 
   <script>
-    const originalProgram = [
-      {
-        dayName: 'День 1',
-        exercises: [
-          { name: 'Жим гантелей лежа', target: 'Цель: 14-16 кг × 10-12', sets: 4 },
-          { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8', sets: 4 },
-          { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12', sets: 3 },
-          { name: 'Махи в стороны', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
-          { name: 'Отжимания от скамьи', target: 'Цель: Свой вес × 10-12', sets: 3 }
-        ]
-      },
-      {
-        dayName: 'День 2',
-        exercises: [
-          { name: 'Подтягивания', target: 'Цель: Свой вес × MAX', sets: 3 },
-          { name: 'Тяга гантели к поясу', target: 'Цель: 16-18 кг × 10-12', sets: 4 },
-          { name: 'Махи в наклоне', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
-          { name: "Сгибания 'Молот'", target: 'Цель: 8-10 кг × 10-12', sets: 4 },
-          { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
-        ]
-      },
-      {
-        dayName: 'День 3',
-        exercises: [
-          { name: 'Скакалка', target: 'Цель: 3 раунда × 120 сек', sets: 3, isTimed: true },
-          { name: 'Зашагивания на скамью', target: 'Цель: 8-10 кг × 10-12', sets: 4 },
-          { name: 'Румынская тяга', target: 'Цель: 12-15 кг × 12', sets: 4 },
-          { name: 'Забеги по лестнице', target: 'Цель: 5 подъемов', sets: 5 },
-          { name: 'Подъемы на носки', target: 'Цель: Свой вес × 15-20', sets: 4 }
-        ]
-      }
+    // ⚙️ ИЗМЕНЯЙТЕ ВЕРСИЮ ЗДЕСЬ ПРИ КАЖДОМ ОБНОВЛЕНИИ КОДА:
+    const APP_VERSION = "v1.0.0";
+    
+    // История изменений (дописывайте сверху свои версии)
+    const changelogHistory = [
+      { ver: "v1.0.0", text: "Добавлены уведомления, банк программ и бейдж версий." }
     ];
 
-    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v3')) || originalProgram;
+    function renderChangelog() {
+      document.getElementById('appVersionBadge').innerText = APP_VERSION;
+      const box = document.getElementById('changelogBox');
+      box.innerHTML = changelogHistory.map(item => `<b>${item.ver}</b> — ${item.text}`).join('<br>');
+    }
+
+    const presetPrograms = {
+      recomp: [
+        {
+          dayName: 'День 1',
+          exercises: [
+            { name: 'Жим гантелей лежа', target: 'Цель: 14-16 кг × 10-12', sets: 4 },
+            { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8', sets: 4 },
+            { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12', sets: 3 },
+            { name: 'Махи в стороны', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
+            { name: 'Отжимания от скамьи', target: 'Цель: Свой вес × 10-12', sets: 3 }
+          ]
+        },
+        {
+          dayName: 'День 2',
+          exercises: [
+            { name: 'Подтягивания', target: 'Цель: Свой вес × MAX', sets: 3 },
+            { name: 'Тяга гантели к поясу', target: 'Цель: 16-18 кг × 10-12', sets: 4 },
+            { name: 'Махи в наклоне', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
+            { name: "Сгибания 'Молот'", target: 'Цель: 8-10 кг × 10-12', sets: 4 },
+            { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
+          ]
+        },
+        {
+          dayName: 'День 3',
+          exercises: [
+            { name: 'Скакалка', target: 'Цель: 3 раунда × 120 сек', sets: 3, isTimed: true },
+            { name: 'Зашагивания на скамью', target: 'Цель: 8-10 кг × 10-12', sets: 4 },
+            { name: 'Румынская тяга', target: 'Цель: 12-15 кг × 12', sets: 4 },
+            { name: 'Забеги по лестнице', target: 'Цель: 5 подъемов', sets: 5 },
+            { name: 'Подъемы на носки', target: 'Цель: Свой вес × 15-20', sets: 4 }
+          ]
+        }
+      ],
+      home: [
+        {
+          dayName: 'День 1',
+          exercises: [
+            { name: 'Классические отжимания', target: 'Цель: 15-20 раз', sets: 4 },
+            { name: 'Приседания без веса', target: 'Цель: 20-25 раз', sets: 4 },
+            { name: 'Скручивания на пресс', target: 'Цель: 15-20 раз', sets: 3 },
+            { name: 'Планка', target: 'Цель: 45 сек', sets: 3, isTimed: true }
+          ]
+        },
+        {
+          dayName: 'День 2',
+          exercises: [
+            { name: 'Обратные отжимания от дивана', target: 'Цель: 12-15 раз', sets: 4 },
+            { name: 'Выпады на месте', target: 'Цель: по 12 раз на ногу', sets: 3 },
+            { name: 'Подъем ног лежа', target: 'Цель: 12-15 раз', sets: 3 },
+            { name: 'Боковая планка', target: 'Цель: 30 сек', sets: 3, isTimed: true }
+          ]
+        }
+      ],
+      fullbody: [
+        {
+          dayName: 'День А',
+          exercises: [
+            { name: 'Приседания с гантелями', target: 'Цель: 12 раз', sets: 4 },
+            { name: 'Жим стоя', target: 'Цель: 10 раз', sets: 3 },
+            { name: 'Тяга к поясу', target: 'Цель: 12 раз', sets: 4 }
+          ]
+        },
+        {
+          dayName: 'День Б',
+          exercises: [
+            { name: 'Выпады', target: 'Цель: 10 раз', sets: 3 },
+            { name: 'Отжимания', target: 'Цель: 15 раз', sets: 4 },
+            { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
+          ]
+        }
+      ]
+    };
+
+    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v4')) || presetPrograms.recomp;
     let historyData = JSON.parse(localStorage.getItem('workout_history')) || [];
     let activeDayIndex = 0;
     let activeTimers = {};
@@ -483,13 +593,87 @@
     const daysOfWeekShort = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
     const monthsShort = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
 
+    const motivationQuotes = [
+      "Ты никогда не пожалеешь о проведенной тренировке. Зато часто жалеешь о пропущенной.",
+      "Дисциплина — это выбор между тем, чего ты хочешь сейчас, и тем, чего хочешь больше всего.",
+      "Твое тело может всё. Осталось убедить в этом разум. Включай музыку и вперед!",
+      "Каждая тренировка — это инвестиция в твое будущее. Сделай этот вклад сегодня.",
+      "Не нужно ждать идеального настроения. Действие рождает энергию, а не наоборот!",
+      "Сегодняшняя боль станет твоей силой завтра. Ждем тебя на тренировке!",
+      "Слабость — это выбор. Сила — это привычка, которую ты строишь прямо сейчас."
+    ];
+    let lastQuoteIndex = -1;
+
+    function getNewMotivation() {
+      const textEl = document.getElementById('motivationText');
+      if (!textEl) return;
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * motivationQuotes.length);
+      } while (randomIndex === lastQuoteIndex && motivationQuotes.length > 1);
+      lastQuoteIndex = randomIndex;
+      textEl.innerText = `«${motivationQuotes[randomIndex]}»`;
+    }
+
+    const reminderQuotes = [
+      "Эй! Твой коврик скучает. Когда на тренировку?",
+      "Время стать сильнее! Не откладывай на вечер то, что можно прокачать сейчас.",
+      "Напоминание: дисциплина бьет мотивацию. Пора размяться!",
+      "Маленький шаг сегодня — большой результат завтра. Жду в зале!"
+    ];
+    let reminderInterval = null;
+
+    function toggleWorkoutReminders() {
+      if (!("Notification" in window)) {
+        alert("Ваш браузер не поддерживает уведомления.");
+        return;
+      }
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          alert("✅ Напоминания включены!");
+          startReminderChecker();
+        } else {
+          alert("❌ Уведомления заблокированы в настройках браузера.");
+        }
+      });
+    }
+
+    function isTodayWorkoutDone() {
+      const todayStr = getDayCalculatedDate(activeDayIndex).formattedStr;
+      return historyData.some(item => item.title.includes(todayStr));
+    }
+
+    function startReminderChecker() {
+      if (reminderInterval) clearInterval(reminderInterval);
+      reminderInterval = setInterval(() => {
+        if (Notification.permission !== "granted") return;
+        if (isTodayWorkoutDone()) return;
+        const currentHour = new Date().getHours();
+        if (currentHour < 8 || currentHour >= 23) return;
+
+        const randomMsg = reminderQuotes[Math.floor(Math.random() * reminderQuotes.length)];
+        new Notification("🏋️‍♂️ Дневник тренировок", { body: randomMsg });
+      }, 3600000);
+    }
+
+    function applyPresetPlan() {
+      const planKey = document.getElementById('presetPlanSelect').value;
+      if (presetPrograms[planKey]) {
+        if (confirm('Заменить текущую программу на выбранный шаблон?')) {
+          workoutData = JSON.parse(JSON.stringify(presetPrograms[planKey]));
+          activeDayIndex = 0;
+          persistAndRender();
+          alert('🚀 Программа успешно обновлена!');
+        }
+      }
+    }
+
     function getDayCalculatedDate(dayIndex) {
       let startDateStr = localStorage.getItem('workout_start_date');
       if (!startDateStr) startDateStr = new Date().toISOString().split('T')[0];
       
       const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '2');
       const baseDate = new Date(startDateStr);
-      
       const targetDate = new Date(baseDate);
       targetDate.setDate(baseDate.getDate() + (dayIndex * restDaysInterval));
 
@@ -686,7 +870,6 @@
           </div>
           <div>${setsHtml}</div>
           
-          <!-- Управление количеством подходов -->
           <div class="sets-control">
             <span>Подходов: <b>${setsCount}</b></span>
             <div class="sets-control-btns">
@@ -774,32 +957,6 @@
       }
     }
 
-    function copyAiPrompt() {
-      const userDesc = document.getElementById('aiPromptInput').value.trim() || "универсальная тренировка для рекомпозиции тела";
-      
-      const promptText = `Составь программу тренировок для веб-приложения на основе следующего описания пользователя: "${userDesc}".
-
-Ответ выдай СТРОГО в формате валидного JSON-массива без лишнего текста, пояснений и маркдаун-оберток (без \`\`\`json), чтобы его можно было сразу распарсить через JSON.parse(). 
-
-Структура каждого дня должна быть такой:
-[
-  {
-    "dayName": "День 1",
-    "exercises": [
-      { "name": "Название упражнения", "target": "Цель: весы или повторения", "sets": 4 },
-      { "name": "Планка", "target": "Цель: 60 сек", "sets": 3, "isTimed": true }
-    ]
-  }
-]
-Используй поле "isTimed": true только для упражнений на время (секунды/минуты). Для обычных упражнений с весом указывай "sets" (обычно от 3 до 5).`;
-
-      navigator.clipboard.writeText(promptText).then(() => {
-        alert('📋 Промпт скопирован! Вставьте его в чат с ИИ, скопируйте полученный JSON-код и вставьте его в поле ниже для загрузки программы.');
-      }).catch(() => {
-        alert('Не удалось скопировать автоматически.');
-      });
-    }
-
     function generateDayReportText(dayIndex) {
       const day = workoutData[dayIndex];
       const dateInfo = getDayCalculatedDate(dayIndex);
@@ -871,6 +1028,7 @@
         const card = document.createElement('div');
         card.className = 'history-card';
         card.innerHTML = `
+          <div class="history-header" onclick="history.back()">...</div> <!-- placeholder -->
           <div class="history-header" onclick="toggleHistory(${index})">
             <span>${item.title}</span>
             <span>▼</span>
@@ -897,11 +1055,14 @@
     }
 
     function downloadBackup() {
-      const backupData = { localStorageData: { ...localStorage } };
+      const backupData = { 
+        version: APP_VERSION,
+        localStorageData: { ...localStorage } 
+      };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `workout_backup_${new Date().toISOString().split('T')[0]}.json`);
+      downloadAnchor.setAttribute("download", `workout_backup_${APP_VERSION}_${new Date().toISOString().split('T')[0]}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -920,27 +1081,12 @@
             Object.keys(imported.localStorageData).forEach(key => {
               localStorage.setItem(key, imported.localStorageData[key]);
             });
-            alert('✅ Данные успешно восстановлены!');
+            alert(`✅ Данные успешно восстановлены из бэкапа (Версия: ${imported.version || 'неизвестна'})!`);
             location.reload();
           } else { alert('Некорректный файл бэкапа!'); }
         } catch (err) { alert('Ошибка при чтении файла!'); }
       };
       reader.readAsText(file);
-    }
-
-    function importProgram() {
-      const jsonText = document.getElementById('importInput').value.trim();
-      if (!jsonText) return alert('Вставьте JSON код!');
-
-      try {
-        const newData = JSON.parse(jsonText);
-        if (Array.isArray(newData)) {
-          workoutData = newData;
-          persistAndRender();
-          document.getElementById('importInput').value = '';
-          alert('🚀 Новый план загружен!');
-        } else alert('Ошибка в формате!');
-      } catch (e) { alert('Неверный формат кода!'); }
     }
 
     function render() {
@@ -949,7 +1095,7 @@
     }
 
     function persistAndRender() {
-      localStorage.setItem('my_full_workout_v3', JSON.stringify(workoutData));
+      localStorage.setItem('my_full_workout_v4', JSON.stringify(workoutData));
       render();
     }
 
@@ -974,6 +1120,14 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderChangelog();
+      if (Notification.permission === "granted") {
+        startReminderChecker();
+      }
+      getNewMotivation();
+    });
 
     initStartDate();
     renderHistory();
