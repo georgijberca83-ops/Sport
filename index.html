@@ -14,7 +14,7 @@
 
     body {
       background-color: #121212;
-      color: #e0e0e0;
+      color: #d4d4d8;
       margin: 0;
       padding: 12px;
       padding-bottom: 50px;
@@ -27,7 +27,7 @@
 
     h1 {
       font-size: 1.2rem;
-      color: #4da6ff;
+      color: #94a3b8;
       margin: 0;
       display: inline-block;
     }
@@ -35,7 +35,7 @@
     .version-badge {
       font-size: 0.65rem;
       background: #1e293b;
-      color: #38bdf8;
+      color: #cbd5e1;
       border: 1px solid #334155;
       padding: 2px 6px;
       border-radius: 6px;
@@ -45,8 +45,8 @@
     }
 
     .stats-card {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border: 1px solid #334155;
+      background: #18181b;
+      border: 1px solid #27272a;
       border-radius: 12px;
       padding: 12px;
       margin-bottom: 12px;
@@ -56,18 +56,18 @@
     .stats-main {
       font-size: 1.15rem;
       font-weight: bold;
-      color: #38bdf8;
+      color: #e4e4e7;
     }
 
     .stats-sub {
       font-size: 0.75rem;
-      color: #94a3b8;
+      color: #a1a1aa;
       margin-top: 4px;
     }
 
     .motivation-box {
-      background: linear-gradient(135deg, #1e293b, #0f172a);
-      border: 1px solid #334155;
+      background: #18181b;
+      border: 1px solid #27272a;
       border-radius: 12px;
       padding: 12px;
       margin-bottom: 12px;
@@ -79,7 +79,7 @@
       display: none;
       width: 100%;
       padding: 10px;
-      background: #28a745;
+      background: #166534;
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -89,7 +89,7 @@
       cursor: pointer;
     }
 
-    /* Вертикальный список дней */
+    /* Вертикальный список дней на главном экране */
     .days-vertical-list {
       display: flex;
       flex-direction: column;
@@ -97,21 +97,15 @@
       margin-bottom: 15px;
     }
 
-    .day-accordion-item {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .day-accordion-header {
+    .day-main-btn {
       width: 100%;
-      padding: 12px 14px;
-      background: #222;
-      border: none;
-      color: #e0e0e0;
+      padding: 14px 16px;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      color: #e4e4e7;
       font-weight: bold;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       text-align: left;
       cursor: pointer;
       display: flex;
@@ -119,41 +113,16 @@
       align-items: center;
     }
 
-    .day-accordion-header.active {
-      background: #007bff;
-      color: #fff;
-    }
-
-    .day-accordion-body {
-      display: none;
-      padding: 12px;
-      background: #141414;
-      border-top: 1px solid #2a2a2a;
-    }
-
-    .day-date-sub {
-      font-size: 0.7rem;
-      font-weight: normal;
-      opacity: 0.85;
-    }
-
-    .day-top-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      background: #1e1e1e;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #333;
+    .day-main-btn:hover {
+      background: #27272a;
     }
 
     .day-tab-add {
       width: 100%;
       padding: 10px;
-      background: #1e293b;
-      border: 1px dashed #22c55e;
-      color: #22c55e;
+      background: #18181b;
+      border: 1px dashed #3f3f46;
+      color: #a1a1aa;
       border-radius: 10px;
       cursor: pointer;
       font-size: 0.9rem;
@@ -162,30 +131,72 @@
       margin-bottom: 12px;
     }
 
-    .btn-day-settings {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      padding: 2px 6px;
-      border-radius: 6px;
+    .day-date-sub {
+      font-size: 0.75rem;
+      font-weight: normal;
+      color: #a1a1aa;
     }
 
-    .accordion-content {
+    /* Модальное окно (отдельный экран тренировки) */
+    #workoutModal {
       display: none;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #121212;
+      z-index: 1000;
+      overflow-y: auto;
       padding: 12px;
+      padding-bottom: 60px;
+    }
+
+    .modal-nav-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #18181b;
+      border: 1px solid #27272a;
+      padding: 10px 14px;
+      border-radius: 10px;
       margin-bottom: 12px;
+    }
+
+    .btn-back {
+      background: #27272a;
+      border: none;
+      color: #e4e4e7;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-day-title {
+      font-weight: bold;
+      color: #e4e4e7;
+      font-size: 0.95rem;
+      text-align: center;
+      flex: 1;
+      margin: 0 10px;
+    }
+
+    .day-top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      background: #18181b;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #27272a;
     }
 
     .accordion-btn {
       width: 100%;
       padding: 10px;
-      background: #1e1e1e;
-      border: 1px dashed #444;
-      color: #a5b4fc;
+      background: #18181b;
+      border: 1px solid #27272a;
+      color: #a1a1aa;
       border-radius: 8px;
       font-weight: bold;
       font-size: 0.8rem;
@@ -202,8 +213,8 @@
     input[type="text"], input[type="password"], textarea, select {
       width: 100%;
       padding: 8px;
-      background: #121212;
-      border: 1px solid #444;
+      background: #18181b;
+      border: 1px solid #3f3f46;
       border-radius: 6px;
       color: #fff;
       font-size: 0.85rem;
@@ -212,7 +223,7 @@
     .btn-main {
       width: 100%;
       padding: 10px;
-      background: #007bff;
+      background: #3f3f46;
       color: white;
       border: none;
       border-radius: 6px;
@@ -221,11 +232,11 @@
     }
 
     .exercise-card {
-      background: #1e1e1e;
-      padding: 10px;
+      background: #18181b;
+      padding: 12px;
       border-radius: 10px;
       margin-bottom: 10px;
-      border: 1px solid #2a2a2a;
+      border: 1px solid #27272a;
       position: relative;
     }
 
@@ -237,7 +248,7 @@
 
     .ex-title {
       font-weight: bold;
-      color: #fff;
+      color: #f4f4f5;
       font-size: 0.9rem;
       margin-bottom: 2px;
       padding-right: 20px;
@@ -245,14 +256,14 @@
 
     .ex-target {
       font-size: 0.75rem;
-      color: #4da6ff;
+      color: #a1a1aa;
       margin-bottom: 8px;
     }
 
     .btn-gear {
       background: none;
       border: none;
-      color: #666;
+      color: #71717a;
       font-size: 0.85rem;
       cursor: pointer;
       padding: 2px 4px;
@@ -264,16 +275,16 @@
       align-items: center;
       margin-bottom: 6px;
       font-size: 0.8rem;
-      background: #262626;
-      padding: 4px 8px;
+      background: #27272a;
+      padding: 6px 8px;
       border-radius: 6px;
     }
 
     input[type="number"] {
       width: 55px;
       padding: 4px;
-      border: 1px solid #444;
-      background: #121212;
+      border: 1px solid #3f3f46;
+      background: #18181b;
       color: #fff;
       border-radius: 4px;
       text-align: center;
@@ -283,12 +294,12 @@
     input[type="checkbox"] {
       width: 18px;
       height: 18px;
-      accent-color: #007bff;
+      accent-color: #52525b;
       margin-left: auto;
     }
 
     .btn-timer {
-      background: #0284c7;
+      background: #3f3f46;
       color: white;
       border: none;
       padding: 5px 8px;
@@ -299,8 +310,8 @@
       flex: 1;
     }
 
-    .btn-timer.running { background: #d97706; }
-    .btn-timer.finished { background: #16a34a; }
+    .btn-timer.running { background: #b45309; }
+    .btn-timer.finished { background: #166534; }
 
     .sets-control {
       display: flex;
@@ -308,9 +319,9 @@
       align-items: center;
       margin-top: 8px;
       padding-top: 6px;
-      border-top: 1px dashed #333;
+      border-top: 1px dashed #3f3f46;
       font-size: 0.75rem;
-      color: #aaa;
+      color: #a1a1aa;
     }
 
     .sets-control-btns {
@@ -319,7 +330,7 @@
     }
 
     .btn-set-change {
-      background: #334155;
+      background: #3f3f46;
       color: white;
       border: none;
       padding: 2px 8px;
@@ -333,7 +344,7 @@
       gap: 8px;
       margin-top: 8px;
       padding-top: 6px;
-      border-top: 1px dashed #333;
+      border-top: 1px dashed #3f3f46;
     }
 
     .btn-small {
@@ -344,20 +355,29 @@
       cursor: pointer;
     }
 
-    .btn-edit { background: #4b5563; color: white; }
-    .btn-delete { background: #dc3545; color: white; }
+    .btn-edit { background: #3f3f46; color: white; }
+    .btn-delete { background: #991b1b; color: white; }
 
     .btn-sync {
       width: 100%;
       padding: 10px;
-      background: #6366f1;
+      background: #27272a;
       color: white;
-      border: none;
+      border: 1px solid #3f3f46;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
       margin-bottom: 8px;
       font-size: 0.8rem;
+    }
+
+    .accordion-content {
+      display: none;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
     }
 
     .history-card {
@@ -371,7 +391,7 @@
 
     .history-header {
       font-weight: bold;
-      color: #f43f5e;
+      color: #fca5a5;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
@@ -382,7 +402,7 @@
       margin-top: 8px;
       white-space: pre-line;
       color: #d4d4d8;
-      border-top: 1px solid #3f3f46;
+      border-top: 1px solid #27272a;
       padding-top: 8px;
     }
   </style>
@@ -391,7 +411,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.1.9</span>
+    <span class="version-badge" id="appVersionBadge">v1.2.0</span>
   </div>
 
   <div class="stats-card">
@@ -399,36 +419,34 @@
     <div class="stats-sub" id="startDateText">Старт: ...</div>
     <div style="margin-top:6px; display:flex; justify-content:center; gap:8px;">
       <button class="btn-small btn-edit" onclick="resetStartDate()">⚙️ Дата старта</button>
-      <button class="btn-small btn-edit" style="background:#0284c7;" onclick="configureSchedule()">📅 Расписание дней</button>
+      <button class="btn-small btn-edit" onclick="configureSchedule()">📅 Расписание дней</button>
     </div>
   </div>
 
   <div class="motivation-box" onclick="getNewMotivation()" title="Нажми для новой мотивации">
-    <div style="font-size: 0.7rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">⚡ Мотивация на сегодня (нажми)</div>
-    <div id="motivationText" style="font-size: 0.85rem; color: #e2e8f0; font-weight: 500; line-height: 1.4;">Загрузка...</div>
+    <div style="font-size: 0.7rem; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">⚡ Мотивация на сегодня (нажми)</div>
+    <div id="motivationText" style="font-size: 0.85rem; color: #e4e4e7; font-weight: 500; line-height: 1.4;">Загрузка...</div>
   </div>
 
   <button id="pwaInstallBtn">📲 Установить приложение</button>
 
-  <!-- Вертикальный список дней тренировок -->
+  <!-- Главный список дней тренировок -->
   <div class="days-vertical-list" id="daysVerticalList"></div>
   <button class="day-tab-add" onclick="addNewDay()">➕ Добавить день тренировок</button>
 
-  <!-- Блок уведомлений, планов и генератора промпта -->
-  <button class="accordion-btn" style="border-color: #0284c7; color: #38bdf8;" onclick="toggleAccordion('remindersAndPlansSection')">
+  <!-- Блок уведомлений, планов и ИИ -->
+  <button class="accordion-btn" onclick="toggleAccordion('remindersAndPlansSection')">
     <span>🔔 Напоминания, План и Запрос у ИИ</span>
     <span id="icon_remindersAndPlansSection">▼</span>
   </button>
   <div class="accordion-content" id="remindersAndPlansSection">
     
-    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🔔 Напоминания о тренировке:</div>
-    <div style="display:flex; gap:6px; margin-bottom:12px;">
-      <button class="btn-sync" style="background:#0284c7; margin:0;" onclick="toggleWorkoutReminders()">🔔 Включить напоминания</button>
-    </div>
+    <div style="font-size:0.75rem; color:#a1a1aa; margin-bottom:4px; font-weight:bold;">🔔 Напоминания о тренировке:</div>
+    <button class="btn-sync" onclick="toggleWorkoutReminders()">🔔 Включить напоминания</button>
 
-    <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+    <hr style="border:0; border-top:1px solid #27272a; margin:10px 0;">
 
-    <div style="font-size:0.75rem; color:#4da6ff; margin-bottom:4px; font-weight:bold;">📋 Быстрый выбор программы тренировок:</div>
+    <div style="font-size:0.75rem; color:#a1a1aa; margin-bottom:4px; font-weight:bold;">📋 Быстрый выбор программы тренировок:</div>
     <div class="form-group" style="margin-bottom:6px;">
       <select id="presetPlanSelect">
         <option value="customProg">Скорректированная программа (Ваша база)</option>
@@ -436,65 +454,96 @@
         <option value="home">Домашняя зарядка (Без инвентаря)</option>
       </select>
     </div>
-    <button class="btn-sync" style="background:#059669; margin:0; margin-bottom:12px;" onclick="applyPresetPlan()">🚀 Загрузить выбранный план</button>
+    <button class="btn-sync" style="background:#166534; margin-bottom:12px;" onclick="applyPresetPlan()">🚀 Загрузить выбранный план</button>
 
-    <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+    <hr style="border:0; border-top:1px solid #27272a; margin:10px 0;">
 
     <div style="margin-bottom: 12px;">
-      <div style="font-size:0.75rem; color:#a5b4fc; margin-bottom:4px; font-weight:bold;">🤖 Создать план под себя через ИИ:</div>
-      <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:4px;">Опишите ниже вашу цель, параметры, инвентарь или пожелания:</div>
-      <textarea id="aiPromptInput" rows="4" placeholder="Напишите здесь всё, что хотите учесть (например: цель, инвентарь, травмы, пожелания)..." style="font-size:0.75rem; margin-bottom:6px;"></textarea>
-      <button class="btn-sync" style="background:#0284c7; margin:0; margin-bottom:12px;" onclick="copyCustomAiPrompt()">📋 Скопировать промпт</button>
+      <div style="font-size:0.75rem; color:#a1a1aa; margin-bottom:4px; font-weight:bold;">🤖 Создать план под себя через ИИ:</div>
+      <textarea id="aiPromptInput" rows="4" placeholder="Напишите здесь всё, что хотите учесть (цель, инвентарь)..." style="font-size:0.75rem; margin-bottom:6px;"></textarea>
+      <button class="btn-sync" style="margin-bottom:12px;" onclick="copyCustomAiPrompt()">📋 Скопировать промпт</button>
       
-      <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:4px;">📥 Вставить ответ от ИИ (вставьте текст ответа сюда и нажмите кнопку загрузки):</div>
+      <div style="font-size:0.70rem; color:#a1a1aa; margin-bottom:4px;">📥 Вставить ответ от ИИ:</div>
       <textarea id="aiResponseInput" rows="3" placeholder="Вставьте сюда ответ от ИИ..." style="margin-bottom:6px;"></textarea>
-      <button class="btn-sync" style="background:#059669; margin:0;" onclick="parseAndApplyAiResponse()">📥 Загрузить программу из ответа ИИ</button>
+      <button class="btn-sync" style="background:#166534;" onclick="parseAndApplyAiResponse()">📥 Загрузить программу из ответа</button>
     </div>
 
-    <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+    <hr style="border:0; border-top:1px solid #27272a; margin:10px 0;">
 
-    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🤖 Отчет по активному дню для ИИ:</div>
-    <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:6px;">Нажмите кнопку, чтобы скопировать результаты выбранного дня в чат:</div>
-    <button class="btn-sync" style="background:#4f46e5; margin:0;" onclick="copyAiPrompt()">📋 Скопировать отчет за день</button>
+    <div style="font-size:0.75rem; color:#a1a1aa; margin-bottom:4px; font-weight:bold;">🤖 Отчет по активному дню для ИИ:</div>
+    <button class="btn-sync" style="background:#3f3f46;" onclick="copyAiPrompt()">📋 Скопировать отчет за день</button>
   </div>
 
-  <!-- Блок бэкапов и истории изменений -->
-  <button class="accordion-btn" style="border-color: #3b3b58; color: #a5b4fc;" onclick="toggleAccordion('backupSection')">
+  <!-- Блок бэкапов и истории -->
+  <button class="accordion-btn" onclick="toggleAccordion('backupSection')">
     <span>💾 Отчеты, Версии и Бэкап</span>
     <span id="icon_backupSection">▼</span>
   </button>
   <div class="accordion-content" id="backupSection">
-    <button class="btn-sync" style="background:#22c55e;" onclick="saveCurrentDayToHistory()">📅 Зафиксировать день в историю</button>
+    <button class="btn-sync" style="background:#166534;" onclick="saveCurrentDayToHistory()">📅 Зафиксировать день в историю</button>
     <button class="btn-sync" onclick="exportReport()">📋 Скопировать отчет за все дни</button>
-    <button class="btn-small btn-delete" style="width:100%; margin-bottom:10px; background:#374151; padding:8px;" onclick="clearCurrentResults()">🧹 Сбросить веса на сегодня</button>
+    <button class="btn-small btn-delete" style="width:100%; margin-bottom:10px; padding:8px;" onclick="clearCurrentResults()">🧹 Сбросить веса на сегодня</button>
 
-    <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
-    <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #333; margin-bottom:10px; line-height:1.4; color:#94a3b8;">
-      <b>v1.1.9</b> — Дни тренировок перенесены в вертикальный список с раскрывающимися блоками упражнений.<br>
-      <b>v1.1.8</b> — Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель.<br>
-      <b>v1.1.7</b> — Поле ввода пользовательского запроса для ИИ сделано пустым.
-    </div>
+    <div style="font-size:0.75rem; color:#a1a1aa; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
+    <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #27272a; margin-bottom:10px; line-height:1.4; color:#a1a1aa;"></div>
 
-    <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
+    <div style="font-size:0.75rem; color:#a1a1aa; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
     <div style="display:flex; gap:6px; margin-bottom:8px;">
-      <button class="btn-sync" style="background:#0284c7; margin:0;" onclick="downloadBackup()">💾 Скачать бэкап</button>
-      <button class="btn-sync" style="background:#0369a1; margin:0;" onclick="document.getElementById('fileInput').click()">📂 Восстановить</button>
+      <button class="btn-sync" style="margin:0;" onclick="downloadBackup()">💾 Скачать бэкап</button>
+      <button class="btn-sync" style="margin:0;" onclick="document.getElementById('fileInput').click()">📂 Восстановить</button>
     </div>
     <input type="file" id="fileInput" style="display:none" accept=".json" onchange="restoreBackup(event)">
   </div>
 
   <div style="margin-top: 15px;">
-    <h3 style="font-size:1rem; color:#a5b4fc; margin-bottom:8px;">📜 История тренировок</h3>
+    <h3 style="font-size:1rem; color:#a1a1aa; margin-bottom:8px;">📜 История тренировок</h3>
     <div id="historyContainer"></div>
   </div>
 
+  <!-- МОДАЛЬНОЕ ОКНО ТРЕНИРОВКИ (ОТДЕЛЬНЫЙ ЭКРАН) -->
+  <div id="workoutModal">
+    <div class="modal-nav-header">
+      <button class="btn-back" onclick="closeWorkoutModal()">⬅️ К списку дней</button>
+      <div class="modal-day-title" id="modalDayTitle">Тренировка</div>
+      <button class="btn-back" onclick="navigateDay(1)">▶</button>
+    </div>
+
+    <div class="day-top-actions">
+      <span style="font-size:0.75rem; color:#a1a1aa; font-weight:bold;">Управление днем:</span>
+      <div style="display:flex; gap:4px;">
+        <button class="btn-small btn-edit" onclick="openAddExerciseModal()">+ Упражнение</button>
+        <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить день</button>
+      </div>
+    </div>
+
+    <div class="accordion-content" id="editDaySection" style="display:none; margin-top:8px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+        <span id="form-title" style="font-weight:bold; font-size:0.85rem; color:#e4e4e7;">+ Новое упражнение</span>
+      </div>
+      <input type="hidden" id="editIndex" value="-1">
+      <div class="form-group">
+        <input type="text" id="exName" placeholder="Название (например: Планка)">
+      </div>
+      <div class="form-group">
+        <input type="text" id="exTarget" placeholder="Цель (например: 60 сек)">
+      </div>
+      <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#121212; padding:8px; border-radius:6px;">
+        <input type="checkbox" id="exIsTimed" style="margin:0;">
+        <label for="exIsTimed" style="font-size:0.8rem; color:#f0f0f0;">⏱ Упражнение на время</label>
+      </div>
+      <button class="btn-main" onclick="saveExercise()">Сохранить упражнение</button>
+    </div>
+
+    <div id="modalExercisesContainer"></div>
+  </div>
+
   <script>
-    const APP_VERSION = "v1.1.9";
+    const APP_VERSION = "v1.2.0";
     
     const changelogHistory = [
+      { ver: "v1.2.0", text: "Добавлен отдельный экран для тренировки, нумерация упражнений 1,2,3, исправлен таймер (без авто-галочек), смягчены цвета интерфейса." },
       { ver: "v1.1.9", text: "Дни тренировок перенесены в вертикальный список с раскрывающимися блоками упражнений." },
-      { ver: "v1.1.8", text: "Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель." },
-      { ver: "v1.1.7", text: "Поле ввода пользовательского запроса для ИИ сделано пустым." }
+      { ver: "v1.1.8", text: "Улучшен визуальный интерфейс: убран дублирующий заголовок дня." }
     ];
 
     function renderChangelog() {
@@ -532,7 +581,7 @@
             { name: 'Болгарские выпады', target: 'Цель: 10 раз на ногу', sets: 3 },
             { name: 'Румынская тяга с гантелями', target: 'Цель: 12-14 раз', sets: 3 },
             { name: 'Подъем ног в висе (пресс)', target: 'Цель: 10-15 раз', sets: 3 },
-            { name: 'Скакалка + Лестница', target: 'Цель: 5 мин + 4 подъема', sets: 1, isTimed: true }
+            { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
           ]
         }
       ],
@@ -541,9 +590,7 @@
           dayName: 'День 1',
           exercises: [
             { name: 'Жим гантелей лежа', target: 'Цель: 14-16 кг × 10-12', sets: 4 },
-            { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8', sets: 4 },
-            { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12', sets: 3 },
-            { name: 'Махи в стороны', target: 'Цель: 4-6 кг × 12-15', sets: 3 }
+            { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8', sets: 4 }
           ]
         }
       ],
@@ -552,14 +599,13 @@
           dayName: 'День 1',
           exercises: [
             { name: 'Классические отжимания', target: 'Цель: 15-20 раз', sets: 4 },
-            { name: 'Приседания без веса', target: 'Цель: 20-25 раз', sets: 4 },
-            { name: 'Планка', target: 'Цель: 45 сек', sets: 3, isTimed: true }
+            { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
           ]
         }
       ]
     };
 
-    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v5')) || presetPrograms.customProg;
+    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v6')) || presetPrograms.customProg;
     let historyData = JSON.parse(localStorage.getItem('workout_history')) || [];
     let activeDayIndex = 0;
     let activeTimers = {};
@@ -570,8 +616,8 @@
     const motivationQuotes = [
       "Ты никогда не пожалеешь о проведенной тренировке. Зато часто жалеешь о пропущенной.",
       "Дисциплина — это выбор между тем, чего ты хочешь сейчас, и тем, чего хочешь больше всего.",
-      "Твое тело может всё. Осталось убедить в этом разум. Включай музыку и вперед!",
-      "Каждая тренировка — это инвестиция в твое будущее. Сделай этот вклад сегодня."
+      "Твое тело может всё. Осталось убедить в этом разум.",
+      "Каждая тренировка — это инвестиция в твое будущее."
     ];
     let lastQuoteIndex = -1;
 
@@ -589,22 +635,17 @@
     function copyCustomAiPrompt() {
       const userNotes = document.getElementById('aiPromptInput').value.trim();
       let fullPrompt = "Привет! Составь для меня программу тренировок.\n\n";
-      if (userNotes) {
-        fullPrompt += `Вот мои вводные данные, пожелания и инвентарь:\n${userNotes}\n\n`;
-      }
-      fullPrompt += "Важно: выдай ответ в строго структурированном виде по дням, указав для каждого упражнения название и цель. Если упражнение выполняется на время, пометь его словом [ТАЙМЕР].";
+      if (userNotes) fullPrompt += `Вот мои вводные данные и пожелания:\n${userNotes}\n\n`;
+      fullPrompt += "Важно: выдай ответ в строго структурированном виде по дням, указав для каждого упражнения название и цель.";
 
       navigator.clipboard.writeText(fullPrompt).then(() => {
-        alert("✅ Правильный промпт скопирован в буфер обмена!");
+        alert("✅ Промпт скопирован!");
       });
     }
 
     function parseAndApplyAiResponse() {
       const rawText = document.getElementById('aiResponseInput').value.trim();
-      if (!rawText) {
-        alert("❌ Вставьте текст ответа от ИИ!");
-        return;
-      }
+      if (!rawText) return alert("❌ Вставьте текст ответа от ИИ!");
 
       const lines = rawText.split('\n');
       let newDays = [];
@@ -616,36 +657,26 @@
 
         if (/^(день\s*\d+|тренировка\s*\d+|#+\s*день)/i.test(trimmed)) {
           if (currentDay) newDays.push(currentDay);
-          currentDay = {
-            dayName: trimmed.replace(/^[#*]+\s*/, ''),
-            exercises: []
-          };
+          currentDay = { dayName: trimmed.replace(/^[#*]+\s*/, ''), exercises: [] };
         } else if (currentDay && (/^[-*•]\s+/.test(trimmed) || /^\d+\./.test(trimmed))) {
           let cleanExText = trimmed.replace(/^[-*•\d\.\)]+\s*/, '');
-          let isTimed = /таймер|сек/i.test(cleanExText) || cleanExText.includes('[ТАЙМЕР]');
-          cleanExText = cleanExText.replace('[ТАЙМЕР]', '').trim();
-
+          let isTimed = /таймер|сек|планка/i.test(cleanExText);
           let parts = cleanExText.split(/[-–—:]/);
           let exName = parts[0].trim();
           let exTarget = parts.length > 1 ? parts.slice(1).join(' ').trim() : 'Цель: по плану';
 
-          currentDay.exercises.push({
-            name: exName,
-            target: exTarget,
-            sets: 3,
-            isTimed: isTimed
-          });
+          currentDay.exercises.push({ name: exName, target: exTarget, sets: 3, isTimed: isTimed });
         }
       });
 
       if (currentDay) newDays.push(currentDay);
 
       if (newDays.length > 0 && newDays.some(d => d.exercises.length > 0)) {
-        if (confirm(`✅ Успешно распознано дней: ${newDays.length}. Заменить текущую программу тренировок на эту?`)) {
+        if (confirm(`Заменить текущую программу на новую (${newDays.length} дн.)?`)) {
           workoutData = newDays;
           activeDayIndex = 0;
           persistAndRender();
-          alert("🚀 Новая программа успешно загружена в приложение!");
+          alert("🚀 Программа успешно обновлена!");
           document.getElementById('aiResponseInput').value = '';
         }
       } else {
@@ -655,69 +686,33 @@
 
     function copyAiPrompt() {
       const dayReport = generateDayReportText(activeDayIndex);
-      const promptText = `Привет! Вот мои актуальные результаты за активный день:\n${dayReport}\nПроанализируй прогресс и подскажи, стоит ли скорректировать рабочие веса.`;
-
-      navigator.clipboard.writeText(promptText).then(() => {
-        alert("✅ Отчет скопирован в буфер обмена!");
-      });
+      const promptText = `Привет! Вот мои результаты за день:\n${dayReport}\nПроанализируй прогресс.`;
+      navigator.clipboard.writeText(promptText).then(() => alert("✅ Отчет скопирован!"));
     }
 
-    const reminderQuotes = [
-      "Эй! Твой коврик скучает. Когда на тренировку?",
-      "Время стать сильнее! Не откладывай на вечер то, что можно прокачать сейчас.",
-      "Напоминание: дисциплина бьет мотивацию. Пора размяться!"
-    ];
     let reminderInterval = null;
-
     function toggleWorkoutReminders() {
-      if (!("Notification" in window)) {
-        alert("Ваш браузер не поддерживает уведомления.");
-        return;
-      }
+      if (!("Notification" in window)) return alert("Браузер не поддерживает уведомления.");
       Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          alert("✅ Напоминания включены!");
-          startReminderChecker();
-        } else {
-          alert("❌ Уведомления заблокированы.");
-        }
+        if (permission === "granted") alert("✅ Напоминания включены!");
+        else alert("❌ Уведомления заблокированы.");
       });
-    }
-
-    function isTodayWorkoutDone() {
-      const todayStr = getDayCalculatedDate(activeDayIndex).formattedStr;
-      return historyData.some(item => item.title.includes(todayStr));
-    }
-
-    function startReminderChecker() {
-      if (reminderInterval) clearInterval(reminderInterval);
-      reminderInterval = setInterval(() => {
-        if (Notification.permission !== "granted") return;
-        if (isTodayWorkoutDone()) return;
-        const currentHour = new Date().getHours();
-        if (currentHour < 8 || currentHour >= 23) return;
-
-        const randomMsg = reminderQuotes[Math.floor(Math.random() * reminderQuotes.length)];
-        new Notification("🏋️‍♂️ Дневник тренировок", { body: randomMsg });
-      }, 3600000);
     }
 
     function applyPresetPlan() {
       const planKey = document.getElementById('presetPlanSelect').value;
       if (presetPrograms[planKey]) {
-        if (confirm('Заменить текущую программу на выбранный шаблон?')) {
+        if (confirm('Заменить программу на выбранный шаблон?')) {
           workoutData = JSON.parse(JSON.stringify(presetPrograms[planKey]));
           activeDayIndex = 0;
           persistAndRender();
-          alert('🚀 Программа успешно обновлена!');
+          alert('🚀 Программа обновлена!');
         }
       }
     }
 
     function getDayCalculatedDate(dayIndex) {
-      let startDateStr = localStorage.getItem('workout_start_date');
-      if (!startDateStr) startDateStr = new Date().toISOString().split('T')[0];
-      
+      let startDateStr = localStorage.getItem('workout_start_date') || new Date().toISOString().split('T')[0];
       const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '2');
       const baseDate = new Date(startDateStr);
       const targetDate = new Date(baseDate);
@@ -741,7 +736,6 @@
       const content = document.getElementById(id);
       const icon = document.getElementById('icon_' + id);
       const isVisible = content.style.display === 'block';
-
       content.style.display = isVisible ? 'none' : 'block';
       if (icon) icon.innerText = isVisible ? '▼' : '▲';
     }
@@ -780,130 +774,111 @@
       }
     }
 
-    function renderVerticalDaysList() {
+    // Главный экран: только список дней
+    function renderMainDaysList() {
       const listContainer = document.getElementById('daysVerticalList');
       listContainer.innerHTML = '';
 
       workoutData.forEach((day, index) => {
         const dateInfo = getDayCalculatedDate(index);
-        const isOpen = index === activeDayIndex;
-
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'day-accordion-item';
-
-        let exercisesHtml = '';
-        if (!day.exercises || day.exercises.length === 0) {
-          exercisesHtml = '<p style="text-align:center; color:#777; font-size:0.8rem; margin:10px 0;">Нет упражнений.</p>';
-        } else {
-          day.exercises.forEach((ex, exIdx) => {
-            const setsCount = ex.sets || 4;
-            let setsRows = '';
-
-            for (let s = 1; s <= setsCount; s++) {
-              const key = `d${index}_e${exIdx}_s${s}`;
-              const savedW = localStorage.getItem(key + '_w') || '';
-              const savedR = localStorage.getItem(key + '_r') || '';
-              const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
-
-              if (ex.isTimed) {
-                setsRows += `
-                  <div class="set-row">
-                    <span>Сет ${s}:</span>
-                    <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт</button>
-                    <input type="number" id="input_${key}" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
-                    <span style="font-size:0.7rem; color:#aaa;">сек</span>
-                    <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
-                  </div>
-                `;
-              } else {
-                setsRows += `
-                  <div class="set-row">
-                    <span>Сет ${s}:</span>
-                    <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
-                    <span>кг ×</span>
-                    <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
-                    <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
-                  </div>
-                `;
-              }
-            }
-
-            exercisesHtml += `
-              <div class="exercise-card">
-                <div class="ex-header">
-                  <div>
-                    <div class="ex-title">${ex.name} ${ex.isTimed ? '⏱' : ''}</div>
-                    <div class="ex-target">${ex.target}</div>
-                  </div>
-                  <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки">⚙️</button>
-                </div>
-                <div>${setsRows}</div>
-                
-                <div class="sets-control">
-                  <span>Подходов: <b>${setsCount}</b></span>
-                  <div class="sets-control-btns">
-                    <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, -1)">-</button>
-                    <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, 1)">+</button>
-                  </div>
-                </div>
-
-                <div class="actions-hidden" id="exActions_${exIdx}">
-                  <button class="btn-small btn-edit" onclick="editExercise(${exIdx})">✏️ Изменить</button>
-                  <button class="btn-small btn-delete" onclick="deleteExercise(${exIdx})">🗑 Удалить</button>
-                </div>
-              </div>
-            `;
-          });
-        }
-
-        itemDiv.innerHTML = `
-          <button class="day-accordion-header ${isOpen ? 'active' : ''}" onclick="selectAndToggleDay(${index})">
-            <span>${day.dayName} <span class="day-date-sub">(${dateInfo.formattedStr})</span></span>
-            <span>${isOpen ? '▲' : '▼'}</span>
-          </button>
-          <div class="day-accordion-body" id="dayBody_${index}" style="display: ${isOpen ? 'block' : 'none'};">
-            
-            <div class="day-top-actions">
-              <span style="font-size:0.75rem; color:#4da6ff; font-weight:bold;">Управление днем:</span>
-              <div style="display:flex; gap:4px;">
-                <button class="btn-small btn-edit" onclick="openAddExerciseModal()">+ Упражнение</button>
-                <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить день</button>
-              </div>
-            </div>
-
-            <div class="accordion-content" id="editDaySection" style="display:none; margin-top:8px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
-                <span id="form-title" style="font-weight:bold; font-size:0.85rem; color:#4da6ff;">+ Новое упражнение</span>
-              </div>
-              <input type="hidden" id="editIndex" value="-1">
-              <div class="form-group">
-                <input type="text" id="exName" placeholder="Название (например: Планка)">
-              </div>
-              <div class="form-group">
-                <input type="text" id="exTarget" placeholder="Цель (например: 60 сек)">
-              </div>
-              <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#222; padding:8px; border-radius:6px;">
-                <input type="checkbox" id="exIsTimed" style="margin:0;">
-                <label for="exIsTimed" style="font-size:0.8rem; color:#f0f0f0;">⏱ Упражнение на время</label>
-              </div>
-              <button class="btn-main" onclick="saveExercise()">Сохранить упражнение</button>
-            </div>
-
-            <div>${exercisesHtml}</div>
-          </div>
-        `;
-        listContainer.appendChild(itemDiv);
+        const btn = document.createElement('button');
+        btn.className = 'day-main-btn';
+        btn.innerHTML = `<span>${day.dayName} <span class="day-date-sub">(${dateInfo.formattedStr})</span></span> <span>➔</span>`;
+        btn.onclick = () => openWorkoutModal(index);
+        listContainer.appendChild(btn);
       });
     }
 
-    function selectAndToggleDay(index) {
-      if (activeDayIndex === index) {
-        const body = document.getElementById(`dayBody_${index}`);
-        body.style.display = body.style.display === 'block' ? 'none' : 'block';
-      } else {
-        activeDayIndex = index;
-        render();
+    // Открытие модального окна конкретного дня
+    function openWorkoutModal(index) {
+      activeDayIndex = index;
+      renderModalContent();
+      document.getElementById('workoutModal').style.display = 'block';
+    }
+
+    function closeWorkoutModal() {
+      document.getElementById('workoutModal').style.display = 'none';
+      renderMainDaysList();
+    }
+
+    function navigateDay(direction) {
+      activeDayIndex = (activeDayIndex + direction + workoutData.length) % workoutData.length;
+      renderModalContent();
+    }
+
+    function renderModalContent() {
+      const day = workoutData[activeDayIndex];
+      const dateInfo = getDayCalculatedDate(activeDayIndex);
+      document.getElementById('modalDayTitle').innerText = `${day.dayName} (${dateInfo.formattedStr})`;
+
+      const container = document.getElementById('modalExercisesContainer');
+      container.innerHTML = '';
+
+      if (!day.exercises || day.exercises.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#71717a; font-size:0.8rem; margin:20px 0;">Нет упражнений.</p>';
+        return;
       }
+
+      day.exercises.forEach((ex, exIdx) => {
+        const setsCount = ex.sets || 4;
+        let setsRows = '';
+
+        for (let s = 1; s <= setsCount; s++) {
+          const key = `d${activeDayIndex}_e${exIdx}_s${s}`;
+          const savedW = localStorage.getItem(key + '_w') || '';
+          const savedR = localStorage.getItem(key + '_r') || '';
+          const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
+
+          if (ex.isTimed) {
+            setsRows += `
+              <div class="set-row">
+                <span>Сет ${s}:</span>
+                <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт</button>
+                <input type="number" id="input_${key}" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                <span style="font-size:0.7rem; color:#a1a1aa;">сек</span>
+                <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+              </div>
+            `;
+          } else {
+            setsRows += `
+              <div class="set-row">
+                <span>Сет ${s}:</span>
+                <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
+                <span>кг ×</span>
+                <input type="number" placeholder="повт" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+              </div>
+            `;
+          }
+        }
+
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.innerHTML = `
+          <div class="ex-header">
+            <div>
+              <div class="ex-title">${exIdx + 1}. ${ex.name} ${ex.isTimed ? '⏱' : ''}</div>
+              <div class="ex-target">${ex.target}</div>
+            </div>
+            <button class="btn-gear" onclick="toggleExActions(${exIdx})" title="Настройки">⚙️</button>
+          </div>
+          <div>${setsRows}</div>
+          
+          <div class="sets-control">
+            <span>Подходов: <b>${setsCount}</b></span>
+            <div class="sets-control-btns">
+              <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, -1)">-</button>
+              <button class="btn-set-change" onclick="changeSetsCount(${exIdx}, 1)">+</button>
+            </div>
+          </div>
+
+          <div class="actions-hidden" id="exActions_${exIdx}">
+            <button class="btn-small btn-edit" onclick="editExercise(${exIdx})">✏️ Изменить</button>
+            <button class="btn-small btn-delete" onclick="deleteExercise(${exIdx})">🗑 Удалить</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
     }
 
     function openAddExerciseModal() {
@@ -914,16 +889,18 @@
     function changeSetsCount(exIdx, delta) {
       const ex = workoutData[activeDayIndex].exercises[exIdx];
       ex.sets = Math.max(1, (ex.sets || 4) + delta);
-      persistAndRender();
+      persistAndRenderModal();
     }
 
     function startTimer(key, targetText) {
       const btn = document.getElementById(`btn_${key}`);
       const input = document.getElementById(`input_${key}`);
-      const checkbox = document.getElementById(`chk_${key}`);
       
+      let duration = 60; // Честный дефолтный таймер на 60 секунд без случайного парсинга текста
       const match = targetText.match(/\d+/);
-      let duration = match ? parseInt(match[0]) : 60;
+      if (match && parseInt(match[0]) > 5) {
+        duration = parseInt(match[0]);
+      }
 
       if (activeTimers[key]) {
         clearInterval(activeTimers[key]);
@@ -951,11 +928,6 @@
             input.value = duration;
             saveVal(key + '_r', duration);
           }
-          if (checkbox) {
-            checkbox.checked = true;
-            saveVal(key + '_c', true);
-          }
-
           if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         }
       }, 1000);
@@ -988,7 +960,8 @@
       nameInput.value = '';
       targetInput.value = '';
       timedInput.checked = false;
-      persistAndRender();
+      document.getElementById('editDaySection').style.display = 'none';
+      persistAndRenderModal();
     }
 
     function addNewDay() {
@@ -996,16 +969,16 @@
       if (name) {
         workoutData.push({ dayName: name, exercises: [] });
         activeDayIndex = workoutData.length - 1;
-        persistAndRender();
+        persistAndRenderModal();
+        openWorkoutModal(activeDayIndex);
       }
     }
 
     function deleteCurrentDay() {
       if (workoutData.length <= 1) return alert('Нельзя удалить единственный день!');
-      if (confirm(`Удалить "${workoutData[activeDayIndex].dayName}"?`)) {
+      if (confirm(`Удалить день?`)) {
         workoutData.splice(activeDayIndex, 1);
-        activeDayIndex = 0;
-        persistAndRender();
+        closeWorkoutModal();
       }
     }
 
@@ -1022,7 +995,7 @@
     function deleteExercise(index) {
       if (confirm('Удалить упражнение?')) {
         workoutData[activeDayIndex].exercises.splice(index, 1);
-        persistAndRender();
+        persistAndRenderModal();
       }
     }
 
@@ -1032,7 +1005,7 @@
       let report = `═══ ${day.dayName.toUpperCase()} (${dateInfo.formattedStr}) ═══\n`;
       
       day.exercises.forEach((ex, eIdx) => {
-        report += `🔹 ${ex.name} (${ex.target})\n`;
+        report += `${eIdx + 1}. ${ex.name} (${ex.target})\n`;
         let setsDone = [];
         const setsCount = ex.sets || 4;
         for (let s = 1; s <= setsCount; s++) {
@@ -1042,29 +1015,20 @@
           const c = localStorage.getItem(key + '_c') === 'true';
           
           if (w || r || c) {
-            if (ex.isTimed) {
-              setsDone.push(`Сет ${s}: ${r || 0} сек ${c ? '✅' : '❌'}`);
-            } else {
-              setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
-            }
+            if (ex.isTimed) setsDone.push(`Сет ${s}: ${r || 0} сек ${c ? '✅' : '❌'}`);
+            else setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
           }
         }
         if (setsDone.length > 0) report += "   " + setsDone.join("\n   ") + "\n";
         else report += "   (Нет записей)\n";
       });
-
       return report;
     }
 
     function exportReport() {
       let fullReport = "📊 **ОТЧЕТ ПО ТРЕНИРОВКАМ**\n\n";
-      workoutData.forEach((_, idx) => {
-        fullReport += generateDayReportText(idx) + "\n";
-      });
-
-      navigator.clipboard.writeText(fullReport).then(() => {
-        alert('✅ Отчет скопирован в буфер обмена!');
-      });
+      workoutData.forEach((_, idx) => { fullReport += generateDayReportText(idx) + "\n"; });
+      navigator.clipboard.writeText(fullReport).then(() => alert('✅ Отчет скопирован!'));
     }
 
     function saveCurrentDayToHistory() {
@@ -1072,35 +1036,24 @@
       const dateInfo = getDayCalculatedDate(activeDayIndex);
       const reportText = generateDayReportText(activeDayIndex);
 
-      const dayRecord = {
-        title: `${currentDay.dayName} — ${dateInfo.formattedStr}`,
-        content: reportText
-      };
-
-      historyData.unshift(dayRecord);
+      historyData.unshift({ title: `${currentDay.dayName} — ${dateInfo.formattedStr}`, content: reportText });
       localStorage.setItem('workout_history', JSON.stringify(historyData));
-
       renderHistory();
-      alert(`🎉 День "${currentDay.dayName}" зафиксирован в Историю!`);
+      alert(`🎉 День зафиксирован в Историю!`);
     }
 
     function renderHistory() {
       const container = document.getElementById('historyContainer');
       container.innerHTML = '';
-
       if (historyData.length === 0) {
-        container.innerHTML = '<p style="color:#666; font-size:0.8rem;">История пока пуста.</p>';
+        container.innerHTML = '<p style="color:#71717a; font-size:0.8rem;">История пока пуста.</p>';
         return;
       }
-
       historyData.forEach((item, index) => {
         const card = document.createElement('div');
         card.className = 'history-card';
         card.innerHTML = `
-          <div class="history-header" onclick="toggleHistory(${index})">
-            <span>${item.title}</span>
-            <span>▼</span>
-          </div>
+          <div class="history-header" onclick="toggleHistory(${index})"><span>${item.title}</span><span>▼</span></div>
           <div class="history-body" id="histBody_${index}">${item.content}</div>
         `;
         container.appendChild(card);
@@ -1113,13 +1066,11 @@
     }
 
     function clearCurrentResults() {
-      if (!confirm('Очистить веса и отметки?')) return;
+      if (!confirm('Очистить веса?')) return;
       Object.keys(localStorage).forEach(key => {
-        if (key.includes('_w') || key.includes('_r') || key.includes('_c')) {
-          localStorage.removeItem(key);
-        }
+        if (key.includes('_w') || key.includes('_r') || key.includes('_c')) localStorage.removeItem(key);
       });
-      render();
+      renderModalContent();
     }
 
     function downloadBackup() {
@@ -1136,42 +1087,37 @@
     function restoreBackup(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const imported = JSON.parse(e.target.result);
           if (imported && imported.localStorageData) {
             localStorage.clear();
-            Object.keys(imported.localStorageData).forEach(key => {
-              localStorage.setItem(key, imported.localStorageData[key]);
-            });
-            alert('✅ Данные успешно восстановлены!');
+            Object.keys(imported.localStorageData).forEach(key => localStorage.setItem(key, imported.localStorageData[key]));
+            alert('✅ Данные восстановлены!');
             location.reload();
-          } else { alert('Некорректный файл!'); }
+          }
         } catch (err) { alert('Ошибка чтения файла!'); }
       };
       reader.readAsText(file);
     }
 
     function render() {
-      renderVerticalDaysList();
+      renderMainDaysList();
     }
 
-    function persistAndRender() {
-      localStorage.setItem('my_full_workout_v5', JSON.stringify(workoutData));
-      render();
+    function persistAndRenderModal() {
+      localStorage.setItem('my_full_workout_v6', JSON.stringify(workoutData));
+      renderModalContent();
     }
 
     let deferredPrompt;
     const installBtn = document.getElementById('pwaInstallBtn');
-
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       installBtn.style.display = 'block';
     });
-
     installBtn.addEventListener('click', async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
@@ -1181,13 +1127,8 @@
       }
     });
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js');
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
       renderChangelog();
-      if (Notification.permission === "granted") startReminderChecker();
       getNewMotivation();
     });
 
