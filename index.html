@@ -17,27 +17,49 @@
       color: #e0e0e0;
       margin: 0;
       padding: 12px;
-      padding-bottom: 40px;
+      padding-bottom: 50px;
     }
 
     h1 {
       font-size: 1.2rem;
       text-align: center;
       color: #4da6ff;
-      margin: 10px 0;
+      margin: 5px 0;
+    }
+
+    /* Статистика и авто-счетчик стажа */
+    .stats-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .stats-main {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
+    .stats-sub {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-top: 4px;
     }
 
     #pwaInstallBtn {
       display: block;
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background: #28a745;
       color: #fff;
       border: none;
       border-radius: 8px;
       font-weight: bold;
       margin-bottom: 12px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
     }
 
@@ -87,7 +109,7 @@
       margin-bottom: 12px;
     }
 
-    /* Форма добавления/редактирования */
+    /* Форма добавления */
     .add-card {
       background: #1e1e1e;
       border-radius: 10px;
@@ -187,13 +209,13 @@
     .btn-edit { background: #4b5563; color: white; }
     .btn-delete { background: #dc3545; color: white; }
 
-    /* Блок Импорта / Экспорта */
+    /* Блок Синхронизации и Истории */
     .sync-card {
       background: #1a1a24;
       border: 1px solid #3b3b58;
       border-radius: 10px;
       padding: 12px;
-      margin-top: 24px;
+      margin-top: 20px;
     }
 
     .sync-title {
@@ -216,15 +238,43 @@
       margin-bottom: 8px;
     }
 
-    .btn-clear {
-      background: #374151;
-      color: #9ca3af;
+    .history-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
+    .history-header {
+      font-weight: bold;
+      color: #f43f5e;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .history-body {
+      display: none;
+      margin-top: 8px;
+      white-space: pre-line;
+      color: #d4d4d8;
+      border-top: 1px solid #3f3f46;
+      padding-top: 8px;
     }
   </style>
 </head>
 <body>
 
   <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
+
+  <!-- Статистика стажа (считается автоматически) -->
+  <div class="stats-card">
+    <div class="stats-main" id="daysCounter">Загрузка стажа...</div>
+    <div class="stats-sub" id="startDateText">Старт: ...</div>
+    <button class="btn-small btn-edit" style="margin-top:6px;" onclick="resetStartDate()">⚙️ Изменить дату старта</button>
+  </div>
 
   <button id="pwaInstallBtn">📲 Установить приложение</button>
 
@@ -235,7 +285,7 @@
     <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить день</button>
   </div>
 
-  <!-- Форма добавления/изменения -->
+  <!-- Форма добавления -->
   <div class="add-card">
     <span id="form-title" style="font-weight:bold; font-size:0.85rem; display:block; margin-bottom:8px;">+ Добавить упражнение</span>
     <input type="hidden" id="editIndex" value="-1">
@@ -250,16 +300,23 @@
 
   <div id="exercisesContainer"></div>
 
-  <!-- Блок обмена данными с ИИ-тренером -->
+  <!-- Блок сохранения и обмена с чатом -->
   <div class="sync-card">
-    <div class="sync-title">🔄 Синхронизация с тренером</div>
+    <div class="sync-title">🏁 Сохранение и отчеты</div>
     
-    <button class="btn-sync" onclick="exportReport()">📋 Скопировать отчет недели</button>
-    <button class="btn-small btn-clear" style="width:100%; margin-bottom:12px;" onclick="clearCurrentResults()">🧹 Очистить результаты сетов</button>
+    <button class="btn-sync" style="background:#22c55e;" onclick="saveCurrentDayToHistory()">📅 Зафиксировать прошедший день в историю</button>
+    <button class="btn-sync" onclick="exportReport()">📋 Скопировать отчет за все дни (в чат)</button>
+    <button class="btn-small btn-delete" style="width:100%; margin-bottom:12px; background:#374151;" onclick="clearCurrentResults()">🧹 Сбросить все введенные веса/галочки</button>
 
-    <div style="font-size:0.75rem; color:#aaa; margin-bottom:4px;">Вставить новую программу от тренера (JSON):</div>
-    <textarea id="importInput" rows="3" placeholder="Вставьте сюда скопированный JSON-код программы..."></textarea>
-    <button class="btn-sync" style="background:#10b981; margin-top:6px; margin-bottom:0;" onclick="importProgram()">📥 Загрузить новый план</button>
+    <div style="font-size:0.75rem; color:#aaa; margin-top:12px; margin-bottom:4px;">Вставить новую программу от тренера (JSON):</div>
+    <textarea id="importInput" rows="2" placeholder="JSON код новой программы..."></textarea>
+    <button class="btn-sync" style="background:#10b981; margin-top:6px;" onclick="importProgram()">📥 Загрузить новый план</button>
+  </div>
+
+  <!-- Раздел сохраненной истории -->
+  <div style="margin-top: 20px;">
+    <h3 style="font-size:1rem; color:#a5b4fc; margin-bottom:8px;">📜 История тренировок</h3>
+    <div id="historyContainer"></div>
   </div>
 
   <script>
@@ -297,7 +354,42 @@
     ];
 
     let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v3')) || originalProgram;
+    let historyData = JSON.parse(localStorage.getItem('workout_history')) || [];
     let activeDayIndex = 0;
+
+    // АВТОМАТИЧЕСКИЙ РАСЧЕТ КАЖДОГО ДНЯ СТАРТА
+    function initStartDate() {
+      let startDateStr = localStorage.getItem('workout_start_date');
+      if (!startDateStr) {
+        startDateStr = new Date().toISOString().split('T')[0];
+        localStorage.setItem('workout_start_date', startDateStr);
+      }
+      updateStatsUI(startDateStr);
+    }
+
+    function updateStatsUI(startDateStr) {
+      const start = new Date(startDateStr);
+      const today = new Date();
+      
+      // Вычисляем точную разницу в днях между датами
+      const diffTime = today.getTime() - start.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+      const months = (diffDays / 30.44).toFixed(1);
+
+      document.getElementById('daysCounter').innerText = `🔥 Занимаюсь: ${diffDays} дн. (~${months} мес.)`;
+      document.getElementById('startDateText').innerText = `Дата старта: ${startDateStr}`;
+    }
+
+    function resetStartDate() {
+      const newDate = prompt('Укажите реальную дату первого дня тренировок (ГГГГ-ММ-ДД):');
+      if (newDate && !isNaN(Date.parse(newDate))) {
+        localStorage.setItem('workout_start_date', newDate);
+        updateStatsUI(newDate);
+      } else if (newDate) {
+        alert('Некорректный формат!');
+      }
+    }
 
     function renderDaysNav() {
       const nav = document.getElementById('daysNav');
@@ -307,10 +399,7 @@
         const btn = document.createElement('button');
         btn.className = `day-tab ${index === activeDayIndex ? 'active' : ''}`;
         btn.innerText = day.dayName;
-        btn.onclick = () => {
-          activeDayIndex = index;
-          render();
-        };
+        btn.onclick = () => { activeDayIndex = index; render(); };
         nav.appendChild(btn);
       });
 
@@ -376,10 +465,7 @@
       const targetInput = document.getElementById('exTarget');
       const editIndex = parseInt(document.getElementById('editIndex').value);
 
-      if (!nameInput.value.trim()) {
-        alert('Введите название упражнения!');
-        return;
-      }
+      if (!nameInput.value.trim()) return alert('Введите название!');
 
       const item = {
         name: nameInput.value.trim(),
@@ -401,7 +487,7 @@
     }
 
     function addNewDay() {
-      const name = prompt('Введите название дня:');
+      const name = prompt('Название дня:');
       if (name) {
         workoutData.push({ dayName: name, exercises: [] });
         activeDayIndex = workoutData.length - 1;
@@ -428,49 +514,106 @@
     }
 
     function deleteExercise(index) {
-      if (confirm('Удалить это упражнение?')) {
+      if (confirm('Удалить упражнение?')) {
         workoutData[activeDayIndex].exercises.splice(index, 1);
         persistAndRender();
       }
     }
 
-    // ЭКСПОРТ ОТЧЕТА ДЛЯ ЧАТА
-    function exportReport() {
-      let report = "📊 **ОТЧЕТ О ТРЕНИРОВКАХ ЗА НЕДЕЛЮ**\n\n";
-
-      workoutData.forEach((day, dIdx) => {
-        report += `═══ ${day.dayName.toUpperCase()} ═══\n`;
-        day.exercises.forEach((ex, eIdx) => {
-          report += `🔹 ${ex.name} (${ex.target})\n`;
-          let setsDone = [];
-          const setsCount = ex.sets || 4;
-          for (let s = 1; s <= setsCount; s++) {
-            const key = `d${dIdx}_e${eIdx}_s${s}`;
-            const w = localStorage.getItem(key + '_w');
-            const r = localStorage.getItem(key + '_r');
-            const c = localStorage.getItem(key + '_c') === 'true';
-            
-            if (w || r || c) {
-              setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
-            }
+    // ТЕКСТ ОТЧЕТА ТЕКУЩЕГО ДНЯ
+    function generateDayReportText(dayIndex) {
+      const day = workoutData[dayIndex];
+      let report = `═══ ${day.dayName.toUpperCase()} ═══\n`;
+      
+      day.exercises.forEach((ex, eIdx) => {
+        report += `🔹 ${ex.name} (${ex.target})\n`;
+        let setsDone = [];
+        const setsCount = ex.sets || 4;
+        for (let s = 1; s <= setsCount; s++) {
+          const key = `d${dayIndex}_e${eIdx}_s${s}`;
+          const w = localStorage.getItem(key + '_w');
+          const r = localStorage.getItem(key + '_r');
+          const c = localStorage.getItem(key + '_c') === 'true';
+          
+          if (w || r || c) {
+            setsDone.push(`Сет ${s}: ${w || 0}кг × ${r || 0} повт ${c ? '✅' : '❌'}`);
           }
-          if (setsDone.length > 0) {
-            report += "   " + setsDone.join("\n   ") + "\n";
-          } else {
-            report += "   (Нет записей)\n";
-          }
-        });
-        report += "\n";
+        }
+        if (setsDone.length > 0) report += "   " + setsDone.join("\n   ") + "\n";
+        else report += "   (Нет записей)\n";
       });
 
-      navigator.clipboard.writeText(report).then(() => {
-        alert('✅ Отчет скопирован в буфер обмена! Просто вставьте его в чат.');
-      }).catch(err => {
-        alert('Скопируйте вручную:\n\n' + report);
+      return report;
+    }
+
+    // ЭКСПОРТ ВСЕГО В ЧАТ
+    function exportReport() {
+      let fullReport = "📊 **ОТЧЕТ ПО ТРЕНИРОВКАМ**\n\n";
+      workoutData.forEach((_, idx) => {
+        fullReport += generateDayReportText(idx) + "\n";
+      });
+
+      navigator.clipboard.writeText(fullReport).then(() => {
+        alert('✅ Отчет скопирован в буфер обмена!');
+      }).catch(() => alert('Скопируйте вручную:\n\n' + fullReport));
+    }
+
+    // СОХРАНЕНИЕ ТОЛЬКО ТЕКУЩЕГО ДНЯ В ИСТОРИЮ
+    function saveCurrentDayToHistory() {
+      const currentDay = workoutData[activeDayIndex];
+      const dateStr = new Date().toLocaleDateString('ru-RU');
+      const reportText = generateDayReportText(activeDayIndex);
+
+      const dayRecord = {
+        title: `${currentDay.dayName} — ${dateStr}`,
+        content: reportText
+      };
+
+      historyData.unshift(dayRecord);
+      localStorage.setItem('workout_history', JSON.stringify(historyData));
+
+      renderHistory();
+      alert(`🎉 День "${currentDay.dayName}" зафиксирован в Историю за ${dateStr}!`);
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('historyContainer');
+      container.innerHTML = '';
+
+      if (historyData.length === 0) {
+        container.innerHTML = '<p style="color:#666; font-size:0.8rem;">История пока пуста. Зафиксируйте свой первый день!</p>';
+        return;
+      }
+
+      historyData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        card.innerHTML = `
+          <div class="history-header" onclick="toggleHistory(${index})">
+            <span>${item.title}</span>
+            <span>▼</span>
+          </div>
+          <div class="history-body" id="histBody_${index}">${item.content}</div>
+        `;
+        container.appendChild(card);
       });
     }
 
-    // ИМПОРТ НОВОГО ПЛАНА
+    function toggleHistory(index) {
+      const el = document.getElementById(`histBody_${index}`);
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function clearCurrentResults() {
+      if (!confirm('Очистить все введенные веса и галочки на сегодня?')) return;
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('_w') || key.includes('_r') || key.includes('_c')) {
+          localStorage.removeItem(key);
+        }
+      });
+      render();
+    }
+
     function importProgram() {
       const jsonText = document.getElementById('importInput').value.trim();
       if (!jsonText) return alert('Вставьте JSON код!');
@@ -480,25 +623,10 @@
         if (Array.isArray(newData)) {
           workoutData = newData;
           persistAndRender();
-          clearCurrentResults();
           document.getElementById('importInput').value = '';
-          alert('🚀 Новый план успешно загружен!');
-        } else {
-          alert('Ошибка в формате данных!');
-        }
-      } catch (e) {
-        alert('Неверный формат кода. Убедитесь, что скопировали код целиком!');
-      }
-    }
-
-    // Очистить выполненные сеты (перед новой неделей)
-    function clearCurrentResults() {
-      Object.keys(localStorage).forEach(key => {
-        if (key.includes('_w') || key.includes('_r') || key.includes('_c')) {
-          localStorage.removeItem(key);
-        }
-      });
-      render();
+          alert('🚀 Новый план загружен!');
+        } else alert('Ошибка в формате!');
+      } catch (e) { alert('Неверный формат кода!'); }
     }
 
     function render() {
@@ -526,7 +654,7 @@
         if (outcome === 'accepted') { installBtn.style.display = 'none'; }
         deferredPrompt = null;
       } else {
-        alert('Нажмите 3 точки в углу браузера (⋮) и выберите "Добавить на главный экран" или "Установить приложение"');
+        alert('Нажмите 3 точки в углу браузера (⋮) и выберите "Добавить на главный экран"');
       }
     });
 
@@ -534,6 +662,8 @@
       navigator.serviceWorker.register('./sw.js');
     }
 
+    initStartDate();
+    renderHistory();
     render();
   </script>
 </body>
