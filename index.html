@@ -47,10 +47,11 @@
     .stats-card {
       background: #18181b;
       border: 1px solid #27272a;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 14px;
       margin-bottom: 12px;
       text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
     .stats-main {
@@ -66,14 +67,17 @@
     }
 
     .motivation-box {
-      background: #18181b;
+      background: linear-gradient(145deg, #18181b, #202025);
       border: 1px solid #27272a;
-      border-radius: 12px;
-      padding: 12px;
+      border-radius: 14px;
+      padding: 14px;
       margin-bottom: 12px;
       text-align: center;
       cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: transform 0.1s ease;
     }
+    .motivation-box:active { transform: scale(0.98); }
 
     #pwaInstallBtn {
       display: none;
@@ -82,18 +86,17 @@
       background: #166534;
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-weight: bold;
       margin-bottom: 12px;
       font-size: 0.85rem;
       cursor: pointer;
     }
 
-    /* Вертикальный список дней на главном экране */
     .days-vertical-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 15px;
     }
 
@@ -102,7 +105,7 @@
       padding: 14px 16px;
       background: #18181b;
       border: 1px solid #27272a;
-      border-radius: 10px;
+      border-radius: 12px;
       color: #e4e4e7;
       font-weight: bold;
       font-size: 0.9rem;
@@ -111,25 +114,29 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      transition: background 0.2s, border-color 0.2s;
     }
 
     .day-main-btn:hover {
-      background: #27272a;
+      background: #202025;
+      border-color: #3f3f46;
     }
 
     .day-tab-add {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background: #18181b;
       border: 1px dashed #3f3f46;
       color: #a1a1aa;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       font-size: 0.9rem;
       font-weight: bold;
       text-align: center;
       margin-bottom: 12px;
     }
+    .day-tab-add:hover { background: #202025; color: #fff; }
 
     .day-date-sub {
       font-size: 0.75rem;
@@ -137,7 +144,7 @@
       color: #a1a1aa;
     }
 
-    /* Модальное окно (отдельный экран тренировки) */
+    /* Модальное окно тренировки */
     #workoutModal {
       display: none;
       position: fixed;
@@ -156,7 +163,7 @@
       background: #18181b;
       border: 1px solid #27272a;
       padding: 10px 14px;
-      border-radius: 10px;
+      border-radius: 12px;
       margin-bottom: 12px;
     }
 
@@ -165,11 +172,12 @@
       border: none;
       color: #e4e4e7;
       padding: 6px 12px;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.8rem;
       font-weight: bold;
       cursor: pointer;
     }
+    .btn-back:hover { background: #3f3f46; }
 
     .modal-day-title {
       font-weight: bold;
@@ -186,18 +194,18 @@
       align-items: center;
       margin-bottom: 12px;
       background: #18181b;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 10px 14px;
+      border-radius: 12px;
       border: 1px solid #27272a;
     }
 
     .accordion-btn {
       width: 100%;
-      padding: 10px;
+      padding: 12px 14px;
       background: #18181b;
       border: 1px solid #27272a;
       color: #a1a1aa;
-      border-radius: 8px;
+      border-radius: 12px;
       font-weight: bold;
       font-size: 0.8rem;
       cursor: pointer;
@@ -207,37 +215,40 @@
       align-items: center;
       margin-bottom: 10px;
     }
+    .accordion-btn:hover { background: #202025; color: #e4e4e7; }
 
     .form-group { margin-bottom: 8px; }
 
     input[type="text"], input[type="password"], textarea, select {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       background: #18181b;
       border: 1px solid #3f3f46;
-      border-radius: 6px;
+      border-radius: 8px;
       color: #fff;
       font-size: 0.85rem;
     }
 
     .btn-main {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background: #3f3f46;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
     }
+    .btn-main:hover { background: #52525b; }
 
     .exercise-card {
       background: #18181b;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 14px;
+      border-radius: 12px;
       margin-bottom: 10px;
       border: 1px solid #27272a;
       position: relative;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
     .ex-header {
@@ -257,17 +268,18 @@
     .ex-target {
       font-size: 0.75rem;
       color: #a1a1aa;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .btn-gear {
       background: none;
       border: none;
       color: #71717a;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       cursor: pointer;
-      padding: 2px 4px;
+      padding: 2px 6px;
     }
+    .btn-gear:hover { color: #fff; }
 
     .set-row {
       display: flex;
@@ -275,41 +287,43 @@
       align-items: center;
       margin-bottom: 6px;
       font-size: 0.8rem;
-      background: #27272a;
-      padding: 6px 8px;
-      border-radius: 6px;
+      background: #202025;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #27272a;
     }
 
     input[type="number"] {
       width: 65px;
-      padding: 4px;
+      padding: 6px;
       border: 1px solid #3f3f46;
       background: #18181b;
       color: #fff;
-      border-radius: 4px;
+      border-radius: 6px;
       text-align: center;
       font-size: 0.85rem;
     }
 
+    /* Стильные чекбоксы с мягким зеленоватым/серым фоном при выборе */
     input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #52525b;
+      width: 20px;
+      height: 20px;
+      accent-color: #3f3f46;
       margin-left: auto;
+      cursor: pointer;
     }
 
     .btn-timer {
       background: #3f3f46;
       color: white;
       border: none;
-      padding: 5px 8px;
-      border-radius: 4px;
+      padding: 6px 10px;
+      border-radius: 6px;
       font-weight: bold;
       font-size: 0.75rem;
       cursor: pointer;
       flex: 1;
     }
-
     .btn-timer.running { background: #b45309; }
     .btn-timer.finished { background: #166534; }
 
@@ -317,42 +331,44 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
-      padding-top: 6px;
-      border-top: 1px dashed #3f3f46;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed #27272a;
       font-size: 0.75rem;
       color: #a1a1aa;
     }
 
     .sets-control-btns {
       display: flex;
-      gap: 4px;
+      gap: 6px;
     }
 
     .btn-set-change {
-      background: #3f3f46;
+      background: #27272a;
       color: white;
-      border: none;
-      padding: 2px 8px;
-      border-radius: 4px;
+      border: 1px solid #3f3f46;
+      padding: 3px 10px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
     }
+    .btn-set-change:hover { background: #3f3f46; }
 
     .actions-hidden {
       display: none;
       gap: 8px;
-      margin-top: 8px;
-      padding-top: 6px;
-      border-top: 1px dashed #3f3f46;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed #27272a;
     }
 
     .btn-small {
-      padding: 4px 8px;
+      padding: 6px 10px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 0.75rem;
       cursor: pointer;
+      font-weight: bold;
     }
 
     .btn-edit { background: #3f3f46; color: white; }
@@ -360,31 +376,32 @@
 
     .btn-sync {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       background: #27272a;
       color: white;
       border: 1px solid #3f3f46;
-      border-radius: 6px;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
       margin-bottom: 8px;
       font-size: 0.8rem;
     }
+    .btn-sync:hover { background: #3f3f46; }
 
     .accordion-content {
       display: none;
       background: #18181b;
       border: 1px solid #27272a;
-      border-radius: 10px;
-      padding: 12px;
+      border-radius: 12px;
+      padding: 14px;
       margin-bottom: 12px;
     }
 
     .history-card {
       background: #18181b;
       border: 1px solid #27272a;
-      border-radius: 8px;
-      padding: 10px;
+      border-radius: 10px;
+      padding: 12px;
       margin-top: 8px;
       font-size: 0.8rem;
     }
@@ -395,15 +412,17 @@
       cursor: pointer;
       display: flex;
       justify-content: space-between;
+      align-items: center;
     }
 
     .history-body {
       display: none;
-      margin-top: 8px;
+      margin-top: 10px;
       white-space: pre-line;
       color: #d4d4d8;
       border-top: 1px solid #27272a;
-      padding-top: 8px;
+      padding-top: 10px;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -411,13 +430,13 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.2.2</span>
+    <span class="version-badge" id="appVersionBadge">v1.2.3</span>
   </div>
 
   <div class="stats-card">
     <div class="stats-main" id="daysCounter">Загрузка стажа...</div>
     <div class="stats-sub" id="startDateText">Старт: ...</div>
-    <div style="margin-top:6px; display:flex; justify-content:center; gap:8px;">
+    <div style="margin-top:8px; display:flex; justify-content:center; gap:8px;">
       <button class="btn-small btn-edit" onclick="resetStartDate()">⚙️ Дата старта</button>
       <button class="btn-small btn-edit" onclick="configureSchedule()">📅 Расписание дней</button>
     </div>
@@ -485,7 +504,7 @@
     <button class="btn-small btn-delete" style="width:100%; margin-bottom:10px; padding:8px;" onclick="clearCurrentResults()">🧹 Сбросить веса на сегодня</button>
 
     <div style="font-size:0.75rem; color:#a1a1aa; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
-    <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #27272a; margin-bottom:10px; line-height:1.4; color:#a1a1aa;"></div>
+    <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:8px; border:1px solid #27272a; margin-bottom:10px; line-height:1.4; color:#a1a1aa;"></div>
 
     <div style="font-size:0.75rem; color:#a1a1aa; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
     <div style="display:flex; gap:6px; margin-bottom:8px;">
@@ -500,7 +519,7 @@
     <div id="historyContainer"></div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ТРЕНИРОВКИ (ОТДЕЛЬНЫЙ ЭКРАН) -->
+  <!-- МОДАЛЬНОЕ ОКНО ТРЕНИРОВКИ -->
   <div id="workoutModal">
     <div class="modal-nav-header">
       <button class="btn-back" onclick="closeWorkoutModal()">⬅️ К списку дней</button>
@@ -510,7 +529,7 @@
 
     <div class="day-top-actions">
       <span style="font-size:0.75rem; color:#a1a1aa; font-weight:bold;">Управление днем:</span>
-      <div style="display:flex; gap:4px;">
+      <div style="display:flex; gap:6px;">
         <button class="btn-small btn-edit" onclick="openAddExerciseModal()">+ Упражнение</button>
         <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить день</button>
       </div>
@@ -527,7 +546,7 @@
       <div class="form-group">
         <input type="text" id="exTarget" placeholder="Цель (например: 6 раз или 60 сек)">
       </div>
-      <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#121212; padding:8px; border-radius:6px;">
+      <div class="form-group" style="display:flex; align-items:center; gap:8px; background:#121212; padding:10px; border-radius:8px;">
         <input type="checkbox" id="exIsTimed" style="margin:0;">
         <label for="exIsTimed" style="font-size:0.8rem; color:#f0f0f0;">⏱ Упражнение на время</label>
       </div>
@@ -536,17 +555,16 @@
 
     <div id="modalExercisesContainer"></div>
 
-    <!-- Кнопка фиксации окончания дня тренировок -->
     <button class="btn-sync" style="background:#166534; margin-top:20px; padding:14px; font-size:0.9rem;" onclick="finishWorkoutDay()">🏁 Тренировка окончена</button>
   </div>
 
   <script>
-    const APP_VERSION = "v1.2.2";
+    const APP_VERSION = "v1.2.3";
     
     const changelogHistory = [
-      { ver: "v1.2.2", text: "Исправлен расчет дат в пределах недели (теперь дни идут подряд в рамках 7 дней), скрыты графы веса для упражнений без дополнительного веса (свой вес/на повторения)." },
-      { ver: "v1.2.1", text: "Исправлен расчет дат в пределах одной недели, автозаполнение полей по целям с возможностью редактирования, добавлена кнопка фиксации окончания тренировки." },
-      { ver: "v1.2.0", text: "Добавлен отдельный экран для тренировки, нумерация упражнений 1,2,3, исправлен таймер (без авто-галочек), смягчены цвета интерфейса." }
+      { ver: "v1.2.3", text: "Исправлен баг в расчете дат дней тренировок (теперь дни идут последовательно по шагу без разрыва в две недели), улучшен дизайн карточек и элементов управления." },
+      { ver: "v1.2.2", text: "Скрыты графы веса для упражнений без дополнительного веса (свой вес/на повторения)." },
+      { ver: "v1.2.1", text: "Исправлен расчет дат в пределах одной недели, автозаполнение полей по целям с возможностью редактирования." }
     ];
 
     function renderChangelog() {
@@ -693,7 +711,6 @@
       navigator.clipboard.writeText(promptText).then(() => alert("✅ Отчет скопирован!"));
     }
 
-    let reminderInterval = null;
     function toggleWorkoutReminders() {
       if (!("Notification" in window)) return alert("Браузер не поддерживает уведомления.");
       Notification.requestPermission().then(permission => {
@@ -716,11 +733,11 @@
 
     function getDayCalculatedDate(dayIndex) {
       let startDateStr = localStorage.getItem('workout_start_date') || new Date().toISOString().split('T')[0];
-      const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '1'); 
+      const restDaysInterval = parseInt(localStorage.getItem('workout_day_step') || '2'); 
       const baseDate = new Date(startDateStr);
       const targetDate = new Date(baseDate);
       
-      // Исправление расчета дат: дни идут строго по порядку в рамках недели, прибавляя шаг (обычно 1 или 2 дня)
+      // Исправление расчета дат: каждый следующий день тренировки отстоит от даты старта на (индекс * шаг) дней
       targetDate.setDate(baseDate.getDate() + (dayIndex * restDaysInterval));
 
       return {
@@ -730,7 +747,7 @@
     }
 
     function configureSchedule() {
-      const step = prompt('Интервал между тренировочными днями (в днях, 1 = каждый день подряд):', localStorage.getItem('workout_day_step') || '1');
+      const step = prompt('Интервал между днями тренировок (в днях, например: 2 — если тренировки через день):', localStorage.getItem('workout_day_step') || '2');
       if (step && !isNaN(parseInt(step))) {
         localStorage.setItem('workout_day_step', step);
         render();
@@ -757,7 +774,7 @@
         localStorage.setItem('workout_start_date', startDateStr);
       }
       if (!localStorage.getItem('workout_day_step')) {
-        localStorage.setItem('workout_day_step', '1'); 
+        localStorage.setItem('workout_day_step', '2'); // По умолчанию ставим шаг 2 дня для чередования
       }
       updateStatsUI(startDateStr);
     }
@@ -790,7 +807,7 @@
         const dateInfo = getDayCalculatedDate(index);
         const btn = document.createElement('button');
         btn.className = 'day-main-btn';
-        btn.innerHTML = `<span>${day.dayName} <span class="day-date-sub">(${dateInfo.formattedStr})</span></span> <span>➔</span>`;
+        btn.innerHTML = `<span>${day.dayName} <span class="day-date-sub">(${dateInfo.formattedStr})</span></span> <span style="color:#71717a">➔</span>`;
         btn.onclick = () => openWorkoutModal(index);
         listContainer.appendChild(btn);
       });
@@ -812,7 +829,6 @@
       renderModalContent();
     }
 
-    // Проверка, есть ли в цели упражнения упоминание веса (кг)
     function hasWeightInTarget(targetStr) {
       if (!targetStr) return false;
       const lower = targetStr.toLowerCase();
@@ -879,7 +895,6 @@
               </div>
             `;
           } else if (includeWeight) {
-            // Упражнение с весом и повторениями
             setsRows += `
               <div class="set-row">
                 <span>Сет ${s}:</span>
@@ -890,7 +905,6 @@
               </div>
             `;
           } else {
-            // Упражнение без дополнительного веса (только повторения/собственный вес) — скрываем графу кг
             setsRows += `
               <div class="set-row">
                 <span>Сет ${s}:</span>
