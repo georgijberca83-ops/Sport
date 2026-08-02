@@ -19,25 +19,70 @@
       padding: 16px;
     }
 
-    h1, h2, h3 {
-      text-align: center;
-      margin-top: 0;
-    }
+    h1 { text-align: center; margin-top: 0; }
 
-    /* Кнопка установки PWA */
     #pwaInstallBtn {
       display: block;
       width: 100%;
       max-width: 400px;
-      margin: 0 auto 20px auto;
-      padding: 12px 20px;
+      margin: 0 auto 16px auto;
+      padding: 12px;
       background-color: #2ea44f;
       color: white;
       border: none;
       border-radius: 8px;
       font-weight: bold;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
+    }
+
+    /* Табы (Дни) */
+    .days-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .day-tab {
+      padding: 8px 16px;
+      background: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 20px;
+      color: #aaa;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .day-tab.active {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+      font-weight: bold;
+    }
+
+    .btn-add-day {
+      padding: 8px 14px;
+      background: #1e1e1e;
+      border: 1px dashed #666;
+      border-radius: 20px;
+      color: #2ea44f;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    /* Управление днем */
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      background: #1e1e1e;
+      padding: 12px 16px;
+      border-radius: 8px;
     }
 
     /* Форма добавления */
@@ -45,13 +90,11 @@
       background: #1e1e1e;
       border-radius: 12px;
       padding: 16px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       border: 1px solid #333;
     }
 
-    .form-group {
-      margin-bottom: 12px;
-    }
+    .form-group { margin-bottom: 10px; }
 
     input[type="text"] {
       width: 100%;
@@ -65,13 +108,12 @@
 
     .btn-main {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background: #3b82f6;
       color: white;
       border: none;
       border-radius: 6px;
       font-weight: bold;
-      font-size: 14px;
       cursor: pointer;
     }
 
@@ -84,18 +126,11 @@
       border: 1px solid #333;
     }
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
     .ex-title {
       font-size: 18px;
       font-weight: bold;
       color: #ffffff;
-      margin: 0;
+      margin: 0 0 4px 0;
     }
 
     .ex-target {
@@ -104,7 +139,6 @@
       margin-bottom: 12px;
     }
 
-    /* Таблица сетов */
     .sets-grid {
       display: flex;
       flex-direction: column;
@@ -114,14 +148,10 @@
     .set-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
-    .set-label {
-      width: 50px;
-      font-size: 14px;
-      color: #aaa;
-    }
+    .set-label { width: 45px; font-size: 13px; color: #aaa; }
 
     .set-input {
       width: 60px;
@@ -134,13 +164,12 @@
     }
 
     .checkbox-custom {
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
+      width: 22px;
+      height: 22px;
       accent-color: #3b82f6;
+      margin-left: auto;
     }
 
-    /* Кнопки управления */
     .actions {
       display: flex;
       gap: 8px;
@@ -163,12 +192,20 @@
 
   <h1>Трекер Тренировок</h1>
 
-  <!-- Принудительная кнопка установки PWA -->
   <button id="pwaInstallBtn">📥 Установить приложение</button>
 
-  <!-- Форма добавления нового упражнения -->
+  <!-- Переключатель Дней -->
+  <div class="days-nav" id="daysNav"></div>
+
+  <!-- Шапка текущего дня -->
+  <div class="day-header">
+    <h2 id="currentDayTitle" style="margin: 0;">День 1</h2>
+    <button class="btn-small btn-delete" onclick="deleteCurrentDay()">🗑 Удалить этот день</button>
+  </div>
+
+  <!-- Форма добавления/редактирования упражнения -->
   <div class="add-card">
-    <h3 id="form-title">+ Добавить упражнение</h3>
+    <h3 id="form-title" style="margin-top:0;">+ Добавить упражнение</h3>
     <input type="hidden" id="editIndex" value="-1">
     <div class="form-group">
       <input type="text" id="exName" placeholder="Название (например: Жим гантелей)">
@@ -176,43 +213,83 @@
     <div class="form-group">
       <input type="text" id="exTarget" placeholder="Цель (например: 8-10 кг × 10-12)">
     </div>
-    <button class="btn-main" onclick="saveExercise()">Сохранить</button>
+    <button class="btn-main" onclick="saveExercise()">Сохранить упражнение</button>
   </div>
 
-  <!-- Список упражнений -->
+  <!-- Список упражнений выбранного дня -->
   <div id="exercisesContainer"></div>
 
   <script>
-    // Инициализация дефолтных данных, если память пуста
-    const defaultData = [
-      { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8' },
-      { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12' }
+    // Начальная программа по умолчанию (если память пуста)
+    const defaultProgram = [
+      {
+        dayName: 'День 1',
+        exercises: [
+          { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8' },
+          { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12' }
+        ]
+      },
+      {
+        dayName: 'День 2',
+        exercises: [
+          { name: 'Приседания', target: 'Цель: 50 кг × 10' }
+        ]
+      }
     ];
 
-    let exercises = JSON.parse(localStorage.getItem('workout_program')) || defaultData;
+    let workoutData = JSON.parse(localStorage.getItem('workout_program_v2')) || defaultProgram;
+    let activeDayIndex = 0;
 
-    // Отрисовка списка
-    function render() {
+    // Отрисовка закладок (дней)
+    function renderDaysNav() {
+      const nav = document.getElementById('daysNav');
+      nav.innerHTML = '';
+
+      workoutData.forEach((day, index) => {
+        const btn = document.createElement('button');
+        btn.className = `day-tab ${index === activeDayIndex ? 'active' : ''}`;
+        btn.innerText = day.dayName;
+        btn.onclick = () => {
+          activeDayIndex = index;
+          render();
+        };
+        nav.appendChild(btn);
+      });
+
+      // Кнопка добавления нового дня
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn-add-day';
+      addBtn.innerText = '+ Новый день';
+      addBtn.onclick = addNewDay;
+      nav.appendChild(addBtn);
+    }
+
+    // Отрисовка списка упражнений для активного дня
+    function renderExercises() {
       const container = document.getElementById('exercisesContainer');
+      const currentDay = workoutData[activeDayIndex];
+      document.getElementById('currentDayTitle').innerText = currentDay.dayName;
+
       container.innerHTML = '';
 
-      exercises.forEach((ex, index) => {
+      if (!currentDay.exercises || currentDay.exercises.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#777;">В этом дне пока нет упражнений.</p>';
+        return;
+      }
+
+      currentDay.exercises.forEach((ex, index) => {
         const card = document.createElement('div');
         card.className = 'exercise-card';
         card.innerHTML = `
-          <div class="card-header">
-            <div>
-              <div class="ex-title">${ex.name}</div>
-              <div class="ex-target">${ex.target}</div>
-            </div>
-          </div>
+          <div class="ex-title">${ex.name}</div>
+          <div class="ex-target">${ex.target}</div>
           
           <div class="sets-grid">
             ${[1, 2, 3, 4].map(setNum => `
               <div class="set-row">
                 <span class="set-label">Сет ${setNum}:</span>
                 <input type="text" class="set-input" placeholder="кг">
-                <span>кг ×</span>
+                <span style="font-size: 13px; color: #aaa;">кг ×</span>
                 <input type="text" class="set-input" placeholder="повтор">
                 <input type="checkbox" class="checkbox-custom">
               </div>
@@ -228,7 +305,7 @@
       });
     }
 
-    // Сохранение нового или отредактированного упражнения
+    // Сохранение упражнения
     function saveExercise() {
       const nameInput = document.getElementById('exName');
       const targetInput = document.getElementById('exTarget');
@@ -245,38 +322,64 @@
       };
 
       if (editIndex === -1) {
-        exercises.push(item);
+        workoutData[activeDayIndex].exercises.push(item);
       } else {
-        exercises[editIndex] = item;
+        workoutData[activeDayIndex].exercises[editIndex] = item;
         document.getElementById('editIndex').value = "-1";
         document.getElementById('form-title').innerText = "+ Добавить упражнение";
       }
 
       nameInput.value = '';
       targetInput.value = '';
-      
       persistAndRender();
     }
 
-    // Редактирование
+    // Добавление нового дня
+    function addNewDay() {
+      const name = prompt('Введите название дня (например: День 3 или Спина/Бицепс):');
+      if (name) {
+        workoutData.push({ dayName: name, exercises: [] });
+        activeDayIndex = workoutData.length - 1;
+        persistAndRender();
+      }
+    }
+
+    // Удаление текущего дня
+    function deleteCurrentDay() {
+      if (workoutData.length <= 1) {
+        alert('Нельзя удалить единственный день!');
+        return;
+      }
+      if (confirm(`Удалить "${workoutData[activeDayIndex].dayName}" и все его упражнения?`)) {
+        workoutData.splice(activeDayIndex, 1);
+        activeDayIndex = 0;
+        persistAndRender();
+      }
+    }
+
     function editExercise(index) {
-      document.getElementById('exName').value = exercises[index].name;
-      document.getElementById('exTarget').value = exercises[index].target;
+      const ex = workoutData[activeDayIndex].exercises[index];
+      document.getElementById('exName').value = ex.name;
+      document.getElementById('exTarget').value = ex.target;
       document.getElementById('editIndex').value = index;
       document.getElementById('form-title').innerText = "✏️ Изменить упражнение";
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Удаление
     function deleteExercise(index) {
       if (confirm('Удалить это упражнение?')) {
-        exercises.splice(index, 1);
+        workoutData[activeDayIndex].exercises.splice(index, 1);
         persistAndRender();
       }
     }
 
+    function render() {
+      renderDaysNav();
+      renderExercises();
+    }
+
     function persistAndRender() {
-      localStorage.setItem('workout_program', JSON.stringify(exercises));
+      localStorage.setItem('workout_program_v2', JSON.stringify(workoutData));
       render();
     }
 
@@ -302,12 +405,10 @@
       }
     });
 
-    // Регистрация Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js');
     }
 
-    // Первая отрисовка
     render();
   </script>
 </body>
