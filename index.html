@@ -95,11 +95,13 @@
       margin-bottom: 12px;
       overflow-x: auto;
       align-items: center;
+      padding-bottom: 4px;
     }
 
     .day-tab {
-      flex: 1;
-      padding: 8px 6px;
+      flex: 0 0 auto;
+      min-width: 110px;
+      padding: 8px 10px;
       background: #222;
       border: 1px solid #333;
       color: #aaa;
@@ -108,7 +110,6 @@
       font-weight: bold;
       font-size: 0.75rem;
       text-align: center;
-      white-space: nowrap;
     }
 
     .day-tab.active {
@@ -285,7 +286,7 @@
       background: #0284c7;
       color: white;
       border: none;
-      padding: 4px 8px;
+      padding: 5px 8px;
       border-radius: 4px;
       font-weight: bold;
       font-size: 0.75rem;
@@ -385,7 +386,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.1.7</span>
+    <span class="version-badge" id="appVersionBadge">v1.1.8</span>
   </div>
 
   <div class="stats-card">
@@ -404,12 +405,13 @@
 
   <button id="pwaInstallBtn">📲 Установить приложение</button>
 
+  <!-- Горизонтальная навигация по дням -->
   <div class="days-nav" id="daysNav"></div>
 
+  <!-- Шапка выбранного дня (без дублирования названий) -->
   <div class="day-header">
     <div class="day-header-left">
-      <h3 id="currentDayTitle" style="margin: 0; color:#4da6ff;">День 1</h3>
-      <span id="currentDayDate" style="font-size:0.85rem; color:#a5b4fc;"></span>
+      <span id="currentDayDate" style="font-size:0.85rem; color:#a5b4fc; font-weight: bold;"></span>
     </div>
     <button class="btn-day-settings" onclick="toggleAccordion('editDaySection')" title="Настройки дня и добавление упражнений">⚙️</button>
   </div>
@@ -464,7 +466,6 @@
 
     <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
 
-    <!-- БЛОК ПРОМПТА С ПУСТЫМ ПОЛЕМ -->
     <div style="margin-bottom: 12px;">
       <div style="font-size:0.75rem; color:#a5b4fc; margin-bottom:4px; font-weight:bold;">🤖 Создать план под себя через ИИ:</div>
       <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:4px;">Опишите ниже вашу цель, параметры, инвентарь или пожелания:</div>
@@ -495,9 +496,9 @@
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
     <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #333; margin-bottom:10px; line-height:1.4; color:#94a3b8;">
+      <b>v1.1.8</b> — Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель вкладок и сетка таймеров.<br>
       <b>v1.1.7</b> — Поле ввода пользовательского запроса для ИИ сделано пустым, добавлено автоматическое формирование правильной структуры промпта.<br>
-      <b>v1.1.6</b> — Добавлен парсер ответов ИИ для автоматического обновления программы.<br>
-      <b>v1.1.5</b> — Возвращено текстовое поле и кнопка «Скопировать промпт».
+      <b>v1.1.6</b> — Добавлен парсер ответов ИИ для автоматического обновления программы.
     </div>
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
@@ -514,12 +515,12 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.1.7";
+    const APP_VERSION = "v1.1.8";
     
     const changelogHistory = [
+      { ver: "v1.1.8", text: "Улучшен визуальный интерфейс: убран дублирующий заголовок дня, оптимизирована верхняя панель вкладок и сетка таймеров." },
       { ver: "v1.1.7", text: "Поле ввода пользовательского запроса для ИИ сделано пустым, добавлено автоматическое формирование правильной структуры промпта." },
-      { ver: "v1.1.6", text: "Добавлен парсер ответов ИИ для автоматического обновления программы." },
-      { ver: "v1.1.5", text: "Возвращено текстовое поле и кнопка «Скопировать промпт»." }
+      { ver: "v1.1.6", text: "Добавлен парсер ответов ИИ для автоматического обновления программы." }
     ];
 
     function renderChangelog() {
@@ -891,8 +892,7 @@
       const currentDay = workoutData[activeDayIndex];
       const dateInfo = getDayCalculatedDate(activeDayIndex);
 
-      document.getElementById('currentDayTitle').innerText = currentDay.dayName;
-      document.getElementById('currentDayDate').innerText = `— ${dateInfo.formattedStr}`;
+      document.getElementById('currentDayDate').innerText = `${currentDay.dayName} — ${dateInfo.formattedStr}`;
 
       container.innerHTML = '';
 
@@ -917,7 +917,7 @@
                 <span>Сет ${s}:</span>
                 <button class="btn-timer" id="btn_${key}" onclick="startTimer('${key}', '${ex.target}')">▶️ Старт</button>
                 <input type="number" id="input_${key}" placeholder="сек" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
-                <span>сек</span>
+                <span style="font-size:0.7rem; color:#aaa;">сек</span>
                 <input type="checkbox" id="chk_${key}" ${savedC} onclick="saveVal('${key}_c', this.checked)">
               </div>
             `;
