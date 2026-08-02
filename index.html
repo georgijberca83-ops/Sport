@@ -389,7 +389,7 @@
 
   <div class="app-header">
     <h1>🏋️ Трекер рекомпозиции</h1>
-    <span class="version-badge">v1.4.0</span>
+    <span class="version-badge">v1.4.2</span>
   </div>
 
   <div class="stats-card">
@@ -422,6 +422,9 @@
         <option value="midnight">Глубокий синий (Midnight)</option>
         <option value="amoled">Чистый черный (AMOLED)</option>
         <option value="military">Милитари / Хаки</option>
+        <option value="cyberpunk">Киберпанк / Неон (Neon)</option>
+        <option value="emerald">Изумрудный лес (Emerald)</option>
+        <option value="coffee">Теплый кофе (Espresso)</option>
       </select>
     </div>
 
@@ -443,7 +446,7 @@
     </div>
     
     <div class="form-group">
-      <label>Ответ / План от ИИ (с автопарсером):</label>
+      <label>Ответ / План от ИИ (с умным автопарсером):</label>
       <button class="btn-ai" onclick="copyAiPrompt()">🤖 Скопировать запрос для ИИ</button>
       <textarea id="aiPlanInput" placeholder="Вставьте сюда ответ от ИИ..." oninput="parseAndApplyAiPlan()"></textarea>
     </div>
@@ -505,7 +508,6 @@
     let currentDayId = null;
     let activeTimers = {};
 
-    // Генератор звуков через Web Audio API (без внешних файлов)
     function playBeep(frequency = 587.33, duration = 150, type = 'sine') {
       if (!appData.soundEnabled) return;
       try {
@@ -530,7 +532,10 @@
       dark: { bg: "#121212", card: "#18181b", border: "#27272a", text: "#d4d4d8", sub: "#a1a1aa", accent: "#3f3f46" },
       midnight: { bg: "#090d16", card: "#111827", border: "#1f2937", text: "#e5e7eb", sub: "#9ca3af", accent: "#2563eb" },
       amoled: { bg: "#000000", card: "#0a0a0a", border: "#262626", text: "#ffffff", sub: "#737373", accent: "#525252" },
-      military: { bg: "#111410", card: "#191d17", border: "#283024", text: "#d1d5db", sub: "#9ca3af", accent: "#365314" }
+      military: { bg: "#111410", card: "#191d17", border: "#283024", text: "#d1d5db", sub: "#9ca3af", accent: "#365314" },
+      cyberpunk: { bg: "#0c071e", card: "#180f2e", border: "#3b1c64", text: "#f0abfc", sub: "#c084fc", accent: "#a855f7" },
+      emerald: { bg: "#041511", card: "#0b251f", border: "#133e34", text: "#a7f3d0", sub: "#6ee7b7", accent: "#059669" },
+      coffee: { bg: "#181311", card: "#241c18", border: "#382c25", text: "#fed7aa", sub: "#fdba74", accent: "#c2410c" }
     };
 
     function applyThemeAndFont() {
@@ -581,7 +586,7 @@
     }
 
     function loadData() {
-      const saved = localStorage.getItem('recompo_tracker_data_v140');
+      const saved = localStorage.getItem('recompo_tracker_data_v141');
       if (saved) {
         try { appData = JSON.parse(saved); } catch(e) {}
       }
@@ -594,7 +599,7 @@
     }
 
     function saveData() {
-      localStorage.setItem('recompo_tracker_data_v140', JSON.stringify(appData));
+      localStorage.setItem('recompo_tracker_data_v141', JSON.stringify(appData));
       updateStats();
     }
 
@@ -778,7 +783,7 @@
           btn.innerText = "✓ Готово";
           input.value = 0;
           document.getElementById(`check_${exId}_${setId}`).checked = true;
-          playBeep(1046.50, 300, 'triangle'); // Финальный звуковой сигнал таймера
+          playBeep(1046.50, 300, 'triangle');
         }
       }, 1000);
     }
@@ -852,7 +857,6 @@
       saveData();
     }
 
-    // Автопарсинг ответа ИИ
     function parseAndApplyAiPlan() {
       const text = document.getElementById('aiPlanInput').value;
       appData.aiPlan = text;
@@ -881,19 +885,24 @@
           };
           dayCounter++;
         } else if (currentDay) {
-          let cleanExName = trimmed.replace(/^[\d\.\-\*\)]+\s*/, '');
-          if (cleanExName.length > 2) {
-            let isTimer = /таймер|сек|секунд/i.test(trimmed);
-            let setsMatch = trimmed.match(/(\d+)\s*подход/i);
-            let setsCount = setsMatch ? parseInt(setsMatch[1], 10) : 3;
+          const lower = trimmed.toLowerCase();
+          const isServiceLine = lower.startsWith('цель') || lower.startsWith('задача') || lower.startsWith('примечание') || (!trimmed.includes('подход') && !trimmed.includes('повт') && !trimmed.includes('сек') && !trimmed.includes('мин') && !/\d/.test(trimmed));
 
-            currentDay.exercises.push({
-              id: Date.now() + Math.random(),
-              name: cleanExName.split('–')[0].split('-')[0].trim(),
-              target: trimmed,
-              sets: setsCount > 0 ? setsCount : 3,
-              type: isTimer ? 'timer' : 'reps'
-            });
+          if (!isServiceLine) {
+            let cleanExName = trimmed.replace(/^[\d\.\-\*\)]+\s*/, '');
+            if (cleanExName.length > 2) {
+              let isTimer = /таймер|сек|секунд/i.test(trimmed);
+              let setsMatch = trimmed.match(/(\d+)\s*подход/i);
+              let setsCount = setsMatch ? parseInt(setsMatch[1], 10) : 3;
+
+              currentDay.exercises.push({
+                id: Date.now() + Math.random(),
+                name: cleanExName.split('–')[0].split('-')[0].trim(),
+                target: trimmed,
+                sets: setsCount > 0 ? setsCount : 3,
+                type: isTimer ? 'timer' : 'reps'
+              });
+            }
           }
         }
       });
