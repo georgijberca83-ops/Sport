@@ -385,7 +385,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.1.6</span>
+    <span class="version-badge" id="appVersionBadge">v1.1.7</span>
   </div>
 
   <div class="stats-card">
@@ -438,7 +438,7 @@
 
   <div id="exercisesContainer"></div>
 
-  <!-- Блок уведомлений, планов и классического генератора промпта -->
+  <!-- Блок уведомлений, планов и генератора промпта -->
   <button class="accordion-btn" style="border-color: #0284c7; color: #38bdf8;" onclick="toggleAccordion('remindersAndPlansSection')">
     <span>🔔 Напоминания, План и Запрос у ИИ</span>
     <span id="icon_remindersAndPlansSection">▼</span>
@@ -464,17 +464,14 @@
 
     <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
 
-    <!-- КЛАССИЧЕСКИЙ БЛОК ГЕНЕРАЦИИ ПРОМПТА ПОД СЕБЯ -->
+    <!-- БЛОК ПРОМПТА С ПУСТЫМ ПОЛЕМ -->
     <div style="margin-bottom: 12px;">
       <div style="font-size:0.75rem; color:#a5b4fc; margin-bottom:4px; font-weight:bold;">🤖 Создать план под себя через ИИ:</div>
-      <div class="form-group" style="margin-bottom:6px;">
-        <textarea id="aiCustomPromptInput" rows="4" placeholder="Напиши свои пожелания...">Привет! Составь или скорректируй мою программу тренировок на 3 дня. Мои параметры: вес 79 кг, рост 180 см, возраст 31 год. Цель: рекомпозиция, набор мышц и сжигание жира. Инвентарь: гантели, турник, брусья, скамейка, скакалка, резинка.
-
-Важно: выдай ответ в строго структурированном виде по дням (День 1, День 2 и т.д.), указав для каждого упражнения название, цель (подходы/повторения или секунды) и пометь словом [ТАЙМЕР], если упражнение выполняется на время. Это нужно для удобного переноса в приложение.</textarea>
-      </div>
-      <button class="btn-sync" style="background:#0284c7; margin:0; margin-bottom:6px;" onclick="copyCustomAiPrompt()">📋 Скопировать промпт</button>
+      <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:4px;">Опишите ниже вашу цель, параметры, инвентарь или пожелания:</div>
+      <textarea id="aiPromptInput" rows="4" placeholder="Напишите здесь всё, что хотите учесть (например: цель, инвентарь, травмы, пожелания)..." style="font-size:0.75rem; margin-bottom:6px;"></textarea>
+      <button class="btn-sync" style="background:#0284c7; margin:0; margin-bottom:12px;" onclick="copyCustomAiPrompt()">📋 Скопировать промпт</button>
       
-      <div style="font-size:0.7rem; color:#94a3b8; margin-top:8px; margin-bottom:4px;">📥 Вставить ответ от ИИ (вставьте текст ответа сюда и нажмите кнопку загрузки):</div>
+      <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:4px;">📥 Вставить ответ от ИИ (вставьте текст ответа сюда и нажмите кнопку загрузки):</div>
       <textarea id="aiResponseInput" rows="3" placeholder="Вставьте сюда ответ от ИИ..." style="margin-bottom:6px;"></textarea>
       <button class="btn-sync" style="background:#059669; margin:0;" onclick="parseAndApplyAiResponse()">📥 Загрузить программу из ответа ИИ</button>
     </div>
@@ -498,9 +495,9 @@
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
     <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #333; margin-bottom:10px; line-height:1.4; color:#94a3b8;">
+      <b>v1.1.7</b> — Поле ввода пользовательского запроса для ИИ сделано пустым, добавлено автоматическое формирование правильной структуры промпта.<br>
       <b>v1.1.6</b> — Добавлен парсер ответов ИИ для автоматического обновления программы.<br>
-      <b>v1.1.5</b> — Возвращено текстовое поле и кнопка «Скопировать промпт».<br>
-      <b>v1.1.4</b> — Возвращено встроенное поле настройки и запроса нового плана.
+      <b>v1.1.5</b> — Возвращено текстовое поле и кнопка «Скопировать промпт».
     </div>
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
@@ -517,12 +514,12 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.1.6";
+    const APP_VERSION = "v1.1.7";
     
     const changelogHistory = [
+      { ver: "v1.1.7", text: "Поле ввода пользовательского запроса для ИИ сделано пустым, добавлено автоматическое формирование правильной структуры промпта." },
       { ver: "v1.1.6", text: "Добавлен парсер ответов ИИ для автоматического обновления программы." },
-      { ver: "v1.1.5", text: "Возвращено текстовое поле и кнопка «Скопировать промпт»." },
-      { ver: "v1.1.4", text: "Возвращено встроенное поле настройки и запроса нового плана." }
+      { ver: "v1.1.5", text: "Возвращено текстовое поле и кнопка «Скопировать промпт»." }
     ];
 
     function renderChangelog() {
@@ -615,9 +612,16 @@
     }
 
     function copyCustomAiPrompt() {
-      const text = document.getElementById('aiCustomPromptInput').value;
-      navigator.clipboard.writeText(text).then(() => {
-        alert("✅ Промпт скопирован в буфер обмена!");
+      const userNotes = document.getElementById('aiPromptInput').value.trim();
+      
+      let fullPrompt = "Привет! Составь для меня программу тренировок.\n\n";
+      if (userNotes) {
+        fullPrompt += `Вот мои вводные данные, пожелания и инвентарь:\n${userNotes}\n\n`;
+      }
+      fullPrompt += "Важно: выдай ответ в строго структурированном виде по дням (например, День 1, День 2 и т.д.), указав для каждого упражнения название и цель (подходы/повторения или секунды). Если упражнение выполняется на время, обязательно пометь его словом [ТАЙМЕР].";
+
+      navigator.clipboard.writeText(fullPrompt).then(() => {
+        alert("✅ Правильный промпт скопирован в буфер обмена!");
       });
     }
 
@@ -636,7 +640,6 @@
         const trimmed = line.trim();
         if (!trimmed) return;
 
-        // Определяем день (например, "День 1", "День 1 (Пн)", "### День 1")
         if (/^(день\s*\d+|тренировка\s*\d+|#+\s*день)/i.test(trimmed)) {
           if (currentDay) {
             newDays.push(currentDay);
@@ -646,12 +649,10 @@
             exercises: []
           };
         } else if (currentDay && (/^[-*•]\s+/.test(trimmed) || /^\d+\./.test(trimmed))) {
-          // Строка упражнения
           let cleanExText = trimmed.replace(/^[-*•\d\.\)]+\s*/, '');
           let isTimed = /таймер|сек/i.test(cleanExText) || cleanExText.includes('[ТАЙМЕР]');
           cleanExText = cleanExText.replace('[ТАЙМЕР]', '').trim();
 
-          // Попробуем выделить название и цель
           let parts = cleanExText.split(/[-–—:]/);
           let exName = parts[0].trim();
           let exTarget = parts.length > 1 ? parts.slice(1).join(' ').trim() : 'Цель: по плану';
@@ -684,7 +685,7 @@
 
     function copyAiPrompt() {
       const dayReport = generateDayReportText(activeDayIndex);
-      const promptText = `Привет! Мне 31 год, рост 180 см, вес 79 кг. Из инвентаря: гантели, скамейка, турник, брусья, скакалка, резинка, лестница. Цель: рекомпозиция, набор мышц и сжигание жира. Тренируюсь 3 раза в неделю.\n\nВот мои актуальные результаты и веса за сегодняшний день:\n${dayReport}\nПроанализируй прогресс и подскажи, стоит ли скорректировать рабочие веса или количество повторений/подходов.`;
+      const promptText = `Привет! Вот мои актуальные результаты и веса за сегодняшний день:\n${dayReport}\nПроанализируй прогресс и подскажи, стоит ли скорректировать рабочие веса или количество повторений/подходов.`;
 
       navigator.clipboard.writeText(promptText).then(() => {
         alert("✅ Запрос и текущие результаты скопированы в буфер обмена! Вставьте в чат.");
