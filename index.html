@@ -1,11 +1,15 @@
 ﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#121212">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дневник тренировок</title>
+    
+    <!-- Подключение PWA и метатегов -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#121212">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+
     <style>
         body { font-family: -apple-system, Roboto, sans-serif; background: #121212; color: #fff; padding: 12px; margin: 0; }
         h1 { font-size: 1.1rem; text-align: center; color: #4da6ff; margin: 10px 0; }
@@ -35,14 +39,6 @@
     <div id="day3" class="day-content"><div id="ex-list-3"></div></div>
 
     <script>
-        // Регистрация Service Worker для PWA
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW зарегистрирован!', reg))
-                .catch(err => console.error('Ошибка SW:', err));
-        });
-    }
         const data = {
             1: [
                 { name: "Жим гантелей лежа", target: "Цель: 14-16 кг × 10-12", sets: 4 },
@@ -102,6 +98,15 @@
             event.target.classList.add('active');
         }
         render();
+
+        // --- ДОБАВЛЕНО: Регистрация Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW зарегистрирован успешно:', reg))
+                    .catch(err => console.error('Ошибка регистрации SW:', err));
+            });
+        }
     </script>
 </body>
 </html>
