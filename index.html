@@ -416,6 +416,14 @@
     <button class="btn-sync" onclick="exportReport()">📋 Скопировать отчет за все дни</button>
     <button class="btn-small btn-delete" style="width:100%; margin-bottom:10px; background:#374151; padding:8px;" onclick="clearCurrentResults()">🧹 Сбросить веса на сегодня</button>
 
+    <div style="font-size:0.75rem; color:#4da6ff; margin-top:12px; margin-bottom:4px; font-weight:bold;">🤖 Создать план под себя через ИИ:</div>
+    <div class="form-group" style="margin-bottom:6px;">
+      <textarea id="aiPromptInput" rows="2" placeholder="Опишите цель, инвентарь, дни (например: 3 дня в зале, цель масса)"></textarea>
+    </div>
+    <div style="display:flex; gap:6px; margin-bottom:10px;">
+      <button class="btn-sync" style="background:#0284c7; margin:0;" onclick="copyAiPrompt()">📋 Скопировать промпт</button>
+    </div>
+
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
     <div style="display:flex; gap:6px; margin-bottom:8px;">
       <button class="btn-sync" style="background:#0284c7; margin:0;" onclick="downloadBackup()">💾 Скачать бэкап</button>
@@ -423,7 +431,7 @@
     </div>
     <input type="file" id="fileInput" style="display:none" accept=".json" onchange="restoreBackup(event)">
 
-    <div style="font-size:0.75rem; color:#aaa; margin-top:8px; margin-bottom:4px;">Загрузить план от тренера (JSON):</div>
+    <div style="font-size:0.75rem; color:#aaa; margin-top:8px; margin-bottom:4px;">Загрузить план от тренера или ИИ (JSON):</div>
     <textarea id="importInput" rows="2" placeholder="Вставьте JSON..."></textarea>
     <button class="btn-sync" style="background:#10b981; margin-top:6px;" onclick="importProgram()">📥 Загрузить новый план</button>
   </div>
@@ -766,6 +774,32 @@
       }
     }
 
+    function copyAiPrompt() {
+      const userDesc = document.getElementById('aiPromptInput').value.trim() || "универсальная тренировка для рекомпозиции тела";
+      
+      const promptText = `Составь программу тренировок для веб-приложения на основе следующего описания пользователя: "${userDesc}".
+
+Ответ выдай СТРОГО в формате валидного JSON-массива без лишнего текста, пояснений и маркдаун-оберток (без \`\`\`json), чтобы его можно было сразу распарсить через JSON.parse(). 
+
+Структура каждого дня должна быть такой:
+[
+  {
+    "dayName": "День 1",
+    "exercises": [
+      { "name": "Название упражнения", "target": "Цель: весы или повторения", "sets": 4 },
+      { "name": "Планка", "target": "Цель: 60 сек", "sets": 3, "isTimed": true }
+    ]
+  }
+]
+Используй поле "isTimed": true только для упражнений на время (секунды/минуты). Для обычных упражнений с весом указывай "sets" (обычно от 3 до 5).`;
+
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert('📋 Промпт скопирован! Вставьте его в чат с ИИ, скопируйте полученный JSON-код и вставьте его в поле ниже для загрузки программы.');
+      }).catch(() => {
+        alert('Не удалось скопировать автоматически.');
+      });
+    }
+
     function generateDayReportText(dayIndex) {
       const day = workoutData[dayIndex];
       const dateInfo = getDayCalculatedDate(dayIndex);
@@ -902,7 +936,7 @@
         const newData = JSON.parse(jsonText);
         if (Array.isArray(newData)) {
           workoutData = newData;
-        persistAndRender();
+          persistAndRender();
           document.getElementById('importInput').value = '';
           alert('🚀 Новый план загружен!');
         } else alert('Ошибка в формате!');
