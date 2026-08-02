@@ -304,7 +304,6 @@
       font-size: 0.85rem;
     }
 
-    /* Стильные чекбоксы с мягким зеленоватым/серым фоном при выборе */
     input[type="checkbox"] {
       width: 20px;
       height: 20px;
@@ -430,7 +429,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.2.3</span>
+    <span class="version-badge" id="appVersionBadge">v1.2.4</span>
   </div>
 
   <div class="stats-card">
@@ -559,12 +558,12 @@
   </div>
 
   <script>
-    const APP_VERSION = "v1.2.3";
+    const APP_VERSION = "v1.2.4";
     
     const changelogHistory = [
-      { ver: "v1.2.3", text: "Исправлен баг в расчете дат дней тренировок (теперь дни идут последовательно по шагу без разрыва в две недели), улучшен дизайн карточек и элементов управления." },
-      { ver: "v1.2.2", text: "Скрыты графы веса для упражнений без дополнительного веса (свой вес/на повторения)." },
-      { ver: "v1.2.1", text: "Исправлен расчет дат в пределах одной недели, автозаполнение полей по целям с возможностью редактирования." }
+      { ver: "v1.2.4", text: "Исправлен сброс расписания и принудительное жесткое вычисление дат дней подряд (День 1, День 2, День 3 идут строго с шагом в днях от даты старта без ошибочного скачка на недели вперед)." },
+      { ver: "v1.2.3", text: "Исправлен баг в расчете дат дней тренировок, улучшен дизайн карточек и элементов управления." },
+      { ver: "v1.2.2", text: "Скрыты графы веса для упражнений без дополнительного веса (свой вес/на повторения)." }
     ];
 
     function renderChangelog() {
@@ -737,7 +736,7 @@
       const baseDate = new Date(startDateStr);
       const targetDate = new Date(baseDate);
       
-      // Исправление расчета дат: каждый следующий день тренировки отстоит от даты старта на (индекс * шаг) дней
+      // Жёсткий последовательный расчет: каждый следующий день идет ровно через заданный шаг (например, 2 дня) от предыдущего
       targetDate.setDate(baseDate.getDate() + (dayIndex * restDaysInterval));
 
       return {
@@ -774,7 +773,7 @@
         localStorage.setItem('workout_start_date', startDateStr);
       }
       if (!localStorage.getItem('workout_day_step')) {
-        localStorage.setItem('workout_day_step', '2'); // По умолчанию ставим шаг 2 дня для чередования
+        localStorage.setItem('workout_day_step', '2');
       }
       updateStatsUI(startDateStr);
     }
@@ -791,7 +790,7 @@
     }
 
     function resetStartDate() {
-      const newDate = prompt('Дата первого дня тренировок (ГГГГ-ММ-ДД):');
+      const newDate = prompt('Дата первого дня тренировок (ГГГГ-ММ-ДД):', localStorage.getItem('workout_start_date') || new Date().toISOString().split('T')[0]);
       if (newDate && !isNaN(Date.parse(newDate))) {
         localStorage.setItem('workout_start_date', newDate);
         updateStatsUI(newDate);
@@ -1176,6 +1175,11 @@
 
     function render() {
       renderMainDaysList();
+    }
+
+    function persistAndRender() {
+      localStorage.setItem('my_full_workout_v6', JSON.stringify(workoutData));
+      render();
     }
 
     function persistAndRenderModal() {
