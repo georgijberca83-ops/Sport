@@ -390,7 +390,7 @@
 
   <div class="app-header">
     <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
-    <span class="version-badge" id="appVersionBadge">v1.0.0</span>
+    <span class="version-badge" id="appVersionBadge">v1.1.1</span>
   </div>
 
   <div class="stats-card">
@@ -444,9 +444,9 @@
 
   <div id="exercisesContainer"></div>
 
-  <!-- Блок уведомлений и готовых планов -->
+  <!-- Блок уведомлений, планов и запроса у ИИ -->
   <button class="accordion-btn" style="border-color: #0284c7; color: #38bdf8;" onclick="toggleAccordion('remindersAndPlansSection')">
-    <span>🔔 Напоминания и Готовые планы</span>
+    <span>🔔 Напоминания, План и Запрос у ИИ</span>
     <span id="icon_remindersAndPlansSection">▼</span>
   </button>
   <div class="accordion-content" id="remindersAndPlansSection">
@@ -461,12 +461,19 @@
     <div style="font-size:0.75rem; color:#4da6ff; margin-bottom:4px; font-weight:bold;">📋 Быстрый выбор программы тренировок:</div>
     <div class="form-group" style="margin-bottom:6px;">
       <select id="presetPlanSelect">
-        <option value="recomp">Рекомпозиция (База с гантелями/турником)</option>
+        <option value="customProg">Скорректированная программа (Ваша база)</option>
+        <option value="recomp">Рекомпозиция (Базовая)</option>
         <option value="home">Домашняя зарядка (Без инвентаря)</option>
-        <option value="fullbody">Фуллбади 3 дня</option>
       </select>
     </div>
-    <button class="btn-sync" style="background:#059669; margin:0;" onclick="applyPresetPlan()">🚀 Загрузить выбранный план</button>
+    <button class="btn-sync" style="background:#059669; margin:0; margin-bottom:12px;" onclick="applyPresetPlan()">🚀 Загрузить выбранный план</button>
+
+    <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+
+    <!-- ЗАПРОС У ИИ (ГРАФА НА СОЗДАНИЕ/ОБНОВЛЕНИЕ ПЛАНА) -->
+    <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:4px; font-weight:bold;">🤖 Запрос плана у ИИ (скопируйте в чат):</div>
+    <div style="font-size:0.7rem; color:#94a3b8; margin-bottom:6px;">Нажмите кнопку, чтобы скопировать запрос вашим текущим параметрам для ИИ:</div>
+    <button class="btn-sync" style="background:#7c3aed; margin:0;" onclick="copyAiPrompt()">📋 Скопировать запрос для ИИ</button>
   </div>
 
   <!-- Блок бэкапов и истории изменений (Версий) -->
@@ -481,7 +488,9 @@
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">📜 История версий приложения:</div>
     <div id="changelogBox" style="font-size:0.75rem; background:#121212; padding:8px; border-radius:6px; border:1px solid #333; margin-bottom:10px; line-height:1.4; color:#94a3b8;">
-      <b>v1.0.0</b> — Добавлены уведомления, готовые программы и версионирование.
+      <b>v1.1.1</b> — Возвращен блок генерации и запроса плана у ИИ.<br>
+      <b>v1.1.0</b> — Обновлен план тренировок под актуальные веса.<br>
+      <b>v1.0.0</b> — Добавлены уведомления и банк программ.
     </div>
 
     <div style="font-size:0.75rem; color:#a5b4fc; margin-top:10px; margin-bottom:4px; font-weight:bold;">Резервная копия файла:</div>
@@ -498,11 +507,12 @@
   </div>
 
   <script>
-    // ⚙️ ИЗМЕНЯЙТЕ ВЕРСИЮ ЗДЕСЬ ПРИ КАЖДОМ ОБНОВЛЕНИИ КОДА:
-    const APP_VERSION = "v1.0.0";
+    // ⚙️ ВЕРСИЯ ПРИЛОЖЕНИЯ
+    const APP_VERSION = "v1.1.1";
     
-    // История изменений (дописывайте сверху свои версии)
     const changelogHistory = [
+      { ver: "v1.1.1", text: "Возвращена графа запроса плана у ИИ." },
+      { ver: "v1.1.0", text: "Обновлен план тренировок под текущие веса (Пн/Ср/Пт)." },
       { ver: "v1.0.0", text: "Добавлены уведомления, банк программ и бейдж версий." }
     ];
 
@@ -513,6 +523,38 @@
     }
 
     const presetPrograms = {
+      customProg: [
+        {
+          dayName: 'День 1 (Пн)',
+          exercises: [
+            { name: 'Подтягивания прямым хватом', target: 'Цель: 3 × 6-7 раз', sets: 3 },
+            { name: 'Тяга гантелей в наклоне', target: 'Цель: 14-16 кг × 10-12', sets: 3 },
+            { name: 'Подтягивания обратным хватом', target: 'Цель: С резинкой × 6 раз', sets: 3 },
+            { name: 'Сгибания на бицепс с гантелями', target: 'Цель: 8 кг × 10-12', sets: 3 }
+          ]
+        },
+        {
+          dayName: 'День 2 (Ср)',
+          exercises: [
+            { name: 'Негативные брусья', target: 'Цель: 3 × 5-6 (медленно)', sets: 3 },
+            { name: 'Отжимания от пола', target: 'Цель: Свой вес × 12-15', sets: 3 },
+            { name: 'Жим гантелей лежа', target: 'Цель: 12-14 кг × 8-10', sets: 3 },
+            { name: 'Жим гантелей сидя', target: 'Цель: 8 кг × 10 раз', sets: 3 },
+            { name: 'Махи гантелями в стороны', target: 'Цель: 4 кг × 10-12', sets: 3 },
+            { name: 'Французский жим с гантелями', target: 'Цель: 8 кг × 10 раз', sets: 3 }
+          ]
+        },
+        {
+          dayName: 'День 3 (Пт)',
+          exercises: [
+            { name: 'Приседания с гантелями', target: 'Цель: 12-15 раз', sets: 4 },
+            { name: 'Болгарские выпады', target: 'Цель: 10 раз на ногу', sets: 3 },
+            { name: 'Румынская тяга с гантелями', target: 'Цель: 12-14 раз', sets: 3 },
+            { name: 'Подъем ног в висе (пресс)', target: 'Цель: 10-15 раз', sets: 3 },
+            { name: 'Скакалка + Лестница', target: 'Цель: 5 мин + 4 подъема', sets: 1, isTimed: true }
+          ]
+        }
+      ],
       recomp: [
         {
           dayName: 'День 1',
@@ -520,28 +562,7 @@
             { name: 'Жим гантелей лежа', target: 'Цель: 14-16 кг × 10-12', sets: 4 },
             { name: 'Брусья (негативы)', target: 'Цель: Свой вес × 6-8', sets: 4 },
             { name: 'Жим гантелей сидя', target: 'Цель: 8-10 кг × 10-12', sets: 3 },
-            { name: 'Махи в стороны', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
-            { name: 'Отжимания от скамьи', target: 'Цель: Свой вес × 10-12', sets: 3 }
-          ]
-        },
-        {
-          dayName: 'День 2',
-          exercises: [
-            { name: 'Подтягивания', target: 'Цель: Свой вес × MAX', sets: 3 },
-            { name: 'Тяга гантели к поясу', target: 'Цель: 16-18 кг × 10-12', sets: 4 },
-            { name: 'Махи в наклоне', target: 'Цель: 4-6 кг × 12-15', sets: 3 },
-            { name: "Сгибания 'Молот'", target: 'Цель: 8-10 кг × 10-12', sets: 4 },
-            { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
-          ]
-        },
-        {
-          dayName: 'День 3',
-          exercises: [
-            { name: 'Скакалка', target: 'Цель: 3 раунда × 120 сек', sets: 3, isTimed: true },
-            { name: 'Зашагивания на скамью', target: 'Цель: 8-10 кг × 10-12', sets: 4 },
-            { name: 'Румынская тяга', target: 'Цель: 12-15 кг × 12', sets: 4 },
-            { name: 'Забеги по лестнице', target: 'Цель: 5 подъемов', sets: 5 },
-            { name: 'Подъемы на носки', target: 'Цель: Свой вес × 15-20', sets: 4 }
+            { name: 'Махи в стороны', target: 'Цель: 4-6 кг × 12-15', sets: 3 }
           ]
         }
       ],
@@ -551,41 +572,13 @@
           exercises: [
             { name: 'Классические отжимания', target: 'Цель: 15-20 раз', sets: 4 },
             { name: 'Приседания без веса', target: 'Цель: 20-25 раз', sets: 4 },
-            { name: 'Скручивания на пресс', target: 'Цель: 15-20 раз', sets: 3 },
             { name: 'Планка', target: 'Цель: 45 сек', sets: 3, isTimed: true }
-          ]
-        },
-        {
-          dayName: 'День 2',
-          exercises: [
-            { name: 'Обратные отжимания от дивана', target: 'Цель: 12-15 раз', sets: 4 },
-            { name: 'Выпады на месте', target: 'Цель: по 12 раз на ногу', sets: 3 },
-            { name: 'Подъем ног лежа', target: 'Цель: 12-15 раз', sets: 3 },
-            { name: 'Боковая планка', target: 'Цель: 30 сек', sets: 3, isTimed: true }
-          ]
-        }
-      ],
-      fullbody: [
-        {
-          dayName: 'День А',
-          exercises: [
-            { name: 'Приседания с гантелями', target: 'Цель: 12 раз', sets: 4 },
-            { name: 'Жим стоя', target: 'Цель: 10 раз', sets: 3 },
-            { name: 'Тяга к поясу', target: 'Цель: 12 раз', sets: 4 }
-          ]
-        },
-        {
-          dayName: 'День Б',
-          exercises: [
-            { name: 'Выпады', target: 'Цель: 10 раз', sets: 3 },
-            { name: 'Отжимания', target: 'Цель: 15 раз', sets: 4 },
-            { name: 'Планка', target: 'Цель: 60 сек', sets: 3, isTimed: true }
           ]
         }
       ]
     };
 
-    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v4')) || presetPrograms.recomp;
+    let workoutData = JSON.parse(localStorage.getItem('my_full_workout_v4')) || presetPrograms.customProg;
     let historyData = JSON.parse(localStorage.getItem('workout_history')) || [];
     let activeDayIndex = 0;
     let activeTimers = {};
@@ -597,10 +590,7 @@
       "Ты никогда не пожалеешь о проведенной тренировке. Зато часто жалеешь о пропущенной.",
       "Дисциплина — это выбор между тем, чего ты хочешь сейчас, и тем, чего хочешь больше всего.",
       "Твое тело может всё. Осталось убедить в этом разум. Включай музыку и вперед!",
-      "Каждая тренировка — это инвестиция в твое будущее. Сделай этот вклад сегодня.",
-      "Не нужно ждать идеального настроения. Действие рождает энергию, а не наоборот!",
-      "Сегодняшняя боль станет твоей силой завтра. Ждем тебя на тренировке!",
-      "Слабость — это выбор. Сила — это привычка, которую ты строишь прямо сейчас."
+      "Каждая тренировка — это инвестиция в твое будущее. Сделай этот вклад сегодня."
     ];
     let lastQuoteIndex = -1;
 
@@ -615,11 +605,17 @@
       textEl.innerText = `«${motivationQuotes[randomIndex]}»`;
     }
 
+    function copyAiPrompt() {
+      const promptText = "Привет! Мне 31 год, рост 180 см, вес 79 кг. Из инвентаря: гантели, скамейка, турник, брусья, скакалка, резинка, лестница. Цель: рекомпозиция, набор мышц и сжигание жира. Тренируюсь 3 раза в неделю. Составь или скорректируй мне программу тренировок.";
+      navigator.clipboard.writeText(promptText).then(() => {
+        alert("✅ Запрос для ИИ скопирован в буфер обмена! Вставьте его в чат со мной.");
+      });
+    }
+
     const reminderQuotes = [
       "Эй! Твой коврик скучает. Когда на тренировку?",
       "Время стать сильнее! Не откладывай на вечер то, что можно прокачать сейчас.",
-      "Напоминание: дисциплина бьет мотивацию. Пора размяться!",
-      "Маленький шаг сегодня — большой результат завтра. Жду в зале!"
+      "Напоминание: дисциплина бьет мотивацию. Пора размяться!"
     ];
     let reminderInterval = null;
 
@@ -1028,7 +1024,6 @@
         const card = document.createElement('div');
         card.className = 'history-card';
         card.innerHTML = `
-          <div class="history-header" onclick="history.back()">...</div> <!-- placeholder -->
           <div class="history-header" onclick="toggleHistory(${index})">
             <span>${item.title}</span>
             <span>▼</span>
