@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#121212">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дневник тренировок</title>
+    <style>
+        body { font-family: -apple-system, Roboto, sans-serif; background: #121212; color: #fff; padding: 12px; margin: 0; }
+        h1 { font-size: 1.1rem; text-align: center; color: #4da6ff; margin: 10px 0; }
+        .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+        .tab { flex: 1; padding: 10px 4px; background: #222; border: 1px solid #333; color: #aaa; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        .tab.active { background: #007bff; color: #fff; border-color: #007bff; }
+        .day-content { display: none; }
+        .day-content.active { display: block; }
+        .exercise-card { background: #1e1e1e; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #2a2a2a; }
+        .exercise-title { font-weight: bold; color: #fff; font-size: 0.9rem; margin-bottom: 2px; }
+        .target { font-size: 0.75rem; color: #4da6ff; margin-bottom: 8px; }
+        .set-row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; font-size: 0.8rem; background: #262626; padding: 4px 8px; border-radius: 6px; }
+        input[type="number"] { width: 45px; padding: 4px; border: 1px solid #444; background: #121212; color: #fff; border-radius: 4px; text-align: center; font-size: 0.85rem; }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: #007bff; margin-left: auto; }
+    </style>
+</head>
+<body>
+    <h1>🏋️‍♂️ Трекер рекомпозиции</h1>
+    <div class="tabs">
+        <button class="tab active" onclick="switchDay(1, event)">День 1</button>
+        <button class="tab" onclick="switchDay(2, event)">День 2</button>
+        <button class="tab" onclick="switchDay(3, event)">День 3</button>
+    </div>
+
+    <div id="day1" class="day-content active"><div id="ex-list-1"></div></div>
+    <div id="day2" class="day-content"><div id="ex-list-2"></div></div>
+    <div id="day3" class="day-content"><div id="ex-list-3"></div></div>
+
+    <script>
+        const data = {
+            1: [
+                { name: "Жим гантелей лежа", target: "Цель: 14-16 кг × 10-12", sets: 4 },
+                { name: "Брусья (негативы)", target: "Цель: Свой вес × 6-8", sets: 4 },
+                { name: "Жим гантелей сидя", target: "Цель: 8-10 кг × 10-12", sets: 3 },
+                { name: "Махи в стороны", target: "Цель: 4-6 кг × 12-15", sets: 3 },
+                { name: "Отжимания от скамьи", target: "Цель: Свой вес × 10-12", sets: 3 }
+            ],
+            2: [
+                { name: "Подтягивания", target: "Цель: Свой вес × MAX", sets: 3 },
+                { name: "Тяга гантели к поясу", target: "Цель: 16-18 кг × 10-12", sets: 4 },
+                { name: "Махи в наклоне", target: "Цель: 4-6 кг × 12-15", sets: 3 },
+                { name: "Сгибания 'Молот'", target: "Цель: 8-10 кг × 10-12", sets: 4 },
+                { name: "Подъем ног в висе", target: "Цель: Свой вес × 8-12", sets: 3 }
+            ],
+            3: [
+                { name: "Скакалка", target: "Цель: 3 раунда × 2 мин", sets: 3 },
+                { name: "Зашагивания на скамью", target: "Цель: 8-10 кг × 10-12", sets: 4 },
+                { name: "Румынская тяга", target: "Цель: 12-15 кг × 12", sets: 4 },
+                { name: "Забеги по лестнице", target: "Цель: 5 подъемов", sets: 5 },
+                { name: "Подъемы на носки", target: "Цель: Свой вес × 15-20", sets: 4 }
+            ]
+        };
+
+        function render() {
+            for (let day in data) {
+                const container = document.getElementById(`ex-list-${day}`);
+                container.innerHTML = '';
+                data[day].forEach((ex, exIdx) => {
+                    let html = `<div class="exercise-card">
+                        <div class="exercise-title">${ex.name}</div>
+                        <div class="target">${ex.target}</div>`;
+                    for (let s = 1; s <= ex.sets; s++) {
+                        const key = `d${day}_e${exIdx}_s${s}`;
+                        const savedW = localStorage.getItem(key + '_w') || '';
+                        const savedR = localStorage.getItem(key + '_r') || '';
+                        const savedC = localStorage.getItem(key + '_c') === 'true' ? 'checked' : '';
+                        html += `<div class="set-row">
+                            <span>Сет ${s}:</span>
+                            <input type="number" placeholder="кг" value="${savedW}" oninput="saveVal('${key}_w', this.value)">
+                            <span>кг ×</span>
+                            <input type="number" placeholder="повтор" value="${savedR}" oninput="saveVal('${key}_r', this.value)">
+                            <input type="checkbox" ${savedC} onclick="saveVal('${key}_c', this.checked)">
+                        </div>`;
+                    }
+                    html += `</div>`;
+                    container.innerHTML += html;
+                });
+            }
+        }
+
+        function saveVal(key, val) { localStorage.setItem(key, val); }
+        function switchDay(dayNum, event) {
+            document.querySelectorAll('.day-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(`day${dayNum}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+        render();
+    </script>
+</body>
+</html>
