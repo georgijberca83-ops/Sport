@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Трекер рекомпозиции</title>
+  <link rel="manifest" href="./manifest.json">
   <style>
     :root {
       --bg-color: #121212;
@@ -506,6 +507,14 @@
       <div style="width: 50px;"></div>
     </div>
 
+    <!-- Кнопка принудительной установки PWA (добавлено) -->
+    <div class="workout-settings-card" id="installCard" style="display: none;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label>📲 Установка приложения на устройство:</label>
+        <button id="install-btn" class="btn-main" style="background: #2563eb; margin-top: 4px;">📥 Установить приложение</button>
+      </div>
+    </div>
+
     <div class="workout-settings-card">
       <div class="form-group">
         <label>🤖 План тренировок от ИИ (автопарсер):</label>
@@ -554,7 +563,7 @@
         </label>
       </div>
 
-      <!-- Настройки пуш-уведомлений (Утро, Обед, Перед тренировкой) -->
+      <!-- Настройки пуш-уведомлений -->
       <div class="form-group" style="border-top: 1px dashed var(--border-color); padding-top: 10px; margin-top: 10px;">
         <label style="display:flex; align-items:center; cursor:pointer; margin-bottom: 8px;">
           <input type="checkbox" id="pushToggle" onchange="togglePushNotifications()" style="width:18px; height:18px; margin-right:8px; margin-left:0;">
@@ -634,6 +643,34 @@
     let activeTimers = {};
     let globalRestInterval = null;
     let pushCheckInterval = null;
+
+    // Логика установки PWA
+    let deferredPrompt;
+    const installCard = document.getElementById('installCard');
+    const installBtn = document.getElementById('install-btn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installCard) installCard.style.display = 'block';
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          if (installCard) installCard.style.display = 'none';
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    window.addEventListener('appinstalled', () => {
+      if (installCard) installCard.style.display = 'none';
+      deferredPrompt = null;
+    });
 
     function playBeep(frequency = 587.33, duration = 150, type = 'sine') {
       if (!appData.soundEnabled) return;
@@ -721,7 +758,7 @@
             appData.pushEnabled = true;
             saveData();
             initPushChecker();
-            new Notification("Трекер рекомпозиции", { body: "Уведомления успешно включены! Напоминания будут приходить утром, в обед и перед тренировкой." });
+            new Notification("Трекер рекомпозиции", { body: "Уведомления успешно включены!" });
           } else {
             alert("Разрешение на уведомления отклонено в браузере.");
             document.getElementById('pushToggle').checked = false;
@@ -779,7 +816,7 @@
       "«проверяй ретрик каждый час, а в зал ходи хотя бы 2 раза в неделю»",
       "«хочешь быстро сбросить вес??? спроси у МАЛЬКА, или хакера)))»",
       "«сьел булочку или шоколадку??? значит после трени тебя ждет 15 ммнут скакалки, или засрешь работу над телом»",
-      "«не качай руку за дрочкой, качай две руки в спортзале»",
+      "«не качай руку за дрочкой, качай две руки в спортзале»"
     ];
 
     function rotateMotivation() {
@@ -810,31 +847,25 @@
 
     function initPushChecker() {
       if (pushCheckInterval) clearInterval(pushCheckInterval);
-      // Проверка каждую минуту
       pushCheckInterval = setInterval(() => {
         if (!appData.pushEnabled || !("Notification" in window) || Notification.permission !== "granted") return;
 
         const now = new Date();
-        const currentDayOfWeek = now.getDay(); // 0 - Вс, 1 - Пн ... 6 - Сб
+        const currentDayOfWeek = now.getDay();
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
         const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-        // Ищем, есть ли запланированный день на сегодня
         const todayDayObj = appData.days.find(d => d.weekday === currentDayOfWeek);
         if (!todayDayObj) return;
 
-        // Вычисляем минуты для расписания тренировки
         const [wHour, wMin] = (appData.workoutTime || "18:00").split(':').map(Number);
         const workoutTotalMinutes = wHour * 60 + wMin;
         const leadTime = appData.pushLeadTime || 30;
         const targetBeforeWorkoutMinutes = workoutTotalMinutes - leadTime;
 
-        // Уведомление 1: Утро (09:00 -> 540 минут)
         const morningMinutes = 9 * 60;
-        // Уведомление 2: Обед (13:00 -> 780 минут)
         const lunchMinutes = 13 * 60;
-
         const randomQuote = motivationQuotes[Math.floor(Math.random() * motivationQuotes.length)];
 
         if (currentTotalMinutes === morningMinutes) {
@@ -849,14 +880,12 @@
 
     function parseTargetValues(targetStr, type) {
       if (!targetStr) return type === 'timer' ? 30 : 10;
-      
       if (type === 'timer') {
         const minMatch = targetStr.match(/(\d+)\s*(мин|минут)/i);
         if (minMatch) return parseInt(minMatch[1], 10) * 60;
         const secMatch = targetStr.match(/(\d+)\s*(сек|секунд)/i);
         if (secMatch) return parseInt(secMatch[1], 10);
       }
-
       let cleanStr = targetStr.replace(/\d+\s*(подход[а-я]*)/gi, '');
       const matches = cleanStr.match(/\d+/g);
       if (!matches || matches.length === 0) return type === 'timer' ? 30 : 10;
@@ -874,17 +903,13 @@
       const currentDay = now.getDay();
       let target = targetWeekday === 0 ? 7 : targetWeekday;
       let curr = currentDay === 0 ? 7 : currentDay;
-      
       let diff = target - curr;
       if (diff < 0) diff += 7;
-      
       let targetDate = new Date(now);
       targetDate.setDate(now.getDate() + diff);
-      
       const dayName = targetDate.toLocaleDateString('ru-RU', { weekday: 'short' });
       const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
       const dateNumAndMonth = targetDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
-      
       return `${capitalizedDay}, ${dateNumAndMonth}`;
     }
 
@@ -894,7 +919,6 @@
       const diffTime = Math.abs(now - start);
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       const months = (diffDays / 30).toFixed(1);
-      
       document.getElementById('statsMainText').innerText = `Занимаюсь: ${diffDays} дн. (~${months} мес.)`;
       document.getElementById('statsStartDateText').innerText = `Дата старта: ${appData.startDate}`;
     }
@@ -902,14 +926,12 @@
     function renderDaysList() {
       const container = document.getElementById('daysListContainer');
       container.innerHTML = '';
-
       appData.days.forEach(day => {
         if (day.weekday === undefined) day.weekday = 1;
         const dateStr = getDateForWeekday(day.weekday);
         const btn = document.createElement('button');
         btn.className = 'day-main-btn';
         btn.onclick = () => openWorkoutModal(day.id);
-
         btn.innerHTML = `
           <div>
             <div>${day.name}</div>
@@ -925,7 +947,6 @@
       currentDayId = dayId;
       const day = appData.days.find(d => d.id === dayId);
       if (!day) return;
-
       document.getElementById('modalDayTitle').innerText = day.name;
       document.getElementById('restTimeInput').value = appData.restTime || 60;
       renderExercises(day);
@@ -942,11 +963,9 @@
     function renderExercises(day) {
       const container = document.getElementById('exercisesContainer');
       container.innerHTML = '';
-
       day.exercises.forEach((ex, exIndex) => {
         const card = document.createElement('div');
         card.className = 'exercise-card';
-
         let setsHtml = '';
         const defaultVal = parseTargetValues(ex.target, ex.type);
         const showWeight = hasWeightInTarget(ex.target);
@@ -1027,7 +1046,6 @@
 
     function startRestTimer() {
       if (globalRestInterval) clearInterval(globalRestInterval);
-      
       const bar = document.getElementById('restTimerBar');
       const text = document.getElementById('restTimerText');
       bar.style.display = 'flex';
@@ -1164,7 +1182,6 @@
         container.innerHTML = `<div style="font-size: 0.75rem; color: var(--text-sub);">История пока пуста. Завершите тренировку, чтобы она появилась здесь.</div>`;
         return;
       }
-
       container.innerHTML = '';
       appData.history.forEach((item, index) => {
         const card = document.createElement('div');
@@ -1245,7 +1262,6 @@
                 cleanExName = rawLine;
               }
               let fullTarget = rawLine;
-
               let isTimer = /таймер|сек|секунд|мин/i.test(rawLine);
               let setsMatch = rawLine.match(/(\d+)\s*подход/i);
               let setsCount = setsMatch ? parseInt(setsMatch[1], 10) : 3;
@@ -1271,11 +1287,9 @@
         appData.days = newDays;
         saveData();
         renderDaysList();
-        
         addedCountSpan.innerText = newDays.length;
         statusMsg.style.display = 'block';
         playBeep(784, 150);
-
         setTimeout(() => {
           closeSettingsModal();
         }, 900);
@@ -1301,7 +1315,6 @@
         historyText = "\n\nПоследние отчеты тренировок:\n" + appData.history.slice(0, 3).map(h => h.content).join("\n---\n");
       }
       const promptText = `Привет! Я занимаюсь по программе рекомпозиции тела (старт: ${appData.startDate}). Вот мои данные и история:${historyText}\n\nВыдай обновленный план тренировок, разделив по дням (День 1, День 2...) и указав упражнения с подходами.`;
-      
       navigator.clipboard.writeText(promptText).then(() => {
         alert("Запрос для ИИ скопирован!");
       });
@@ -1312,7 +1325,6 @@
       if (!name) return;
       const weekdayStr = prompt("День недели (1-Пн, 2-Вт, 3-Ср, 4-Чт, 5-Пт, 6-Сб, 0-Вс):", "1");
       const weekday = parseInt(weekdayStr, 10);
-      
       appData.days.push({ id: Date.now(), name, weekday: isNaN(weekday) ? 1 : weekday, exercises: [] });
       saveData();
       renderDaysList();
@@ -1342,7 +1354,6 @@
       if (!name) return;
       const target = prompt("Цель/описание (укажите вес в кг, если используется дополнительный вес):", "3 подхода по 10 повторений");
       const typeChoice = prompt("Тип (reps - повторения, timer - таймер):", "reps");
-      
       const day = appData.days.find(d => d.id === currentDayId);
       if (!day) return;
 
@@ -1362,12 +1373,10 @@
       const day = appData.days.find(d => d.id === currentDayId);
       const ex = day.exercises.find(e => e.id === exId);
       if (!ex) return;
-
       const newName = prompt("Название:", ex.name);
       if (newName) ex.name = newName;
       const newTarget = prompt("Цель/описание:", ex.target);
       if (newTarget !== null) ex.target = newTarget;
-
       saveData();
       renderExercises(day);
     }
